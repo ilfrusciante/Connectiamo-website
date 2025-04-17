@@ -1,0 +1,1 @@
+{ "name": "connectiamo", "scripts": { "dev": "next dev" }, "dependencies": {} }
