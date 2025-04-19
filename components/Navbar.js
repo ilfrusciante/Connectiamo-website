@@ -1,1 +1,0 @@
-// Dynamic navbar with login/logout/profile
