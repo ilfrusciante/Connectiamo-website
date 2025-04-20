@@ -1,19 +1,17 @@
 export default function MessageItem({ message, isSent }) {
   return (
-    <div className={\`\${isSent ? 'justify-end' : 'justify-start'} flex mb-3\`}>
+    <div className={`${isSent ? 'justify-end' : 'justify-start'} flex mb-3`}>
       <div
-        className={\`
+        className={`
           max-w-xs px-4 py-2 rounded-lg shadow
-          \${isSent
-            ? 'bg-yellow-400 text-black self-end'
-            : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white'}
-        \`}
+          ${isSent ? 'bg-yellow-400 text-black' : 'bg-gray-200 text-black'}
+          dark:${isSent ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-white'}
+        `}
       >
-        <p className="text-sm mb-1">{message?.text}</p>
-        <span className="text-xs text-gray-600 dark:text-gray-300 block text-right">
-          {new Date(message?.timestamp).toLocaleString()}
-        </span>
+        <p>{message.text}</p>
+        <p className="text-xs mt-1 text-right">{message.timestamp}</p>
       </div>
     </div>
   );
 }
+
