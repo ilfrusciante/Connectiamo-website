@@ -14,16 +14,17 @@ export default function Hero() {
           </p>
         </div>
 
-        <div className="w-full md:w-1/2">
-          <Image
-            src="/images/hero-illustration.png"
-            alt="Illustrazione Connectiamo"
-            width={500}
-            height={400}
-            className="rounded-lg"
-          />
-        </div>
-      </div>
+        {/* Immagine a destra */}
+  <div className="md:w-1/2 flex justify-center">
+    <Image 
+      src="/images/hero-illustration.png" 
+      alt="Illustrazione Hero" 
+      width={400} 
+      height={300} 
+      className="rounded-lg"
+    />
+  </div>
+</div>
     </section>
   );
 }
