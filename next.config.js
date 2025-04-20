@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+ compiler: {
   swcMinify: false,
-  compiler: { 
-    swc: false,
   }
 }
 
