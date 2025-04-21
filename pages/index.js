@@ -11,11 +11,11 @@ export default function Home() {
       <main className="bg-white text-gray-900">
 
         {/* HERO SECTION */}
-        <section className="bg-[#0f1e3c] text-white pt-20 pb-32 px-6 md:px-20 relative">
+        <section className="bg-[#0f1e3c] text-white pt-20 pb-32 px-6 md:px-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10">
             
             {/* Testo */}
-            <div className="md:w-1/2 space-y-6">
+            <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
                 Connetti segnalatori <br /> e professionisti
               </h1>
@@ -25,32 +25,32 @@ export default function Home() {
             </div>
 
             {/* Immagine */}
-            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center relative">
+            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center relative z-0">
               <Image
                 src="/images/connect-hero.png"
                 alt="Professionisti"
-                width={480}
-                height={400}
+                width={600}
+                height={480}
                 className="rounded-lg"
                 priority
               />
-
-              {/* Barra sovrapposta */}
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg flex flex-wrap gap-2 p-4 w-[90%] md:w-[480px]">
-                <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
-                  <option>Ruolo</option>
-                </select>
-                <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
-                  <option>Città</option>
-                </select>
-                <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
-                  <option>Categoria</option>
-                </select>
-                <button className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2 rounded-md">
-                  Cerca
-                </button>
-              </div>
             </div>
+          </div>
+
+          {/* Barra sovrapposta tra testo e immagine */}
+          <div className="absolute left-1/2 -translate-x-[40%] bottom-8 bg-white rounded-xl shadow-lg flex flex-wrap gap-2 p-4 w-[90%] md:w-[600px] z-20">
+            <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
+              <option>Ruolo</option>
+            </select>
+            <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
+              <option>Città</option>
+            </select>
+            <select className="flex-1 px-3 py-2 rounded-md border text-gray-700">
+              <option>Categoria</option>
+            </select>
+            <button className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2 rounded-md">
+              Cerca
+            </button>
           </div>
         </section>
 
