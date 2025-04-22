@@ -28,10 +28,10 @@ export default function Home() {
     <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center items-center h-[300px] md:h-[300px]">
       <Image
         src="/images/connect-hero.png"
-        alt="Professionisti"
-        width={0}
-        height={0}
-        sizes="100vw"
+        alt="Professionisti
+        width={600}
+        height={480}
+      
         className="w-auto h-full object-contain"
         priority
       />
