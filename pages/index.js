@@ -25,15 +25,14 @@ export default function Home() {
             </div>
 
             {/* Immagine */}
-            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center relative z-0 md:pl-4">
+            <div className="md:w-1/2 mt-10 md:mt-0 relative h-[300px] md:h-[420px] z-0 md:pl-4">
               <Image
-                src="/images/connect-hero.png"
-                alt="Professionisti"
-                width={600}
-                height={300}
-                className="rounded-lg"
-                priority
-              />
+  src="/images/connect-hero.png"
+  alt="Professionisti"
+  fill
+  className="object-contain w-full h-full rounded-lg"
+/>
+
             </div>
           </div>
 
