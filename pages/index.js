@@ -29,9 +29,12 @@ export default function Home() {
               <Image
   src="/images/connect-hero.png"
   alt="Professionisti"
-  fill
-  className="object-contain w-full h-full rounded-lg"
+  width={600}
+  height={480}
+  className="rounded-lg"
+  priority
 />
+
 
             </div>
           </div>
