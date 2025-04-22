@@ -11,31 +11,35 @@ export default function Home() {
       <main className="bg-white text-gray-900">
 
         {/* HERO SECTION */}
-        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-visible">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10">
+        <section className="relative bg-[#0f1e3c] text-white pt-20 pb-52 px-6 md:px-20 min-h-[600px] flex items-center">
+  <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between w-full relative z-10">
 
-            {/* Testo */}
-            <div className="md:w-1/2 space-y-6 z-10">
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Connetti segnalatori <br /> e professionisti
-              </h1>
-              <p className="text-lg text-blue-100">
-                Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
-              </p>
-            </div>
+    {/* Colonna Testo */}
+    <div className="md:w-1/2 space-y-6 z-10">
+      <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+        Connetti segnalatori <br /> e professionisti
+      </h1>
+      <p className="text-lg text-blue-100">
+        Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
+      </p>
+    </div>
 
-            {/* Immagine */}
-            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center relative z-0 md:pl-4">
-              <Image
-                src="/images/connect-hero.png"
-                alt="Professionisti"
-                width={850}
-                height={620}
-                className="rounded-lg"
-                priority
-              />
-            </div>
-          </div>
+    {/* Colonna Immagine */}
+    <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center items-center h-[300px] md:h-[300px]">
+      <Image
+        src="/images/connect-hero.png"
+        alt="Professionisti"
+        width={0}
+        height={0}
+        sizes="100vw"
+        className="w-auto h-full object-contain"
+        priority
+      />
+    </div>
+
+  </div>
+</section>
+
 
           {/* BARRA DI RICERCA */}
           <div className="relative w-[75%] max-w-5xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-[65%] md:bottom-12 z-50">
