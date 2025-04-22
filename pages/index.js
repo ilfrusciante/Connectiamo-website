@@ -29,8 +29,8 @@ export default function Home() {
               <Image
                 src="/images/connect-hero.png"
                 alt="Professionisti"
-                width={750}
-                height={560}
+                width={850}
+                height={620}
                 className="rounded-lg"
                 priority
               />
