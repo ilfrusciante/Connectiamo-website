@@ -31,7 +31,7 @@ export default function Home() {
         alt="Professionisti
         width={600}
         height={480}
-      
+        sizes="100vw"
         className="w-auto h-full object-contain"
         priority
       />
