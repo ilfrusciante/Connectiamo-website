@@ -41,7 +41,7 @@ export default function Home() {
 
           {/* BARRA DI RICERCA */}
           <div className="w-full max-w-5xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:bottom-4 z-20">
-            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-2 p-4 md:p-5 md:w-[80%] md:ml-0 md:translate-x-12 mt-6 md:mt-0 max-w-2xl mx-auto">
+            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-2 p-4 md:p-5 md:w-[700px] md:ml-0 md:translate-x-12 mt-6 md:mt-0 max-w-2xl mx-auto">
               <select className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300">
                 <option>Ruolo</option>
               </select>
