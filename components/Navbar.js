@@ -14,7 +14,7 @@ export default function Navbar() {
       </div>
     </nav>
   );
-}
+
   
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
