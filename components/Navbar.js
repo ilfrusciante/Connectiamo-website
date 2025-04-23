@@ -3,6 +3,19 @@ import { useState, useEffect } from 'react';
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
 
+  return (
+    <nav className="bg-[#0f1e3c] p-4 flex justify-between text-white">
+      <h1 className="text-xl font-bold">Connectiamo</h1>
+      <div className="space-x-4">
+        <Link href="/"><a>Home</a></Link>
+        <Link href="/login"><a>Login</a></Link>
+        <Link href="/signup"><a>Registrati</a></Link>
+        <Link href="/faq"><a>FAQ</a></Link>
+      </div>
+    </nav>
+  );
+}
+  
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
