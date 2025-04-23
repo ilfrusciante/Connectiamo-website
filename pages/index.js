@@ -25,7 +25,7 @@ export default function Home() {
             </div>
 
             {/* Immagine */}
-            <div className="md:w-1/2 mt-10 md:mt-0 relative h-[300px] md:h-[420px] z-0 md:pl-4" -md:translate-y-4 >
+            <div className="md:w-1/2 mt-10 md:mt-0 relative h-[300px] md:h-[420px] z-0 md:pl-4">
               <Image
   src="/images/connect-hero.png"
   alt="Professionisti"
