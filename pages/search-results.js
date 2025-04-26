@@ -11,11 +11,13 @@ export default function SearchResults() {
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      if (!role || !city) {
-        alert('Seleziona almeno ruolo e città!');
-        router.push('/');
-        return;
-      }
+      if (!router.isReady) return; // aspetta che router.query sia pronto
+
+if (!role || !city) {
+  alert('Seleziona almeno ruolo e città!');
+  router.replace('/');  // usa replace invece di push
+  return;
+}
 
       let query = supabase
         .from('Profiles')
