@@ -1,7 +1,18 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Home() {
+  const router = useRouter();
+  const [role, setRole] = useState('');
+  const [city, setCity] = useState('');
+  const [category, setCategory] = useState('');
+
+  const handleSearch = () => {
+    router.push(`/search-results?role=${role}&city=${city}&category=${category}`);
+  };
+
   return (
     <>
       <Head>
@@ -27,32 +38,55 @@ export default function Home() {
             {/* Immagine */}
             <div className="md:w-1/2 mt-10 md:mt-0 relative h-[300px] md:h-[420px] z-0 md:pl-4">
               <Image
-  src="/images/connect-hero.png"
-  alt="Professionisti"
-  width={400}
-  height={600}
-  className="rounded-lg"
-  priority
-/>
-
-
+                src="/images/connect-hero.png"
+                alt="Professionisti"
+                width={400}
+                height={600}
+                className="rounded-lg"
+                priority
+              />
             </div>
           </div>
 
           {/* BARRA DI RICERCA */}
-          <div className="w-full max-w-5xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:translate-y-4
-             md:bottom-4 z-20">
+          <div className="w-full max-w-5xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:translate-y-4 md:bottom-4 z-20">
             <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-2 p-4 md:p-4 md:w-[90%] md:ml-0 md:translate-x-12 mt-6 md:mt-0 max-w-2xl mx-auto">
-              <select className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300">
-                <option>Ruolo</option>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+              >
+                <option value="">Ruolo</option>
+                <option value="Professionista">Professionista</option>
+                <option value="Connector">Connector</option>
               </select>
-              <select className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300">
-                <option>Città</option>
+              <select
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+              >
+                <option value="">Città</option>
+                <option value="Milano">Milano</option>
+                <option value="Roma">Roma</option>
+                <option value="Napoli">Napoli</option>
               </select>
-              <select className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300">
-                <option>Categoria</option>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+              >
+                <option value="">Categoria</option>
+                <option value="Edilizia">Edilizia</option>
+                <option value="Benessere">Benessere</option>
+                <option value="Tecnologie">Tecnologie</option>
+                <option value="Servizi personali">Servizi personali</option>
+                <option value="Servizi aziendali">Servizi aziendali</option>
+                <option value="Altro">Altro</option>
               </select>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md w-full md:w-auto transition">
+              <button
+                onClick={handleSearch}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md w-full md:w-auto transition"
+              >
                 Cerca
               </button>
             </div>
@@ -74,7 +108,6 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
               {/* Step 1 */}
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
@@ -95,7 +128,6 @@ export default function Home() {
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
                 <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
               </div>
-
             </div>
           </div>
         </section>
