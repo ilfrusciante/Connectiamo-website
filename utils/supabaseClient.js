@@ -1,8 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+const supabaseUrl = 'https://vjbffluxierkgtxmoxvax.supabase.co'; // la tua URL di Supabase
+const supabaseKey = 'process.env.NEXT_PUBLIC_SUPABASE_KEY'; // la tua key che metteremo in .env.local
 
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-export default supabase
+export const supabase = createClient(supabaseUrl, supabaseKey);
