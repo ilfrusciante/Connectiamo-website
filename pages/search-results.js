@@ -1,50 +1,73 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient('https://TUO-PROGETTO.supabase.co', 'TUO-ANON-KEY');
 
 export default function SearchResults() {
   const router = useRouter();
-  const { role, city, cap, category, radius } = router.query;
+  const { role, city, category } = router.query;
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filters = [
-    { label: 'Ruolo', value: role },
-    { label: 'Città', value: city },
-    { label: 'CAP', value: cap },
-    { label: 'Categoria', value: category },
-    { label: 'Raggio di ricerca (km)', value: radius },
-  ];
+  useEffect(() => {
+    async function fetchProfiles() {
+      setLoading(true);
+      let query = supabase.from('Profiles').select('*');
+
+      if (role) query = query.eq('role', role);
+      if (city) query = query.eq('city', city);
+      if (category) query = query.eq('category', category);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Errore nel recupero dei profili:', error);
+      } else {
+        setProfiles(data);
+      }
+      setLoading(false);
+    }
+
+    if (role && city) {
+      fetchProfiles();
+    }
+  }, [role, city, category]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Caricamento...</p>
+      </div>
+    );
+  }
+
+  if (profiles.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Nessun profilo trovato. Prova a cambiare i filtri.</p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Head>
-        <title>Risultati Ricerca - Connectiamo</title>
-      </Head>
-
-      <main className="bg-gray-100 min-h-screen py-12 px-6 md:px-20 text-gray-900">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <h1 className="text-4xl font-bold mb-6 text-center">Risultati della ricerca</h1>
-
-          {/* Parametri selezionati */}
-          <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-            <h2 className="text-2xl font-semibold">Filtri applicati:</h2>
-            <ul className="list-disc pl-6 space-y-2">
-              {filters
-                .filter(filter => filter.value) // Mostra solo se compilato
-                .map((filter, index) => (
-                  <li key={index}>
-                    <strong>{filter.label}:</strong> {filter.value}
-                  </li>
-                ))}
-            </ul>
+    <div className="min-h-screen bg-gray-100 py-10 px-6">
+      <h1 className="text-3xl font-bold mb-8 text-center">Risultati ricerca</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        {profiles.map((profile) => (
+          <div key={profile.id} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+            <h2 className="text-xl font-bold text-blue-700 mb-2">{profile.username}</h2>
+            <p className="text-gray-800"><strong>Ruolo:</strong> {profile.role}</p>
+            <p className="text-gray-800"><strong>Città:</strong> {profile.city}</p>
+            <p className="text-gray-800"><strong>Categoria:</strong> {profile.category}</p>
+            {profile.about && (
+              <p className="text-gray-600 mt-3 text-sm">
+                {profile.about.length > 150 ? profile.about.substring(0, 150) + '...' : profile.about}
+              </p>
+            )}
           </div>
-
-          {/* Risultati trovati */}
-          <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-            <h2 className="text-2xl font-semibold">Risultati trovati:</h2>
-            <p>In questa sezione verranno mostrati i profili corrispondenti ai criteri di ricerca.</p>
-            <p className="text-gray-600"><em>(Funzionalità di ricerca reale sarà implementata successivamente)</em></p>
-          </div>
-        </div>
-      </main>
-    </>
+        ))}
+      </div>
+    </div>
   );
 }
