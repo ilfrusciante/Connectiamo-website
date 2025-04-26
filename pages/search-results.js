@@ -1,131 +1,43 @@
-import Head from 'next/head'; import Image from 'next/image'; import { useState } from 'react'; import { useRouter } from 'next/router';
+// pages/search-results.js
 
-export default function Home() { const router = useRouter(); const [role, setRole] = useState(''); const [city, setCity] = useState(''); const [cap, setCap] = useState(''); const [category, setCategory] = useState('');
+import { useRouter } from 'next/router'; import { useEffect, useState } from 'react'; import { supabase } from '@/utils/supabaseClient';
 
-const handleSearch = () => { if (!role || !city) { alert('Seleziona almeno Ruolo e Città per effettuare la ricerca.'); return; } router.push(/search-results?role=${role}&city=${city}&cap=${cap}&category=${category}); };
+export default function SearchResults() { const router = useRouter(); const { role, city, cap, category } = router.query; const [profiles, setProfiles] = useState([]); const [loading, setLoading] = useState(true);
 
-return ( <> <Head> <title>Connectiamo</title> </Head>
+useEffect(() => { if (!role || !city) return; // Non cercare se non ci sono i dati obbligatori
 
-<main className="bg-white text-gray-900">
+const fetchProfiles = async () => {
+  setLoading(true);
+  let query = supabase.from('Profiles').select('*');
 
-    {/* HERO SECTION */}
-    <section className="bg-[#0f1e3c] text-white pt-20 pb-32 px-6 md:px-20 relative overflow-visible">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10">
+  if (role) {
+    query = query.eq('role', role);
+  }
+  if (city) {
+    query = query.eq('city', city);
+  }
+  if (cap) {
+    query = query.eq('cap', cap);
+  }
+  if (category) {
+    query = query.eq('category', category);
+  }
 
-        {/* Testo */}
-        <div className="md:w-1/2 space-y-6 z-10">
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-            Connetti segnalatori <br /> e professionisti
-          </h1>
-          <p className="text-lg text-blue-100">
-            Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
-          </p>
-        </div>
+  const { data, error } = await query;
 
-        {/* Immagine */}
-        <div className="md:w-1/2 mt-10 md:mt-0 relative h-[300px] md:h-[420px] z-0 md:pl-4">
-          <Image
-            src="/images/connect-hero.png"
-            alt="Professionisti"
-            width={400}
-            height={600}
-            className="rounded-lg"
-            priority
-          />
-        </div>
-      </div>
-    </section>
+  if (error) {
+    console.error('Errore nel recupero dei profili:', error.message);
+  } else {
+    setProfiles(data);
+  }
+  setLoading(false);
+};
 
-    {/* BARRA DI RICERCA */}
-    <div className="w-full flex justify-center px-4">
-      <div className="bg-yellow-400 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-3 md:gap-4 p-4 md:p-6 -mt-20 max-w-5xl w-full">
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-        >
-          <option value="">Ruolo</option>
-          <option value="Professionista">Professionista</option>
-          <option value="Segnalatore">Segnalatore</option>
-        </select>
-        <input
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          type="text"
-          placeholder="Città"
-          className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-        />
-        <input
-          value={cap}
-          onChange={(e) => setCap(e.target.value)}
-          type="text"
-          placeholder="CAP"
-          className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-        >
-          <option value="">Categoria</option>
-          <option value="Edilizia">Edilizia</option>
-          <option value="Benessere">Benessere</option>
-          <option value="Tecnologie">Tecnologie</option>
-          <option value="Servizi personali">Servizi personali</option>
-          <option value="Servizi aziendali">Servizi aziendali</option>
-          <option value="Altro">Altro</option>
-        </select>
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md w-full md:w-auto transition"
-        >
-          Cerca
-        </button>
-      </div>
-    </div>
+fetchProfiles();
 
-    {/* CHI SIAMO */}
-    <section className="py-24 px-6 md:px-20 bg-white">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <h2 className="text-3xl font-bold">Chi siamo</h2>
-        <p className="text-gray-800 text-lg">
-          <strong>Connectiamo</strong> è una piattaforma che crea connessioni tra segnalatori e professionisti, aiutando figure come guide turistiche, portieri o receptionist a trovare pittori, ristrutturatori, parrucchieri e altri professionisti per referral e collaborazioni.
-        </p>
-      </div>
-    </section>
+}, [role, city, cap, category]);
 
-    {/* COME FUNZIONA */}
-    <section className="bg-gray-100 py-16 px-6 md:px-20">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Step 1 */}
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-            <p className="text-gray-600 text-base">Crea un profilo come segnalatore o professionista</p>
-          </div>
+if (!role || !city) { return ( <div className="min-h-screen flex items-center justify-center text-center"> <div> <h2 className="text-2xl font-semibold text-red-600">Errore: seleziona almeno Ruolo e Città</h2> </div> </div> ); }
 
-          {/* Step 2 */}
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
-            <p className="text-gray-600 text-base">Usa la ricerca per trovare persone nella tua zona e categoria</p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-            <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-  </main>
-</>
-
-); }
+return ( <div className="min-h-screen py-10 px-4 md:px-20"> <h1 className="text-3xl font-bold mb-8">Risultati della Ricerca</h1> {loading ? ( <p>Caricamento...</p> ) : profiles.length === 0 ? ( <p>Nessun profilo trovato.</p> ) : ( <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> {profiles.map((profile) => ( <div key={profile.id} className="bg-white rounded-lg shadow p-6"> <h2 className="text-xl font-semibold mb-2">{profile.username}</h2> <p className="text-gray-600"><strong>Ruolo:</strong> {profile.role}</p> <p className="text-gray-600"><strong>Città:</strong> {profile.city}</p> <p className="text-gray-600"><strong>CAP:</strong> {profile.cap}</p> <p className="text-gray-600"><strong>Categoria:</strong> {profile.category}</p> {profile.about && ( <p className="text-gray-700 mt-2">{profile.about}</p> )} </div> ))} </div> )} </div> ); }
 
