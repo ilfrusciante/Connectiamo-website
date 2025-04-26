@@ -1,7 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://vjbfluxiergktxmoxvax.supabase.co'; // <-- il tuo URL (già corretto)
-const supabaseKey = 'process.env.NEXT_PUBLIC_SUPABASE_KEY'; // <-- poi vediamo come impostarlo
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = 'https://vjbffluxierkgtxmoxvax.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqYmZsdXhpZXJrZ3R4bW94dmF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQwNjk0NzUsImV4cCI6MjAyOTY0NTQ3NX0.1eHZ06I29YDJ6HhsAVc4Gh_4RrUwJ0B2xapni23iibM'
 
-export default supabase;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
