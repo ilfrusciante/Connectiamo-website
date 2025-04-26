@@ -4,7 +4,7 @@ import { supabase } from '../utils/supabaseClient';
 
 export default function SearchResults() {
   const router = useRouter();
-  const { role, city, category } = router.query;
+  const { role, city, category, cap } = router.query;
 
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +24,7 @@ export default function SearchResults() {
       if (role) query = query.eq('role', role);
       if (city) query = query.eq('city', city);
       if (category) query = query.eq('category', category);
+      if (cap) query = query.eq('cap', cap);
 
       const { data, error } = await query;
 
@@ -38,7 +39,7 @@ export default function SearchResults() {
     if (router.isReady) {
       fetchProfiles();
     }
-  }, [router.isReady, role, city, category]);
+  }, [router.isReady, role, city, category, cap]);
 
   if (loading) {
     return (
@@ -74,6 +75,7 @@ export default function SearchResults() {
             <p className="text-gray-800"><strong>Ruolo:</strong> {profile.role}</p>
             <p className="text-gray-800"><strong>Città:</strong> {profile.city}</p>
             <p className="text-gray-800"><strong>Categoria:</strong> {profile.category}</p>
+            <p className="text-gray-800"><strong>CAP:</strong> {profile.cap}</p>
             {profile.about && (
               <p className="text-gray-600 mt-3 text-sm">
                 {profile.about.length > 150 ? profile.about.substring(0, 150) + '...' : profile.about}
