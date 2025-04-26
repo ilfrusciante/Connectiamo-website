@@ -18,12 +18,30 @@ export default function Signup() {
       return;
     }
 
-    const { user, error: signupError } = await supabase.auth.signUp({
+    // 1. Controlla se username esiste già
+    const { data: existingUser, error: checkError } = await supabase
+      .from('profiles') // <-- Assumiamo che i profili siano nella tabella "profiles"
+      .select('username')
+      .eq('username', username)
+      .single();
+
+    if (existingUser) {
+      setError('Questo username è già stato scelto, scegline un altro.');
+      return;
+    }
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      setError('Errore nel controllo username.');
+      return;
+    }
+
+    // 2. Se username libero, procedi con signup
+    const { error: signupError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          username: username, // Salviamo username nei metadati utente
+          username: username, // Salva l'username nei metadati dell'utente
         },
       },
     });
@@ -46,19 +64,19 @@ export default function Signup() {
           <h1 className="text-3xl font-bold text-center mb-6">Crea il tuo account</h1>
 
           <form onSubmit={handleSignup} className="space-y-5">
-            {/* Campo Username */}
+            {/* Username */}
             <div>
               <label className="block text-sm font-semibold mb-1">Username</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Scegli un username"
+                placeholder="Scegli un username unico"
                 className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-yellow-300 text-gray-800"
               />
             </div>
 
-            {/* Campo Email */}
+            {/* Email */}
             <div>
               <label className="block text-sm font-semibold mb-1">Email</label>
               <input
@@ -70,7 +88,7 @@ export default function Signup() {
               />
             </div>
 
-            {/* Campo Password */}
+            {/* Password */}
             <div>
               <label className="block text-sm font-semibold mb-1">Password</label>
               <input
@@ -97,4 +115,4 @@ export default function Signup() {
       </main>
     </>
   );
-}
+            }
