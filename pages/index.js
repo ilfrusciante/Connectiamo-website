@@ -7,12 +7,17 @@ export default function Home() {
   const router = useRouter();
   const [role, setRole] = useState('');
   const [city, setCity] = useState('');
-  const [zone, setZone] = useState('');
   const [cap, setCap] = useState('');
   const [category, setCategory] = useState('');
+  const [error, setError] = useState('');
 
   const handleSearch = () => {
-    router.push(`/search-results?role=${role}&city=${city}&zone=${zone}&cap=${cap}&category=${category}`);
+    if (!role || !city) {
+      setError('Per favore, seleziona sia il ruolo che la città.');
+      return;
+    }
+    setError('');
+    router.push(`/search-results?role=${role}&city=${city}&cap=${cap}&category=${category}&radius=1.5`);
   };
 
   return (
@@ -72,19 +77,6 @@ export default function Home() {
                 className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
               />
 
-              <select
-                value={zone}
-                onChange={(e) => setZone(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Zona</option>
-                <option value="Centro">Centro</option>
-                <option value="Nord">Nord</option>
-                <option value="Sud">Sud</option>
-                <option value="Est">Est</option>
-                <option value="Ovest">Ovest</option>
-              </select>
-
               <input
                 type="text"
                 value={cap}
@@ -113,8 +105,14 @@ export default function Home() {
               >
                 Cerca
               </button>
-
             </div>
+
+            {/* Messaggio di errore */}
+            {error && (
+              <div className="text-red-600 font-semibold mt-3 text-center">
+                {error}
+              </div>
+            )}
           </div>
         </section>
 
