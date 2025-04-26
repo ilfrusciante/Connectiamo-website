@@ -7,7 +7,6 @@ export default function Home() {
   const router = useRouter();
   const [role, setRole] = useState('');
   const [city, setCity] = useState('');
-  const [zone, setZone] = useState('');
   const [cap, setCap] = useState('');
   const [category, setCategory] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +17,7 @@ export default function Home() {
       return;
     }
     setError('');
-    router.push(`/search-results?role=${role}&city=${city}&zone=${zone}&cap=${cap}&category=${category}`);
+    router.push(`/search-results?role=${role}&city=${city}&cap=${cap}&category=${category}&radius=1.5`);
   };
 
   return (
@@ -77,19 +76,6 @@ export default function Home() {
                 placeholder="Città"
                 className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
               />
-
-              <select
-                value={zone}
-                onChange={(e) => setZone(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Zona</option>
-                <option value="Centro">Centro</option>
-                <option value="Nord">Nord</option>
-                <option value="Sud">Sud</option>
-                <option value="Est">Est</option>
-                <option value="Ovest">Ovest</option>
-              </select>
 
               <input
                 type="text"
