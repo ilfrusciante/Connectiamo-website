@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient('https://TUO-PROGETTO.supabase.co', 'TUO-ANON-KEY');
+import { supabase } from '../utils/supabaseClient';
 
 export default function SearchResults() {
   const router = useRouter();
   const { role, city, category } = router.query;
+
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProfiles() {
+      if (!role || !city) {
+        setProfiles([]);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
+
       let query = supabase.from('Profiles').select('*');
 
       if (role) query = query.eq('role', role);
@@ -22,17 +28,17 @@ export default function SearchResults() {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Errore nel recupero dei profili:', error);
+        console.error('Errore nel recupero profili:', error);
       } else {
         setProfiles(data);
       }
       setLoading(false);
     }
 
-    if (role && city) {
+    if (router.isReady) {
       fetchProfiles();
     }
-  }, [role, city, category]);
+  }, [router.isReady, role, city, category]);
 
   if (loading) {
     return (
@@ -42,10 +48,18 @@ export default function SearchResults() {
     );
   }
 
+  if (!role || !city) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Devi selezionare almeno il Ruolo e la Città per effettuare la ricerca.</p>
+      </div>
+    );
+  }
+
   if (profiles.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Nessun profilo trovato. Prova a cambiare i filtri.</p>
+        <p>Nessun profilo trovato con questi filtri. Prova a cambiare i parametri.</p>
       </div>
     );
   }
