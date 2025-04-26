@@ -8,10 +8,11 @@ export default function Home() {
   const [role, setRole] = useState('');
   const [city, setCity] = useState('');
   const [zone, setZone] = useState('');
+  const [cap, setCap] = useState('');
   const [category, setCategory] = useState('');
 
   const handleSearch = () => {
-    router.push(`/search-results?role=${role}&city=${city}&zone=${zone}&category=${category}`);
+    router.push(`/search-results?role=${role}&city=${city}&zone=${zone}&cap=${cap}&category=${category}`);
   };
 
   return (
@@ -50,8 +51,9 @@ export default function Home() {
           </div>
 
           {/* BARRA DI RICERCA */}
-          <div className="w-full max-w-5xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:translate-y-4 md:bottom-4 z-20">
-            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-2 p-4 md:p-4 md:w-[90%] md:ml-0 md:translate-x-12 mt-6 md:mt-0 max-w-2xl mx-auto">
+          <div className="w-full max-w-6xl px-4 md:px-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:translate-y-4 md:bottom-4 z-20">
+            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-3 p-4 md:p-5 md:w-[95%] md:ml-0 md:translate-x-12 mt-6 md:mt-0 max-w-5xl mx-auto">
+
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -61,23 +63,36 @@ export default function Home() {
                 <option value="Professionista">Professionista</option>
                 <option value="Connector">Connector</option>
               </select>
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Città</option>
-                <option value="Milano">Milano</option>
-                <option value="Roma">Roma</option>
-                <option value="Napoli">Napoli</option>
-              </select>
+
               <input
                 type="text"
-                value={zone}
-                onChange={(e) => setZone(e.target.value)}
-                placeholder="Zona / CAP"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Città"
                 className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
               />
+
+              <select
+                value={zone}
+                onChange={(e) => setZone(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+              >
+                <option value="">Zona</option>
+                <option value="Centro">Centro</option>
+                <option value="Nord">Nord</option>
+                <option value="Sud">Sud</option>
+                <option value="Est">Est</option>
+                <option value="Ovest">Ovest</option>
+              </select>
+
+              <input
+                type="text"
+                value={cap}
+                onChange={(e) => setCap(e.target.value)}
+                placeholder="CAP"
+                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+              />
+
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -91,12 +106,14 @@ export default function Home() {
                 <option value="Servizi aziendali">Servizi aziendali</option>
                 <option value="Altro">Altro</option>
               </select>
+
               <button
                 onClick={handleSearch}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md w-full md:w-auto transition"
               >
                 Cerca
               </button>
+
             </div>
           </div>
         </section>
@@ -116,6 +133,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
               {/* Step 1 */}
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
@@ -136,6 +154,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
                 <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
               </div>
+
             </div>
           </div>
         </section>
