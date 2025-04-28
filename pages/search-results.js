@@ -9,12 +9,17 @@ export default function SearchResults() {
 
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      if (!role || !city) return;
+      if (!role || !city) {
+        setLoading(false);
+        return;
+      }
 
       setLoading(true);
+      setErrorMessage('');
 
       let query = supabase.from('profiles').select('*');
 
@@ -26,7 +31,7 @@ export default function SearchResults() {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Errore nel recupero profili:', error);
+        setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
       } else {
         setProfiles(data);
       }
@@ -47,22 +52,34 @@ export default function SearchResults() {
 
         {loading ? (
           <p className="text-center">Caricamento...</p>
+        ) : errorMessage ? (
+          <div className="text-center text-red-500 mb-6">{errorMessage}</div>
         ) : profiles.length === 0 ? (
-          <p className="text-center text-gray-500">Nessun profilo trovato. Riprova modificando i filtri.</p>
+          <div className="text-center space-y-4">
+            <p className="text-gray-600">Nessun profilo trovato. Riprova modificando i filtri.</p>
+            <button
+              onClick={() => router.push('/')}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition"
+            >
+              Torna alla Home
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {profiles.map((profile) => (
               <div
                 key={profile.id}
-                className="bg-gray-100 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 p-6 flex flex-col justify-between"
+                className="bg-gray-100 rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 p-6 flex flex-col justify-between"
               >
                 <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-blue-900">{profile.username || 'Utente'}</h2>
+                  <h2 className="text-xl font-semibold text-blue-900">{profile.username || 'Utente anonimo'}</h2>
                   <p><strong>Ruolo:</strong> {profile.role}</p>
                   <p><strong>Città:</strong> {profile.city}</p>
-                  <p><strong>CAP:</strong> {profile.cap}</p>
-                  <p><strong>Categoria:</strong> {profile.category}</p>
-                  <p className="text-gray-600 text-sm mt-2">{profile.description || 'Nessuna descrizione disponibile.'}</p>
+                  <p><strong>CAP:</strong> {profile.cap || 'Non specificato'}</p>
+                  <p><strong>Categoria:</strong> {profile.category || 'Non specificata'}</p>
+                  {profile.description && (
+                    <p className="text-gray-600 text-sm mt-2">{profile.description}</p>
+                  )}
                 </div>
 
                 {/* Pulsante contatta */}
@@ -74,7 +91,6 @@ export default function SearchResults() {
                     Contatta
                   </button>
                 </div>
-
               </div>
             ))}
           </div>
