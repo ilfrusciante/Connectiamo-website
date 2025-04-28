@@ -11,6 +11,10 @@ export default function Home() {
   const [cap, setCap] = useState('');
 
   const handleSearch = () => {
+    if (!role || !city) {
+      alert('Seleziona almeno Ruolo e Città.');
+      return;
+    }
     router.push(`/search-results?role=${role}&city=${city}&category=${category}&cap=${cap}`);
   };
 
@@ -21,9 +25,11 @@ export default function Home() {
       </Head>
 
       <main className="bg-white text-gray-900">
+
         {/* HERO SECTION */}
         <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
+            
             {/* Testo */}
             <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
@@ -45,6 +51,7 @@ export default function Home() {
                 priority
               />
             </div>
+
           </div>
         </section>
 
@@ -98,10 +105,16 @@ export default function Home() {
 
               <button
                 onClick={handleSearch}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md w-full md:w-auto transition"
+                disabled={!role || !city}
+                className={`font-semibold px-5 py-2 rounded-md w-full md:w-auto transition ${
+                  !role || !city
+                    ? 'bg-gray-300 cursor-not-allowed text-gray-600'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
                 Cerca
               </button>
+
             </div>
           </div>
         </section>
@@ -146,6 +159,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+
       </main>
     </>
   );
