@@ -52,7 +52,10 @@ export default function SearchResults() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {profiles.map((profile) => (
-              <div key={profile.id} className="bg-gray-100 rounded-xl shadow-md p-6 flex flex-col justify-between">
+              <div
+                key={profile.id}
+                className="bg-gray-100 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 p-6 flex flex-col justify-between"
+              >
                 <div className="space-y-2">
                   <h2 className="text-xl font-semibold text-blue-900">{profile.username || 'Utente'}</h2>
                   <p><strong>Ruolo:</strong> {profile.role}</p>
