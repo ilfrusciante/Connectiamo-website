@@ -67,10 +67,14 @@ export default function SearchResults() {
 
                 {/* Pulsante contatta */}
                 <div className="mt-4">
-                  <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition">
+                  <button
+                    onClick={() => router.push(`/messages?to=${profile.id}`)}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition"
+                  >
                     Contatta
                   </button>
                 </div>
+
               </div>
             ))}
           </div>
