@@ -54,13 +54,21 @@ export default function SearchResults() {
         {loading ? (
           <p className="text-center">Caricamento...</p>
         ) : errorMessage ? (
-          <div className="text-center text-red-500 mb-6">{errorMessage}</div>
-        ) : profiles.length === 0 ? (
-          <div className="text-center space-y-4">
-            <p className="text-gray-600">Nessun profilo trovato. Riprova modificando i filtri.</p>
+          <div className="text-center text-red-500 space-y-4">
+            <p>{errorMessage}</p>
             <button
               onClick={() => router.push('/')}
-              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition"
+              className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded transition"
+            >
+              Torna alla Home
+            </button>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="text-center space-y-4">
+            <p className="text-gray-600">Nessun profilo trovato. Prova a cambiare i filtri di ricerca.</p>
+            <button
+              onClick={() => router.push('/')}
+              className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded transition"
             >
               Torna alla Home
             </button>
@@ -70,7 +78,7 @@ export default function SearchResults() {
             {profiles.map((profile) => (
               <div
                 key={profile.id}
-                className="bg-gray-100 rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 p-6 flex flex-col justify-between"
+                className="bg-gray-100 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 p-6 flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <h2 className="text-xl font-semibold text-blue-900">{profile.username || 'Utente anonimo'}</h2>
