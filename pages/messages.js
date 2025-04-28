@@ -8,6 +8,7 @@ export default function Messages() {
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const router = useRouter()
+  const { to } = router.query  // Prendiamo il destinatario dalla URL
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -20,29 +21,30 @@ export default function Messages() {
     }
 
     fetchUser()
-  }, [])
+  }, [router])
 
   useEffect(() => {
-    if (!user) return
+    if (!user || !to) return
 
     const fetchMessages = async () => {
       let { data, error } = await supabase
         .from('messages')
         .select('*')
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${to}),and(sender_id.eq.${to},receiver_id.eq.${user.id})`)
         .order('created_at', { ascending: true })
 
       if (!error) setMessages(data)
     }
 
     fetchMessages()
-  }, [user])
+  }, [user, to])
 
   const handleSend = async () => {
-    if (newMessage.trim() === '') return
+    if (newMessage.trim() === '' || !to) return
 
     const { data, error } = await supabase
       .from('messages')
-      .insert([{ sender_id: user.id, content: newMessage }])
+      .insert([{ sender_id: user.id, receiver_id: to, content: newMessage }])
 
     if (!error) {
       setMessages([...messages, ...data])
@@ -51,10 +53,11 @@ export default function Messages() {
   }
 
   if (!user) return <p className="text-center mt-10">Caricamento...</p>
+  if (!to) return <p className="text-center mt-10 text-red-500">Nessun destinatario selezionato.</p>
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-6">
-      <h1 className="text-2xl font-bold text-center mb-4">I tuoi messaggi</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">Chat privata</h1>
       <div className="max-w-3xl mx-auto bg-gray-50 dark:bg-gray-800 p-4 rounded shadow">
         <MessageList messages={messages} userId={user.id} />
         <div className="mt-4 flex gap-2">
