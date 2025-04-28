@@ -1,39 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
+import Head from 'next/head';
 
 export default function SearchResults() {
   const router = useRouter();
-  const { role, city, cap, category } = router.query;
+  const { role, city, category, cap } = router.query;
 
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!role || !city) {
-      alert('Seleziona almeno ruolo e città!');
-      router.push('/');
-      return;
-    }
-
     const fetchProfiles = async () => {
+      if (!role || !city) return;
+
       setLoading(true);
-      let query = supabase.from('Profiles').select('*')
-        .ilike('role', `%${role}%`)
-        .ilike('city', `%${city}%`);
 
-      if (cap) {
-        query = query.ilike('cap', `%${cap}%`);
-      }
+      let query = supabase.from('profiles').select('*');
 
-      if (category) {
-        query = query.ilike('category', `%${category}%`);
-      }
+      if (role) query = query.eq('role', role);
+      if (city) query = query.eq('city', city);
+      if (cap) query = query.eq('cap', cap);
+      if (category) query = query.eq('category', category);
 
       const { data, error } = await query;
 
       if (error) {
-        console.error('Errore nel caricamento dei dati:', error);
+        console.error('Errore nel recupero profili:', error);
       } else {
         setProfiles(data);
       }
@@ -41,32 +34,45 @@ export default function SearchResults() {
     };
 
     fetchProfiles();
-  }, [role, city, cap, category, router]);
+  }, [role, city, category, cap]);
 
   return (
-    <main className="bg-gray-100 min-h-screen py-12 px-6 md:px-20">
-      <h1 className="text-3xl font-bold mb-8 text-center">Risultati della ricerca</h1>
+    <>
+      <Head>
+        <title>Risultati Ricerca - Connectiamo</title>
+      </Head>
 
-      {loading ? (
-        <p className="text-center text-gray-600">Caricamento...</p>
-      ) : profiles.length === 0 ? (
-        <p className="text-center text-gray-600">Nessun risultato trovato.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {profiles.map((profile) => (
-            <div key={profile.id} className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-2">{profile.username || 'Utente anonimo'}</h2>
-              <p className="text-gray-700"><strong>Ruolo:</strong> {profile.role}</p>
-              <p className="text-gray-700"><strong>Città:</strong> {profile.city}</p>
-              <p className="text-gray-700"><strong>CAP:</strong> {profile.cap}</p>
-              <p className="text-gray-700"><strong>Categoria:</strong> {profile.category}</p>
-              {profile.about && (
-                <p className="text-gray-600 mt-4">{profile.about}</p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
+      <main className="bg-white min-h-screen p-6">
+        <h1 className="text-3xl font-bold mb-8 text-center">Risultati della ricerca</h1>
+
+        {loading ? (
+          <p className="text-center">Caricamento...</p>
+        ) : profiles.length === 0 ? (
+          <p className="text-center text-gray-500">Nessun profilo trovato. Riprova modificando i filtri.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {profiles.map((profile) => (
+              <div key={profile.id} className="bg-gray-100 rounded-xl shadow-md p-6 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold text-blue-900">{profile.username || 'Utente'}</h2>
+                  <p><strong>Ruolo:</strong> {profile.role}</p>
+                  <p><strong>Città:</strong> {profile.city}</p>
+                  <p><strong>CAP:</strong> {profile.cap}</p>
+                  <p><strong>Categoria:</strong> {profile.category}</p>
+                  <p className="text-gray-600 text-sm mt-2">{profile.description || 'Nessuna descrizione disponibile.'}</p>
+                </div>
+
+                {/* Pulsante contatta */}
+                <div className="mt-4">
+                  <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition">
+                    Contatta
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+    </>
   );
 }
