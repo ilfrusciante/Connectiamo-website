@@ -32,6 +32,7 @@ export default function SearchResults() {
 
       if (error) {
         setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
+        setProfiles([]);
       } else {
         setProfiles(data);
       }
