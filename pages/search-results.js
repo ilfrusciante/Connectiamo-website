@@ -21,28 +21,22 @@ export default function SearchResults() {
       setLoading(true);
       setErrorMessage('');
 
-      try {
-        let query = supabase.from('profiles').select('*');
+      let query = supabase.from('profiles').select('*');
 
-        if (role) query = query.eq('role', role);
-        if (city) query = query.eq('city', city);
-        if (cap) query = query.eq('cap', cap);
-        if (category) query = query.eq('category', category);
+      if (role) query = query.eq('role', role);
+      if (city) query = query.eq('city', city);
+      if (cap) query = query.eq('cap', cap);
+      if (category) query = query.eq('category', category);
 
-        const { data, error } = await query;
+      const { data, error } = await query;
 
-        if (error) {
-          throw error;
-        }
-
-        setProfiles(data);
-      } catch (err) {
-        console.error('Errore Supabase:', err.message);
+      if (error) {
         setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
-        setProfiles([]);
-      } finally {
-        setLoading(false);
+      } else {
+        setProfiles(data || []);
       }
+
+      setLoading(false);
     };
 
     fetchProfiles();
