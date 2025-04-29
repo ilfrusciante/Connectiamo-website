@@ -21,22 +21,28 @@ export default function SearchResults() {
       setLoading(true);
       setErrorMessage('');
 
-      let query = supabase.from('profiles').select('*');
+      try {
+        let query = supabase.from('profiles').select('*');
 
-      if (role) query = query.eq('role', role);
-      if (city) query = query.eq('city', city);
-      if (cap) query = query.eq('cap', cap);
-      if (category) query = query.eq('category', category);
+        if (role) query = query.eq('role', role);
+        if (city) query = query.eq('city', city);
+        if (cap) query = query.eq('cap', cap);
+        if (category) query = query.eq('category', category);
 
-      const { data, error } = await query;
+        const { data, error } = await query;
 
-      if (error) {
+        if (error) {
+          throw error;
+        }
+
+        setProfiles(data);
+      } catch (err) {
+        console.error('Errore Supabase:', err.message);
         setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
         setProfiles([]);
-      } else {
-        setProfiles(data);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchProfiles();
@@ -91,7 +97,6 @@ export default function SearchResults() {
                   )}
                 </div>
 
-                {/* Pulsante contatta */}
                 <div className="mt-4">
                   <button
                     onClick={() => router.push(`/messages?to=${profile.id}`)}
