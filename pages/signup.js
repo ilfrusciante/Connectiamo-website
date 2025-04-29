@@ -1,88 +1,66 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
+import { useRouter } from 'next/router';
 
 export default function Signup() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [city, setCity] = useState('');
+  const [cap, setCap] = useState('');
+  const [category, setCategory] = useState('');
   const [error, setError] = useState('');
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
 
-    // 1. Crea utente su Supabase Auth
-    const { data, error: signupError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (signupError) {
-      setError(signupError.message);
+    if (signUpError) {
+      setError(signUpError.message);
       return;
     }
 
-    const user = data.user;
+    const userId = signUpData.user?.id;
 
-    // 2. Se utente creato, inserisco in tabella Profiles
-    const { error: insertError } = await supabase.from('Profiles').insert([
-      {
-        id: user.id, // Collegamento corretto all'auth
-        username: username,
-        email: email,
+    if (userId) {
+      const { error: profileError } = await supabase.from('profiles').insert([{
+        id: userId,
+        username,
+        role,
+        city,
+        cap,
+        category,
+        email,
+        created_at: new Date().toISOString(),
+      }]);
+
+      if (profileError) {
+        setError('Errore durante la creazione del profilo: ' + profileError.message);
+        return;
       }
-    ]);
 
-    if (insertError) {
-      setError(insertError.message);
-      return;
+      router.push('/');
     }
-
-    // 3. Se tutto ok, vai alla home
-    router.push('/');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSignup} className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center">Crea il tuo account</h2>
-
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="w-full mb-4 px-4 py-2 border rounded-md"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full mb-4 px-4 py-2 border rounded-md"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full mb-6 px-4 py-2 border rounded-md"
-        />
-
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          Registrati
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSignup} className="p-4 space-y-4 max-w-md mx-auto">
+      {error && <p className="text-red-500">{error}</p>}
+      <input type="text" placeholder="Nome" value={username} onChange={(e) => setUsername(e.target.value)} required />
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      <input type="text" placeholder="Ruolo" value={role} onChange={(e) => setRole(e.target.value)} required />
+      <input type="text" placeholder="Città" value={city} onChange={(e) => setCity(e.target.value)} required />
+      <input type="text" placeholder="CAP" value={cap} onChange={(e) => setCap(e.target.value)} required />
+      <input type="text" placeholder="Categoria" value={category} onChange={(e) => setCategory(e.target.value)} required />
+      <button type="submit">Registrati</button>
+    </form>
   );
 }
