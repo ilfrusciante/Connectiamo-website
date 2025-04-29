@@ -30,13 +30,16 @@ export default function SearchResults() {
 
       const { data, error } = await query;
 
-      if (error && error.message) {
-        setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
+      if (error) {
+        console.error('Errore nel recupero profili:', error);
+        setErrorMessage('Errore nel caricamento dei profili. Riprova più tardi.');
+        setProfiles([]);
+      } else if (data && data.length === 0) {
+        // Nessun risultato trovato
         setProfiles([]);
       } else {
-        setProfiles(data || []);
+        setProfiles(data);
       }
-
       setLoading(false);
     };
 
@@ -55,7 +58,7 @@ export default function SearchResults() {
         {loading ? (
           <p className="text-center">Caricamento...</p>
         ) : errorMessage ? (
-          <div className="text-center text-red-500 space-y-4">
+          <div className="text-center space-y-4 text-red-500">
             <p>{errorMessage}</p>
             <button
               onClick={() => router.push('/')}
@@ -91,6 +94,8 @@ export default function SearchResults() {
                     <p className="text-gray-600 text-sm mt-2">{profile.description}</p>
                   )}
                 </div>
+
+                {/* Pulsante contatta */}
                 <div className="mt-4">
                   <button
                     onClick={() => router.push(`/messages?to=${profile.id}`)}
