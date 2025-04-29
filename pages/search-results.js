@@ -9,7 +9,7 @@ export default function SearchResults() {
 
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -19,7 +19,7 @@ export default function SearchResults() {
       }
 
       setLoading(true);
-      setErrorMessage('');
+      setHasError(false);
 
       let query = supabase.from('profiles').select('*');
 
@@ -31,7 +31,8 @@ export default function SearchResults() {
       const { data, error } = await query;
 
       if (error) {
-        setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
+        setHasError(true);
+        setProfiles([]);
       } else {
         setProfiles(data || []);
       }
@@ -53,9 +54,9 @@ export default function SearchResults() {
 
         {loading ? (
           <p className="text-center">Caricamento...</p>
-        ) : errorMessage ? (
+        ) : hasError ? (
           <div className="text-center text-red-500 space-y-4">
-            <p>{errorMessage}</p>
+            <p>Errore durante il caricamento dei profili. Riprova più tardi.</p>
             <button
               onClick={() => router.push('/')}
               className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded transition"
