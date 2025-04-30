@@ -21,25 +21,28 @@ export default function SearchResults() {
       setLoading(true);
       setErrorMessage('');
 
-      let query = supabase.from('profiles').select('*');
+      try {
+        let query = supabase.from('profiles').select('*');
 
-      if (role) query = query.eq('role', role);
-      if (city) query = query.eq('city', city);
-      if (cap) query = query.eq('cap', cap);
-      if (category) query = query.eq('category', category);
+        if (role) query = query.eq('role', role);
+        if (city) query = query.eq('city', city);
+        if (cap) query = query.eq('cap', cap);
+        if (category) query = query.eq('category', category);
 
-      const { data, error } = await query;
+        const { data, error } = await query;
 
-      if (error) {
-        console.error('Errore nel recupero profili:', error);
-        setErrorMessage('Errore nel caricamento dei profili. Riprova più tardi.');
+        if (error) {
+          console.error('Supabase error:', error.message);
+          setErrorMessage('Errore durante il caricamento dei profili. Riprova più tardi.');
+          setProfiles([]);
+        } else {
+          setProfiles(data);
+        }
+      } catch (err) {
+        setErrorMessage('Errore imprevisto. Riprova più tardi.');
         setProfiles([]);
-      } else if (data && data.length === 0) {
-        // Nessun risultato trovato
-        setProfiles([]);
-      } else {
-        setProfiles(data);
       }
+
       setLoading(false);
     };
 
@@ -58,7 +61,7 @@ export default function SearchResults() {
         {loading ? (
           <p className="text-center">Caricamento...</p>
         ) : errorMessage ? (
-          <div className="text-center space-y-4 text-red-500">
+          <div className="text-center text-red-500 space-y-4">
             <p>{errorMessage}</p>
             <button
               onClick={() => router.push('/')}
@@ -95,7 +98,6 @@ export default function SearchResults() {
                   )}
                 </div>
 
-                {/* Pulsante contatta */}
                 <div className="mt-4">
                   <button
                     onClick={() => router.push(`/messages?to=${profile.id}`)}
