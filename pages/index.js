@@ -55,11 +55,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SPAZIO PER LA BARRA */}
+        {/* BARRA DI RICERCA */}
         <section className="bg-white py-10 px-6 md:px-20 flex justify-center">
           <div className="w-full max-w-4xl">
             <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
-              
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -114,17 +113,26 @@ export default function Home() {
               >
                 Cerca
               </button>
-
             </div>
           </div>
         </section>
 
-        {/* CHI SIAMO */}
+        {/* CHI SIAMO (NUOVA VERSIONE) */}
         <section className="py-16 px-6 md:px-20 bg-white">
-          <div className="max-w-5xl mx-auto space-y-4">
+          <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
             <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> è una piattaforma che crea connessioni tra segnalatori e professionisti, aiutando figure come guide turistiche, portieri o receptionist a trovare pittori, ristrutturatori, parrucchieri e altri professionisti per referral e collaborazioni.
+              <strong>Connectiamo</strong> è una piattaforma nata per facilitare lo scambio e la valorizzazione delle connessioni personali e professionali.
+              Il suo scopo è permettere a chi ha una rete di contatti — come portieri, guide turistiche, personal trainer — di metterla a disposizione di professionisti
+              come idraulici, giardinieri, ristoratori, dietisti, ecc. Le parti possono accordarsi privatamente sul tipo di compenso, che può essere in denaro, uno scambio di servizi,
+              referral reciproci o altri accordi personali.
+            </p>
+            <p className="text-gray-800 text-lg">
+              All'interno della piattaforma gli utenti possono cercare contatti attraverso una <strong>barra di ricerca avanzata</strong> (con filtri per ruolo, città, CAP e categoria),
+              comunicare grazie a una <strong>messaggistica interna</strong> e gestire tutto tramite una <strong>dashboard personale</strong> con profilo, conversazioni e connessioni.
+            </p>
+            <p className="text-gray-800 text-lg">
+              Connectiamo rende semplice e organizzata la condivisione del proprio network per creare nuove opportunità per tutti.
             </p>
           </div>
         </section>
@@ -135,21 +143,18 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-              {/* Step 1 */}
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
                 <p className="text-gray-600 text-base">Crea un profilo come segnalatore o professionista</p>
               </div>
 
-              {/* Step 2 */}
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
                 <p className="text-gray-600 text-base">Usa la ricerca per trovare persone nella tua zona e categoria</p>
               </div>
 
-              {/* Step 3 */}
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
