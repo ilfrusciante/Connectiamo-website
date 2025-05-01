@@ -2,7 +2,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '../components/Navbar'; // <-- IMPORTANTE
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer'; // <-- aggiunto qui
 
 export default function Home() {
   const router = useRouter();
@@ -25,9 +26,10 @@ export default function Home() {
         <title>Connectiamo</title>
       </Head>
 
-      <Navbar /> {/* <-- AGGIUNTO QUI */}
+      <Navbar />
 
       <main className="bg-white text-gray-900">
+
         {/* HERO SECTION */}
         <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
@@ -156,6 +158,8 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      <Footer /> {/* <-- aggiunto qui sotto il main */}
     </>
   );
 }
