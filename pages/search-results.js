@@ -9,6 +9,15 @@ export default function SearchResults() {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) setUser(data.user);
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -84,11 +93,26 @@ export default function SearchResults() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {profiles.map((profile) => (
           <div key={profile.id} className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-xl font-semibold text-gray-800">{profile.name}</h3>
+            <h3 className="text-xl font-semibold text-gray-800">{profile.username || 'Utente'}</h3>
             <p className="text-gray-600">{profile.role} - {profile.category}</p>
             <p className="text-gray-600">{profile.city}, {profile.cap}</p>
             <p className="text-gray-600 mt-2">{profile.description}</p>
-            <a href={`mailto:${profile.email}`} className="text-blue-600 mt-4 inline-block">Contatta</a>
+
+            {user ? (
+              <button
+                onClick={() => router.push(`/messages?to=${profile.id}`)}
+                className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition"
+              >
+                Contatta
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/login')}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition"
+              >
+                Accedi per contattare
+              </button>
+            )}
           </div>
         ))}
       </div>
