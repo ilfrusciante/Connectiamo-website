@@ -1,7 +1,8 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Navbar from '../components/Navbar'; // <-- IMPORTANTE
 
 export default function Home() {
   const router = useRouter();
@@ -24,13 +25,12 @@ export default function Home() {
         <title>Connectiamo</title>
       </Head>
 
-      <main className="bg-white text-gray-900">
+      <Navbar /> {/* <-- AGGIUNTO QUI */}
 
+      <main className="bg-white text-gray-900">
         {/* HERO SECTION */}
         <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
-            
-            {/* Testo */}
             <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
                 Connetti segnalatori <br /> e professionisti
@@ -40,7 +40,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Immagine */}
             <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
               <Image
                 src="/images/connect-hero.png"
@@ -51,7 +50,6 @@ export default function Home() {
                 priority
               />
             </div>
-
           </div>
         </section>
 
@@ -124,11 +122,10 @@ export default function Home() {
             <p className="text-gray-800 text-lg">
               <strong>Connectiamo</strong> è una piattaforma nata per facilitare lo scambio e la valorizzazione delle connessioni personali e professionali.
               Il suo scopo è permettere a chi ha una rete di contatti — come portieri, guide turistiche, personal trainer — di metterla a disposizione di professionisti
-              come idraulici, giardinieri, ristoratori, dietisti, ecc. Le parti possono accordarsi privatamente sul tipo di compenso, che può essere in denaro, uno scambio di servizi,
-              referral reciproci o altri accordi personali.
+              come idraulici, giardinieri, ristoratori, dietisti, ecc. Le parti possono accordarsi privatamente sul tipo di compenso.
             </p>
             <p className="text-gray-800 text-lg">
-              All'interno della piattaforma gli utenti possono cercare contatti attraverso una <strong>barra di ricerca avanzata</strong>, comunicare grazie a una <strong>messaggistica interna</strong> e gestire tutto tramite una <strong>dashboard personale</strong>.
+              Gli utenti possono cercare contatti con una <strong>barra di ricerca avanzata</strong>, comunicare tramite <strong>messaggistica interna</strong> e gestire tutto tramite una <strong>dashboard personale</strong>.
             </p>
           </div>
         </section>
@@ -138,7 +135,6 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
@@ -156,11 +152,9 @@ export default function Home() {
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
                 <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
               </div>
-
             </div>
           </div>
         </section>
-
       </main>
     </>
   );
