@@ -1,22 +1,88 @@
-// File: pages/dashboard.js import { useEffect, useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../lib/supabaseClient'; import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { supabase } from '../utils/supabaseClient';
 
-export default function Dashboard() { const router = useRouter(); const [profiles, setProfiles] = useState([]); const [loading, setLoading] = useState(true); const [userId, setUserId] = useState(null);
+export default function Dashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const { role, city, cap, category } = router.query;
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-useEffect(() => { const getUser = async () => { const { data: { user }, error, } = await supabase.auth.getUser(); if (user) setUserId(user.id); }; getUser(); }, []);
+      if (error || !user) {
+        router.push('/login');
+        return;
+      }
 
-useEffect(() => { const fetchProfiles = async () => { if (!role || !city) return; const { data, error } = await supabase .from('profiles') .select('*') .ilike('role', %${role}%) .ilike('city', %${city}%) .ilike('cap', %${cap || ''}%) .ilike('category', %${category || ''}%);
+      setUser(user);
 
-if (error) console.error('Errore nel caricamento:', error);
-  else setProfiles(data);
-  setLoading(false);
-};
-fetchProfiles();
+      const searchParams = new URLSearchParams(window.location.search);
+      const role = searchParams.get('role');
+      const city = searchParams.get('city');
+      const category = searchParams.get('category');
+      const cap = searchParams.get('cap');
 
-}, [role, city, cap, category]);
+      let query = supabase.from('profiles').select('*');
 
-const handleContact = async (recipientId) => { if (!userId) return; const { error } = await supabase.from('messages').insert({ sender_id: userId, recipient_id: recipientId, content: 'Ciao, vorrei mettermi in contatto con te tramite Connectiamo.', }); if (!error) alert('Messaggio inviato!'); else alert('Errore durante l'invio del messaggio.'); };
+      if (role) query = query.eq('role', role);
+      if (city) query = query.ilike('city', `%${city}%`);
+      if (category) query = query.ilike('category', `%${category}%`);
+      if (cap) query = query.ilike('cap', `%${cap}%`);
 
-return ( <div className="p-6"> <h1 className="text-2xl font-bold mb-4">Risultati della tua ricerca</h1> {loading ? ( <p>Caricamento...</p> ) : profiles.length > 0 ? ( <ul className="space-y-4"> {profiles.map((profile) => ( <li key={profile.id} className="border p-4 rounded"> <p><strong>Nome:</strong> {profile.full_name}</p> <p><strong>Ruolo:</strong> {profile.role}</p> <p><strong>Città:</strong> {profile.city}</p> <p><strong>Categoria:</strong> {profile.category}</p> <button onClick={() => handleContact(profile.id)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" > Contatta </button> </li> ))} </ul> ) : ( <p>Nessun profilo trovato.</p> )} </div> ); }
+      const { data, error: fetchError } = await query;
 
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setProfiles(data);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center mt-10">Caricamento...</p>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-red-500">Errore: {error}</p>
+        <button
+          onClick={() => router.push('/')}
+          className="mt-4 bg-yellow-400 px-4 py-2 rounded-md font-semibold"
+        >
+          Torna alla Home
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto py-10 px-6 md:px-20">
+      <h2 className="text-2xl font-bold mb-6">Dashboard: Risultati ricerca</h2>
+      {profiles.length === 0 ? (
+        <p>Nessun profilo trovato.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {profiles.map((profile) => (
+            <div key={profile.id} className="bg-white p-6 rounded-xl shadow">
+              <h3 className="text-xl font-semibold text-gray-800">{profile.name}</h3>
+              <p className="text-gray-600">{profile.role} - {profile.category}</p>
+              <p className="text-gray-600">{profile.city}, {profile.cap}</p>
+              <p className="text-gray-600 mt-2">{profile.description}</p>
+              <p className="mt-4 text-gray-400 italic">Per contattare questo utente, accedi alla messaggistica interna.</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
