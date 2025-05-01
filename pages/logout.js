@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
+import { useRouter } from 'next/router';
 
 export default function Logout() {
   const router = useRouter();
@@ -8,15 +8,10 @@ export default function Logout() {
   useEffect(() => {
     const logout = async () => {
       await supabase.auth.signOut();
-      router.push('/login');
+      router.push('/');
     };
-
     logout();
   }, [router]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <p className="text-gray-800 dark:text-gray-200">Disconnessione in corso...</p>
-    </div>
-  );
+  return <p className="text-center p-4 text-white">Disconnessione in corso...</p>;
 }
