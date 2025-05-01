@@ -1,55 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { supabase } from '../utils/supabaseClient';
 
 export default function Navbar() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-  }, [darkMode]);
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
 
   return (
     <nav className="bg-[#0f1e3c] dark:bg-gray-900 border-b border-gray-800 px-4 py-3 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="text-xl font-bold">Connectiamo</div>
 
-        {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
           <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
-          <Link href="/faq"><a className="hover:text-yellow-400">FAQ</a></Link>
-          <Link href="/contatti"><a className="hover:text-yellow-400">Contatti</a></Link>
-          <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
-          <Link href="/login"><a className="hover:text-yellow-400">Login</a></Link>
-          <Link href="/signup"><a className="hover:text-yellow-400">Registrati</a></Link>
+          {user ? (
+            <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+          ) : (
+            <>
+              <Link href="/login"><a className="hover:text-yellow-400">Login</a></Link>
+              <Link href="/signup"><a className="hover:text-yellow-400">Registrati</a></Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-3">
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? '✖' : '☰'}
           </button>
         </div>
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="ml-4 text-lg"
-          title="Toggle dark mode"
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
       </div>
 
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-3 space-y-2">
           <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
-          <Link href="/faq"><a className="block hover:text-yellow-400">FAQ</a></Link>
-          <Link href="/contatti"><a className="block hover:text-yellow-400">Contatti</a></Link>
-          <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
-          <Link href="/login"><a className="block hover:text-yellow-400">Login</a></Link>
-          <Link href="/signup"><a className="block hover:text-yellow-400">Registrati</a></Link>
+          {user ? (
+            <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+          ) : (
+            <>
+              <Link href="/login"><a className="block hover:text-yellow-400">Login</a></Link>
+              <Link href="/signup"><a className="block hover:text-yellow-400">Registrati</a></Link>
+            </>
+          )}
         </div>
       )}
     </nav>
