@@ -19,10 +19,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="text-xl font-bold">Connectiamo</div>
 
+        {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
           <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
           {user ? (
-            <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+            <>
+              <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
+            </>
           ) : (
             <>
               <Link href="/login"><a className="hover:text-yellow-400">Login</a></Link>
@@ -44,7 +48,10 @@ export default function Navbar() {
         <div className="md:hidden mt-3 space-y-2">
           <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
           {user ? (
-            <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+            <>
+              <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
+            </>
           ) : (
             <>
               <Link href="/login"><a className="block hover:text-yellow-400">Login</a></Link>
