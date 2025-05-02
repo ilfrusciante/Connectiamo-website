@@ -58,12 +58,14 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center justify-center px-4">
       <div className="max-w-lg w-full p-6">
-        <div className="flex justify-center mb-6">
+        <div className="w-full flex justify-center mb-6">
           <Image
             src="/images/illustration-signup.png"
             alt="Registrazione"
-            width={240}
-            height={180}
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: '100%', maxWidth: '360px', height: 'auto' }}
             className="rounded-md"
           />
         </div>
