@@ -2,12 +2,12 @@ import { useState } from 'react'; import { supabase } from '../utils/supabaseCli
 
 export default function Signup() { const router = useRouter(); const [nome, setNome] = useState(''); const [cognome, setCognome] = useState(''); const [nickname, setNickname] = useState(''); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [role, setRole] = useState(''); const [city, setCity] = useState(''); const [cap, setCap] = useState(''); const [category, setCategory] = useState(''); const [description, setDescription] = useState(''); const [error, setError] = useState('');
 
+const normalize = (str) => str.toLowerCase().trim();
+
 const handleSignup = async (e) => { e.preventDefault(); setError('');
 
-// Normalizza la città (prima maiuscola, resto minuscolo)
 const normalizedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
 
-// Controllo con API Zippopotam.us
 try {
   const res = await fetch(`https://api.zippopotam.us/it/${cap}`);
   if (!res.ok) throw new Error('CAP non valido o non trovato');
@@ -15,8 +15,8 @@ try {
   const data = await res.json();
   const apiCity = data.places?.[0]['place name'];
 
-  if (!apiCity || apiCity.toLowerCase() !== normalizedCity.toLowerCase()) {
-    setError(`Il CAP non corrisponde alla città inserita (${normalizedCity}).`);
+  if (!apiCity || normalize(apiCity) !== normalize(normalizedCity)) {
+    setError(`Il CAP ${cap} non corrisponde alla città inserita (${normalizedCity}).`);
     return;
   }
 } catch (err) {
