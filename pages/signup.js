@@ -4,6 +4,26 @@ export default function Signup() { const router = useRouter(); const [nome, setN
 
 const handleSignup = async (e) => { e.preventDefault(); setError('');
 
+// Normalizza la città (prima maiuscola, resto minuscolo)
+const normalizedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+
+// Controllo con API Zippopotam.us
+try {
+  const res = await fetch(`https://api.zippopotam.us/it/${cap}`);
+  if (!res.ok) throw new Error('CAP non valido o non trovato');
+
+  const data = await res.json();
+  const apiCity = data.places?.[0]['place name'];
+
+  if (!apiCity || apiCity.toLowerCase() !== normalizedCity.toLowerCase()) {
+    setError(`Il CAP non corrisponde alla città inserita (${normalizedCity}).`);
+    return;
+  }
+} catch (err) {
+  setError('Errore nella verifica del CAP: ' + err.message);
+  return;
+}
+
 const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
   email,
   password,
@@ -23,7 +43,7 @@ if (userId) {
     cognome,
     nickname,
     role,
-    city,
+    city: normalizedCity,
     cap,
     category,
     description,
@@ -57,38 +77,32 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center 
     <form onSubmit={handleSignup} className="space-y-4">
       <div>
         <label className="block text-sm mb-1">Nome</label>
-        <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
       </div>
 
       <div>
         <label className="block text-sm mb-1">Cognome</label>
-        <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
       </div>
 
       <div>
         <label className="block text-sm mb-1">Nickname</label>
-        <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
       </div>
 
       <div>
         <label className="block text-sm mb-1">Email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
       </div>
 
       <div>
         <label className="block text-sm mb-1">Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
       </div>
 
       <div>
         <label className="block text-sm mb-1">Ruolo</label>
-        <select value={role} onChange={(e) => setRole(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+        <select value={role} onChange={(e) => setRole(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none">
           <option value="">Seleziona...</option>
           <option value="Professionista">Professionista</option>
           <option value="Connector">Connector</option>
@@ -98,20 +112,17 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center 
       <div className="flex space-x-4">
         <div className="w-2/3">
           <label className="block text-sm mb-1">Città</label>
-          <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required
-            className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+          <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
         </div>
         <div className="w-1/3">
           <label className="block text-sm mb-1">CAP</label>
-          <input type="text" value={cap} onChange={(e) => setCap(e.target.value)} required
-            className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+          <input type="text" value={cap} onChange={(e) => setCap(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
         </div>
       </div>
 
       <div>
         <label className="block text-sm mb-1">Categoria</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+        <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none">
           <option value="">Seleziona...</option>
           <option value="Edilizia">Edilizia</option>
           <option value="Benessere">Benessere</option>
@@ -125,14 +136,10 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center 
 
       <div>
         <label className="block text-sm mb-1">Descrizione (facoltativa)</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)}
-          placeholder="Scrivi una breve descrizione del tuo profilo o dei tuoi contatti..."
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-          rows={3}></textarea>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Scrivi una breve descrizione del tuo profilo o dei tuoi contatti..." className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" rows={3}></textarea>
       </div>
 
-      <button type="submit"
-        className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded transition duration-200">
+      <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded transition duration-200">
         Registrati
       </button>
     </form>
