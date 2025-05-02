@@ -53,19 +53,17 @@ export default function SearchResults() {
 
   if (loading) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-gray-700">Caricamento dei profili in corso...</p>
-      </div>
+      <div className="text-center mt-10 text-white">Caricamento dei profili in corso...</div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-red-500">Errore nel caricamento dei profili: {error}</p>
+      <div className="text-center mt-10 text-white">
+        <p className="text-red-400">{error}</p>
         <button
           onClick={() => router.push('/')}
-          className="mt-4 bg-yellow-400 px-4 py-2 rounded-md font-semibold"
+          className="mt-4 bg-yellow-400 px-4 py-2 rounded font-semibold text-black"
         >
           Torna alla Home
         </button>
@@ -75,11 +73,11 @@ export default function SearchResults() {
 
   if (profiles.length === 0) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-gray-700 text-lg">Nessun profilo trovato con i criteri di ricerca.</p>
+      <div className="text-center mt-10 text-white">
+        <p className="text-lg">Nessun profilo trovato con i criteri di ricerca.</p>
         <button
           onClick={() => router.push('/')}
-          className="mt-4 bg-yellow-400 px-4 py-2 rounded-md font-semibold"
+          className="mt-4 bg-yellow-400 px-4 py-2 rounded font-semibold text-black"
         >
           Torna alla Home
         </button>
@@ -88,15 +86,21 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-6 md:px-20">
-      <h2 className="text-2xl font-bold mb-6">Risultati della ricerca</h2>
+    <div className="max-w-5xl mx-auto py-10 px-6 md:px-20 text-white">
+      <h2 className="text-3xl font-bold mb-6 text-center">Risultati della ricerca</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {profiles.map((profile) => (
-          <div key={profile.id} className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-xl font-semibold text-gray-800">{profile.username || 'Utente'}</h3>
-            <p className="text-gray-600">{profile.role} - {profile.category}</p>
-            <p className="text-gray-600">{profile.city}, {profile.cap}</p>
-            <p className="text-gray-600 mt-2">{profile.description}</p>
+          <div key={profile.id} className="bg-[#1e2a44] p-6 rounded-xl shadow-lg border border-gray-700">
+            <h3 className="text-xl font-semibold text-yellow-400">
+              {profile.nickname || 'Utente anonimo'}
+            </h3>
+
+            <p className="text-gray-300 mt-1">{profile.role} • {profile.category || 'Categoria non specificata'}</p>
+            <p className="text-gray-400 text-sm">{profile.city}{profile.cap ? `, ${profile.cap}` : ''}</p>
+            {profile.description && (
+              <p className="mt-3 text-gray-200 text-sm">{profile.description}</p>
+            )}
 
             {user ? (
               <button
