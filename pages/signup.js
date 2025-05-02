@@ -5,7 +5,9 @@ import Image from 'next/image';
 
 export default function Signup() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [nome, setNome] = useState('');
+  const [cognome, setCognome] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
@@ -33,7 +35,9 @@ export default function Signup() {
     if (userId) {
       const { error: profileError } = await supabase.from('profiles').insert([{
         id: userId,
-        username,
+        nome,
+        cognome,
+        nickname,
         role,
         city,
         cap,
@@ -52,8 +56,8 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
-      <div className="max-w-lg w-full bg-gray-800 p-6 rounded-xl shadow-lg">
+    <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center justify-center px-4">
+      <div className="max-w-lg w-full p-6">
         <div className="flex justify-center mb-6">
           <Image
             src="/images/illustration-signup.png"
@@ -64,9 +68,13 @@ export default function Signup() {
           />
         </div>
 
-        <h2 className="text-2xl font-semibold text-center mb-2">Registrati</h2>
-        <p className="text-center text-gray-300 mb-6 text-sm">
+        <h2 className="text-2xl font-semibold text-center mb-1">Registrati</h2>
+        <p className="text-center text-gray-300 text-sm mb-4">
           Crea un nuovo account per connetterti con altri professionisti.
+        </p>
+        <p className="text-xs text-yellow-300 text-center mb-6">
+          Il tuo <strong>nome e cognome resteranno privati</strong> e non verranno mostrati ad altri utenti. <br />
+          Solo il <strong>nickname</strong> sarà visibile pubblicamente.
         </p>
 
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
@@ -74,7 +82,19 @@ export default function Signup() {
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <label className="block text-sm mb-1">Nome</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required
+            <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required
+              className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Cognome</label>
+            <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} required
+              className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Nickname</label>
+            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required
               className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
 
