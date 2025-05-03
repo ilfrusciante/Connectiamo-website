@@ -1,6 +1,6 @@
 import { useState } from 'react'; import { supabase } from '../utils/supabaseClient'; import { useRouter } from 'next/router'; import Image from 'next/image';
 
-export default function Signup() { const router = useRouter(); const [nome, setNome] = useState(''); const [cognome, setCognome] = useState(''); const [nickname, setNickname] = useState(''); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [role, setRole] = useState(''); const [city, setCity] = useState(''); const [cap, setCap] = useState(''); const [category, setCategory] = useState(''); const [description, setDescription] = useState(''); const [error, setError] = useState('');
+export default function Signup() { const router = useRouter(); const [nome, setNome] = useState(''); const [cognome, setCognome] = useState(''); const [nickname, setNickname] = useState(''); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [role, setRole] = useState(''); const [city, setCity] = useState(''); const [cap, setCap] = useState(''); const [category, setCategory] = useState(''); const [description, setDescription] = useState(''); const [country, setCountry] = useState(''); const [error, setError] = useState('');
 
 const normalize = (str) => str.toLowerCase().trim();
 
@@ -8,9 +8,8 @@ const handleSignup = async (e) => { e.preventDefault(); setError('');
 
 const normalizedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
 
-// Verifica CAP-città tramite GeoNames
 try {
-  const res = await fetch(`https://secure.geonames.org/postalCodeSearchJSON?postalcode=${cap}&maxRows=10&username=RobyRob`);
+  const res = await fetch(`https://secure.geonames.org/postalCodeSearchJSON?postalcode=${cap}&placename=${normalizedCity}&country=${country}&maxRows=10&username=RobyRob`);
   if (!res.ok) throw new Error('CAP non valido o non trovato');
   const data = await res.json();
 
@@ -48,6 +47,7 @@ if (userId) {
     role,
     city: normalizedCity,
     cap,
+    country,
     category,
     description,
     email,
@@ -88,6 +88,29 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center 
         <option value="">Seleziona ruolo</option>
         <option value="Professionista">Professionista</option>
         <option value="Connector">Connector</option>
+      </select>
+
+      <select value={country} onChange={(e) => setCountry(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
+        <option value="">Seleziona paese</option>
+        <option value="IT">Italia</option>
+        <option value="US">Stati Uniti</option>
+        <option value="GB">Regno Unito</option>
+        <option value="FR">Francia</option>
+        <option value="DE">Germania</option>
+        <option value="ES">Spagna</option>
+        <option value="CA">Canada</option>
+        <option value="AU">Australia</option>
+        <option value="BR">Brasile</option>
+        <option value="JP">Giappone</option>
+        <option value="IN">India</option>
+        <option value="CH">Svizzera</option>
+        <option value="NL">Paesi Bassi</option>
+        <option value="BE">Belgio</option>
+        <option value="PT">Portogallo</option>
+        <option value="SE">Svezia</option>
+        <option value="NO">Norvegia</option>
+        <option value="PL">Polonia</option>
+        <option value="GR">Grecia</option>
       </select>
 
       <div className="flex space-x-4">
