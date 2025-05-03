@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { useRouter } from 'next/router';
 
 export default function ChatPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showChat, setShowChat] = useState(false); // Stato per gestire la visualizzazione su mobile
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,10 +27,9 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   const fetchConversations = async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .neq('id', user.id);
+    const { data, error } = await supabase.rpc('get_conversations', {
+      current_user_id: user.id,
+    });
     if (!error) setConversations(data);
   };
 
@@ -67,56 +67,55 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen text-white bg-[#0f1e3c]">
-      {/* Sidebar conversazioni */}
-      <div className={`md:w-1/3 p-4 overflow-y-auto ${showChat ? 'hidden' : 'block'}`}>
-        <h2 className="text-xl font-semibold mb-4">Messaggi</h2>
-        {conversations.length === 0 && (
-          <p className="text-gray-400">Nessuna conversazione.</p>
-        )}
-        {conversations.map((profile) => (
-          <div
-            key={profile.id}
-            onClick={() => {
-              setSelectedUser(profile);
-              setShowChat(true); // Mostra la chat su mobile
-            }}
-            className={`p-2 cursor-pointer rounded mb-2 ${
-              selectedUser?.id === profile.id
-                ? 'bg-yellow-600 text-black'
-                : 'hover:bg-gray-700'
-            }`}
-          >
-            {profile.nickname}
-          </div>
-        ))}
+      {/* Lista contatti */}
+      <div className={`md:w-1/3 w-full md:block ${selectedUser ? 'hidden md:block' : 'block'}`}>
+        <div className="p-4 border-b border-gray-700 bg-[#0f1e3c]">
+          <h2 className="text-xl font-semibold mb-2">Contatti</h2>
+          {conversations.length === 0 ? (
+            <p className="text-gray-400">Nessuna conversazione.</p>
+          ) : (
+            conversations.map((profile) => (
+              <div
+                key={profile.id}
+                onClick={() => setSelectedUser(profile)}
+                className={`p-2 mb-2 rounded cursor-pointer ${
+                  selectedUser?.id === profile.id
+                    ? 'bg-yellow-500 text-black font-semibold'
+                    : 'hover:bg-gray-700'
+                }`}
+              >
+                {profile.nickname}
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Chat principale */}
-      <div className={`flex-1 flex flex-col p-4 ${showChat ? 'block' : 'hidden'} md:block`}>
-        {!selectedUser ? (
-          <p className="text-gray-400">
-            Seleziona un contatto per iniziare la conversazione.
-          </p>
-        ) : (
+      {/* Finestra chat */}
+      <div className={`flex-1 flex flex-col ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
+        {selectedUser && (
           <>
-            {/* Bottone per tornare alla lista su mobile */}
-            <button
-              className="md:hidden mb-4 text-yellow-500"
-              onClick={() => setShowChat(false)}
-            >
-              ← Torna ai contatti
-            </button>
-            <div className="flex-1 overflow-y-auto mb-4 border rounded bg-gray-800 p-3">
+            {/* Mobile: pulsante torna indietro */}
+            <div className="md:hidden p-2 bg-gray-800">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="text-yellow-400 hover:underline"
+              >
+                ← Torna ai contatti
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#1a2b4c]">
               {messages.length === 0 ? (
                 <p className="text-gray-400">Nessun messaggio.</p>
               ) : (
                 messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`mb-2 p-2 rounded max-w-xs ${
+                    className={`max-w-[70%] p-2 rounded-md ${
                       msg.sender_id === user.id
                         ? 'bg-yellow-500 text-black ml-auto'
-                        : 'bg-gray-700'
+                        : 'bg-gray-700 text-white'
                     }`}
                   >
                     {msg.content}
@@ -124,13 +123,14 @@ export default function ChatPage() {
                 ))
               )}
             </div>
-            <div className="flex gap-2">
+
+            <div className="p-4 border-t border-gray-700 flex gap-2 bg-[#0f1e3c]">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Scrivi un messaggio..."
-                className="flex-1 p-2 rounded bg-gray-700 text-white"
+                className="flex-1 p-2 rounded bg-gray-700 text-white outline-none"
               />
               <button
                 onClick={sendMessage}
