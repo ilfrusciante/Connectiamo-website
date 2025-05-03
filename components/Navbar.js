@@ -25,6 +25,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/chat"><a className="hover:text-yellow-400">Messaggi</a></Link>
               <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
             </>
           ) : (
@@ -50,6 +51,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/chat"><a className="block hover:text-yellow-400">Messaggi</a></Link>
               <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
             </>
           ) : (
