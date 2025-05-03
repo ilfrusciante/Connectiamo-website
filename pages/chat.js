@@ -11,6 +11,41 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Finti contatti per sviluppo
+  const fakeContacts = [
+    {
+      id: 'f1',
+      nickname: 'Luca23',
+      last_seen: new Date(Date.now() - 30 * 1000).toISOString(), // online
+    },
+    {
+      id: 'f2',
+      nickname: 'Anna_Design',
+      last_seen: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // offline
+    },
+    {
+      id: 'f3',
+      nickname: 'Marco.Tech',
+      last_seen: new Date(Date.now() - 20 * 1000).toISOString(), // online
+    },
+  ];
+
+  // Messaggi finti tra user e Luca23
+  const fakeMessages = [
+    {
+      id: 1,
+      sender_id: 'me',
+      receiver_id: 'f1',
+      content: 'Ciao Luca, ti occupi anche di piccoli lavori?',
+    },
+    {
+      id: 2,
+      sender_id: 'f1',
+      receiver_id: 'me',
+      content: 'Certo! Di cosa hai bisogno?',
+    },
+  ];
+
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -21,17 +56,21 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (user) fetchConversations();
+    else setConversations(fakeContacts); // fallback per sviluppo
   }, [user]);
 
   useEffect(() => {
     if (user && selectedUser) fetchMessages();
+    else if (selectedUser?.id === 'f1') setMessages(fakeMessages); // finti
+    else setMessages([]);
   }, [selectedUser]);
 
   const fetchConversations = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
       current_user_id: user.id,
     });
-    if (!error) setConversations(data);
+    if (!error && data.length > 0) setConversations(data);
+    else setConversations(fakeContacts); // fallback se vuoto
   };
 
   const fetchMessages = async () => {
@@ -53,6 +92,13 @@ export default function ChatPage() {
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
+
+    if (selectedUser.id.startsWith('f')) {
+      setMessages([...messages, { id: Date.now(), sender_id: 'me', receiver_id: selectedUser.id, content: newMessage }]);
+      setNewMessage('');
+      return;
+    }
+
     const { error } = await supabase.from('messages').insert({
       sender_id: user.id,
       receiver_id: selectedUser.id,
@@ -67,19 +113,14 @@ export default function ChatPage() {
   const isOnline = (lastSeen) => {
     if (!lastSeen) return false;
     const secondsAgo = (Date.now() - new Date(lastSeen).getTime()) / 1000;
-    return secondsAgo < 60; // considerato online se visto negli ultimi 60 secondi
+    return secondsAgo < 60;
   };
-
-  if (!user) return <div className="p-4 text-white">Caricamento...</div>;
 
   return (
     <div className="flex h-screen text-white bg-[#0f1e3c]">
-      {/* Sidebar conversazioni */}
+      {/* Contatti */}
       <div className="w-1/3 border-r border-gray-700 p-4 overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4">Messaggi</h2>
-        {conversations.length === 0 && (
-          <p className="text-gray-400">Nessuna conversazione.</p>
-        )}
         {conversations.map((profile) => (
           <div
             key={profile.id}
@@ -100,12 +141,10 @@ export default function ChatPage() {
         ))}
       </div>
 
-      {/* Chat principale */}
+      {/* Messaggi */}
       <div className="flex-1 flex flex-col p-4">
         {!selectedUser ? (
-          <p className="text-gray-400">
-            Seleziona un contatto per iniziare la conversazione.
-          </p>
+          <p className="text-gray-400">Seleziona un contatto per iniziare la conversazione.</p>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto mb-4 border rounded bg-gray-800 p-3">
@@ -116,7 +155,7 @@ export default function ChatPage() {
                   <div
                     key={msg.id}
                     className={`mb-2 p-2 rounded max-w-xs ${
-                      msg.sender_id === user.id
+                      msg.sender_id === 'me' || msg.sender_id === user?.id
                         ? 'bg-yellow-500 text-black ml-auto'
                         : 'bg-gray-700'
                     }`}
