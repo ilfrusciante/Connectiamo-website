@@ -1,84 +1,101 @@
-import { useEffect, useState } from 'react'; import { supabase } from '../utils/supabaseClient'; import { useRouter } from 'next/router';
+// pages/chat.js
+import { useState } from 'react';
 
-export default function ChatPage() { const router = useRouter(); const [user, setUser] = useState(null); const [messages, setMessages] = useState([]); const [newMessage, setNewMessage] = useState(''); const [conversations, setConversations] = useState([]); const [selectedUser, setSelectedUser] = useState(null);
+const fakeUsers = [
+  { id: '1', nickname: 'Luca' },
+  { id: '2', nickname: 'Martina' },
+  { id: '3', nickname: 'Davide' },
+];
 
-useEffect(() => { const fetchUser = async () => { const { data: { user } } = await supabase.auth.getUser(); setUser(user); }; fetchUser(); }, []);
-
-useEffect(() => { if (user) fetchConversations(); }, [user]);
-
-useEffect(() => { if (user && selectedUser) fetchMessages(); }, [selectedUser]);
-
-const fetchConversations = async () => { const { data, error } = await supabase.rpc('get_conversations', { current_user_id: user.id, }); if (!error) setConversations(data); };
-
-const fetchMessages = async () => { const { data, error } = await supabase .from('messages') .select('*') .or(sender_id.eq.${user.id},receiver_id.eq.${user.id}) .order('created_at', { ascending: true });
-
-if (!error) {
-  const filtered = data.filter(
-    (msg) =>
-      (msg.sender_id === user.id && msg.receiver_id === selectedUser.id) ||
-      (msg.sender_id === selectedUser.id && msg.receiver_id === user.id)
-  );
-  setMessages(filtered);
-}
-
+const fakeMessages = {
+  '1': [
+    { id: 1, sender: 'me', content: 'Ciao Luca!' },
+    { id: 2, sender: '1', content: 'Ciao! Come va?' },
+  ],
+  '2': [
+    { id: 1, sender: 'me', content: 'Ciao Martina!' },
+    { id: 2, sender: '2', content: 'Ehi, tutto bene grazie!' },
+  ],
+  '3': [],
 };
 
-const sendMessage = async () => { if (!newMessage.trim()) return; const { error } = await supabase.from('messages').insert({ sender_id: user.id, receiver_id: selectedUser.id, content: newMessage, }); if (!error) { setNewMessage(''); fetchMessages(); } };
+export default function ChatMock() {
+  const [selected, setSelected] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMsg, setNewMsg] = useState('');
 
-if (!user) return <div className="p-4 text-white">Caricamento...</div>;
+  const openChat = (user) => {
+    setSelected(user);
+    setMessages(fakeMessages[user.id] || []);
+  };
 
-return ( <div className="flex flex-col md:flex-row h-screen text-white bg-[#0f1e3c]"> {/* Sidebar conversazioni */} <div className={md:w-1/3 w-full border-r border-gray-700 p-4 overflow-y-auto ${selectedUser ? 'hidden md:block' : 'block'}}> <h2 className="text-xl font-semibold mb-4">Contatti</h2> {conversations.length === 0 && <p className="text-gray-400">Nessuna conversazione.</p>} {conversations.map((profile) => ( <div key={profile.id} onClick={() => setSelectedUser(profile)} className={p-2 cursor-pointer rounded mb-2 transition-all ${ selectedUser?.id === profile.id ? 'bg-yellow-600 text-black' : 'hover:bg-gray-700' }} > <div className="font-semibold">{profile.nickname}</div> </div> ))} </div>
+  const handleSend = () => {
+    if (!newMsg.trim()) return;
+    const updated = [...messages, { id: Date.now(), sender: 'me', content: newMsg }];
+    setMessages(updated);
+    setNewMsg('');
+  };
 
-{/* Chat principale */}
-  <div className={`flex-1 flex flex-col p-4 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
-    {!selectedUser ? (
-      <p className="text-gray-400">Seleziona un contatto per iniziare la conversazione.</p>
-    ) : (
-      <>
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold">Chat con {selectedUser.nickname}</h3>
-          <button
-            onClick={() => setSelectedUser(null)}
-            className="md:hidden text-sm text-yellow-400 underline"
+  return (
+    <div className="flex flex-col md:flex-row h-screen bg-[#0f1e3c] text-white">
+      {/* Lista contatti */}
+      <div className="md:w-1/3 border-r border-gray-700 p-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Contatti</h2>
+        {fakeUsers.map((user) => (
+          <div
+            key={user.id}
+            onClick={() => openChat(user)}
+            className={`p-3 rounded cursor-pointer mb-2 ${
+              selected?.id === user.id ? 'bg-yellow-500 text-black' : 'hover:bg-gray-700'
+            }`}
           >
-            Torna ai contatti
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto mb-4 border rounded bg-gray-800 p-4 space-y-2">
-          {messages.length === 0 ? (
-            <p className="text-gray-400">Nessun messaggio.</p>
-          ) : (
-            messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`p-2 rounded max-w-[80%] ${
-                  msg.sender_id === user.id ? 'bg-yellow-500 text-black ml-auto' : 'bg-gray-700'
-                }`}
+            {user.nickname}
+          </div>
+        ))}
+      </div>
+
+      {/* Chat */}
+      <div className="flex-1 flex flex-col p-4">
+        {selected ? (
+          <>
+            <h3 className="text-lg font-semibold mb-2">Chat con {selected.nickname}</h3>
+            <div className="flex-1 bg-gray-800 rounded p-3 overflow-y-auto mb-4">
+              {messages.length === 0 ? (
+                <p className="text-gray-400">Nessun messaggio.</p>
+              ) : (
+                messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`mb-2 p-2 rounded max-w-xs ${
+                      m.sender === 'me'
+                        ? 'bg-yellow-500 text-black ml-auto'
+                        : 'bg-gray-700 text-white'
+                    }`}
+                  >
+                    {m.content}
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="flex gap-2">
+              <input
+                className="flex-1 p-2 rounded bg-gray-700 text-white"
+                value={newMsg}
+                onChange={(e) => setNewMsg(e.target.value)}
+                placeholder="Scrivi un messaggio..."
+              />
+              <button
+                onClick={handleSend}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 rounded"
               >
-                {msg.content}
-              </div>
-            ))
-          )}
-        </div>
-        <div className="flex gap-2 mt-auto">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Scrivi un messaggio..."
-            className="flex-1 p-2 rounded bg-gray-700 text-white"
-          />
-          <button
-            onClick={sendMessage}
-            className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 rounded"
-          >
-            Invia
-          </button>
-        </div>
-      </>
-    )}
-  </div>
-</div>
-
-); }
-
+                Invia
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-gray-400">Seleziona un contatto per iniziare la conversazione.</p>
+        )}
+      </div>
+    </div>
+  );
+}
