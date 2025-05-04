@@ -1,38 +1,63 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { useRouter } from 'next/router';
+import dayjs from 'dayjs';
 
 export default function ChatPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // Contatti finti per esempio
   const fakeContacts = [
     {
       id: 'f1',
       nickname: 'Luca23',
-      last_seen: new Date(Date.now() - 30 * 1000).toISOString(), // online
+      last_seen: new Date(Date.now() - 30 * 1000).toISOString(),
     },
     {
       id: 'f2',
       nickname: 'Anna_Design',
-      last_seen: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // offline
+      last_seen: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     },
     {
       id: 'f3',
       nickname: 'Marco.Tech',
-      last_seen: new Date(Date.now() - 20 * 1000).toISOString(), // online
+      last_seen: new Date(Date.now() - 20 * 1000).toISOString(),
     },
   ];
 
-  // Messaggi finti tra utente e Luca23
   const fakeMessages = [
-    { id: 1, sender_id: 'me', receiver_id: 'f1', content: 'Ciao Luca, ti occupi anche di piccoli lavori?' },
-    { id: 2, sender_id: 'f1', receiver_id: 'me', content: 'Certo! Di cosa hai bisogno?' },
-    { id: 3, sender_id: 'me', receiver_id: 'f1', content: 'Una parete da imbiancare. Ti va?' },
-    { id: 4, sender_id: 'f1', receiver_id: 'me', content: 'Perfetto, ci organizziamo!' },
+    {
+      id: 1,
+      sender_id: 'me',
+      receiver_id: 'f1',
+      content: 'Ciao Luca, ti occupi anche di piccoli lavori?',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      sender_id: 'f1',
+      receiver_id: 'me',
+      content: 'Certo! Di cosa hai bisogno?',
+      created_at: new Date(Date.now() + 10000).toISOString(),
+    },
+    {
+      id: 3,
+      sender_id: 'me',
+      receiver_id: 'f1',
+      content: 'Una parete da imbiancare. Ti va?',
+      created_at: new Date(Date.now() + 20000).toISOString(),
+    },
+    {
+      id: 4,
+      sender_id: 'f1',
+      receiver_id: 'me',
+      content: 'Perfetto, ci organizziamo!',
+      created_at: new Date(Date.now() + 30000).toISOString(),
+    },
   ];
 
   useEffect(() => {
@@ -58,7 +83,7 @@ export default function ChatPage() {
     const { data, error } = await supabase.rpc('get_conversations', {
       current_user_id: user.id,
     });
-    if (!error && data?.length > 0) setConversations(data);
+    if (!error && data.length > 0) setConversations(data);
     else setConversations(fakeContacts);
   };
 
@@ -82,8 +107,16 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
+    const newMsg = {
+      id: Date.now(),
+      sender_id: 'me',
+      receiver_id: selectedUser.id,
+      content: newMessage,
+      created_at: new Date().toISOString(),
+    };
+
     if (selectedUser.id.startsWith('f')) {
-      setMessages([...messages, { id: Date.now(), sender_id: 'me', receiver_id: selectedUser.id, content: newMessage }]);
+      setMessages([...messages, newMsg]);
       setNewMessage('');
       return;
     }
@@ -106,55 +139,86 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0f1e3c] text-white">
-      {/* Sidebar */}
-      <div className="w-full md:w-1/3 border-r border-gray-800 p-4 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4">Contatti</h2>
+    <div className="flex h-screen text-white bg-[#0f1e3c]">
+      {/* Contatti */}
+      <div className="w-1/3 border-r border-gray-800 p-4 overflow-y-auto hidden md:block">
+        <h2 className="text-xl font-bold mb-4">Contatti</h2>
         {conversations.map((profile) => (
           <div
             key={profile.id}
             onClick={() => setSelectedUser(profile)}
-            className={`flex items-center gap-3 p-3 rounded cursor-pointer transition mb-2 ${
-              selectedUser?.id === profile.id ? 'bg-yellow-500 text-black' : 'hover:bg-gray-700'
+            className={`p-3 cursor-pointer rounded mb-2 flex items-center gap-3 transition ${
+              selectedUser?.id === profile.id
+                ? 'bg-yellow-600 text-black'
+                : 'hover:bg-gray-700'
             }`}
           >
-            <span className={`w-3 h-3 rounded-full ${isOnline(profile.last_seen) ? 'bg-green-400' : 'bg-gray-500'}`}></span>
-            <span>{profile.nickname}</span>
+            <span
+              className={`w-3 h-3 rounded-full ${
+                isOnline(profile.last_seen) ? 'bg-green-400' : 'bg-gray-500'
+              }`}
+            ></span>
+            <span className="font-medium">{profile.nickname}</span>
           </div>
         ))}
       </div>
 
-      {/* Chat Box */}
-      <div className="hidden md:flex flex-col flex-1 p-4">
+      {/* Chat */}
+      <div className="flex-1 flex flex-col p-4">
         {!selectedUser ? (
-          <p className="text-gray-400 mt-4">Seleziona un contatto per iniziare una conversazione.</p>
+          <p className="text-gray-400 mt-10 text-center">
+            Seleziona un contatto per iniziare a chattare.
+          </p>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto bg-gray-900 rounded-lg p-4 space-y-3">
+            {/* Header contatto */}
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isOnline(selectedUser.last_seen)
+                    ? 'bg-green-400'
+                    : 'bg-gray-500'
+                }`}
+              ></div>
+              <span className="text-lg font-semibold">
+                {selectedUser.nickname}
+              </span>
+              <span className="text-sm text-gray-400 ml-2">
+                {isOnline(selectedUser.last_seen) ? 'Online' : 'Offline'}
+              </span>
+            </div>
+
+            {/* Messaggi */}
+            <div className="flex-1 overflow-y-auto mb-4 space-y-4 px-2 py-1 bg-gray-900 rounded-md">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`max-w-[70%] px-4 py-2 rounded-xl shadow ${
+                  className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md ${
                     msg.sender_id === 'me' || msg.sender_id === user?.id
                       ? 'bg-yellow-400 text-black ml-auto'
                       : 'bg-gray-700 text-white'
                   }`}
                 >
-                  {msg.content}
+                  <p>{msg.content}</p>
+                  <p className="text-[0.7rem] text-right text-gray-300 mt-1">
+                    {dayjs(msg.created_at).format('HH:mm')}
+                  </p>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-4">
+
+            {/* Input */}
+            <div className="flex gap-2 mt-2">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Scrivi un messaggio..."
-                className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400"
+                className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
               />
               <button
                 onClick={sendMessage}
-                className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-full font-semibold"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition"
               >
                 Invia
               </button>
