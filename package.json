@@ -18,5 +18,6 @@
   },
   "devDependencies": {
     "postcss": "^8.4.24"
+    "dayjs": "^1.11.9"
   }
 }
