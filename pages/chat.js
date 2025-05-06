@@ -7,8 +7,9 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [conversations, setConversations] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [isBlocked, setIsBlocked] = useState(false);
+  const [viewingBlocked, setViewingBlocked] = useState(false);
 
   const fakeContacts = [
     { id: 'f1', nickname: 'Luca23', last_seen: new Date(Date.now() - 30 * 1000).toISOString() },
@@ -32,27 +33,41 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    if (user) fetchConversations();
-    else setConversations(fakeContacts);
+    if (user) {
+      fetchConversations();
+      fetchBlockedUsers();
+    } else {
+      setConversations(fakeContacts);
+    }
   }, [user]);
 
   useEffect(() => {
-    if (user && selectedUser) {
-      checkIfBlocked();
-      fetchMessages();
-    } else if (selectedUser?.id === 'f1') {
-      setIsBlocked(false);
-      setMessages(fakeMessages);
-    } else {
-      setIsBlocked(false);
-      setMessages([]);
-    }
+    if (user && selectedUser) fetchMessages();
+    else if (selectedUser?.id === 'f1') setMessages(fakeMessages);
+    else setMessages([]);
   }, [selectedUser]);
 
   const fetchConversations = async () => {
     const { data, error } = await supabase.rpc('get_conversations', { current_user_id: user.id });
     if (!error && data?.length) setConversations(data);
     else setConversations(fakeContacts);
+  };
+
+  const fetchBlockedUsers = async () => {
+    const { data, error } = await supabase
+      .from('blocked_contacts')
+      .select('blocked_user_id, profiles:nickname, profiles:last_seen')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (!error) {
+      const users = data.map(d => ({
+        id: d.blocked_user_id,
+        nickname: d.profiles?.nickname || 'Utente',
+        last_seen: d.profiles?.last_seen || null
+      }));
+      setBlockedUsers(users);
+    }
   };
 
   const fetchMessages = async () => {
@@ -72,17 +87,8 @@ export default function ChatPage() {
     }
   };
 
-  const checkIfBlocked = async () => {
-    const { data, error } = await supabase
-      .from('blocked_contacts')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('blocked_user_id', selectedUser.id);
-    setIsBlocked(!error && data.length > 0);
-  };
-
   const sendMessage = async () => {
-    if (!newMessage.trim() || isBlocked) return;
+    if (!newMessage.trim()) return;
 
     const newMsg = {
       id: Date.now(),
@@ -115,6 +121,7 @@ export default function ChatPage() {
       user_id: user.id,
       blocked_user_id: selectedUser.id,
     });
+    fetchBlockedUsers();
     setConversations((prev) => prev.filter((u) => u.id !== selectedUser.id));
     setSelectedUser(null);
   };
@@ -137,10 +144,19 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen text-white bg-[#0f1e3c]">
-      {/* Lista contatti */}
+      {/* Sidebar contatti + bloccati toggle */}
       <div className="w-1/3 border-r border-gray-800 p-4 overflow-y-auto hidden md:block">
-        <h2 className="text-xl font-bold mb-4">Contatti</h2>
-        {conversations.map((profile) => (
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Contatti</h2>
+          <button
+            onClick={() => setViewingBlocked(!viewingBlocked)}
+            className="text-sm bg-gray-700 px-2 py-1 rounded hover:bg-gray-600"
+          >
+            {viewingBlocked ? 'Mostra contatti' : 'Utenti bloccati'}
+          </button>
+        </div>
+
+        {(viewingBlocked ? blockedUsers : conversations).map((profile) => (
           <div
             key={profile.id}
             onClick={() => setSelectedUser(profile)}
@@ -160,7 +176,7 @@ export default function ChatPage() {
         ))}
       </div>
 
-      {/* Chat */}
+      {/* Chat principale */}
       <div className="flex-1 flex flex-col p-4">
         {!selectedUser ? (
           <p className="text-gray-400 mt-10 text-center">
@@ -203,8 +219,8 @@ export default function ChatPage() {
 
             {/* Messaggi */}
             <div className="flex-1 overflow-y-auto mb-4 space-y-4 px-2 py-1 bg-gray-900 rounded-md">
-              {isBlocked ? (
-                <div className="text-center text-gray-400 italic">
+              {blockedUsers.find((u) => u.id === selectedUser.id) ? (
+                <div className="text-center text-gray-400 italic mt-4">
                   Utente bloccato
                 </div>
               ) : (
@@ -227,27 +243,23 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <div className="flex gap-2 mt-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Scrivi un messaggio..."
-                className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
-                disabled={isBlocked}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={isBlocked}
-                className={`${
-                  isBlocked
-                    ? 'bg-gray-500 cursor-not-allowed'
-                    : 'bg-yellow-400 hover:bg-yellow-500'
-                } text-black font-semibold px-5 py-2 rounded-full transition`}
-              >
-                Invia
-              </button>
-            </div>
+            {!blockedUsers.find((u) => u.id === selectedUser.id) && (
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Scrivi un messaggio..."
+                  className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+                />
+                <button
+                  onClick={sendMessage}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition"
+                >
+                  Invia
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
