@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../utils/supabaseClient';
 
-export default function Dashboard() { const router = useRouter(); const { role, city, category, cap } = router.query; const [profiles, setProfiles] = useState([]); const [loading, setLoading] = useState(true); const [user, setUser] = useState(null);
+export default function Dashboard() { const router = useRouter(); const [user, setUser] = useState(null); const [profile, setProfile] = useState({ nickname: '', description: '', city: '', cap: '' }); const [saving, setSaving] = useState(false);
 
-useEffect(() => { const checkUser = async () => { const { data: { session }, } = await supabase.auth.getSession();
+useEffect(() => { const fetchProfile = async () => { const { data: { session }, } = await supabase.auth.getSession();
 
 if (!session) {
     router.push('/login');
@@ -10,63 +10,81 @@ if (!session) {
   }
 
   setUser(session.user);
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('nickname, description, city, cap')
+    .eq('id', session.user.id)
+    .single();
+
+  if (data) setProfile(data);
 };
 
-checkUser();
+fetchProfile();
 
 }, []);
 
-useEffect(() => { const fetchProfiles = async () => { if (!user) return;
+const handleChange = (e) => { setProfile({ ...profile, [e.target.name]: e.target.value }); };
 
-setLoading(true);
-  let query = supabase.from('profiles').select('*');
+const handleSave = async () => { setSaving(true); const { error } = await supabase.from('profiles').update(profile).eq('id', user.id); if (!error) alert('Profilo aggiornato con successo.'); setSaving(false); };
 
-  if (role) query = query.eq('role', role);
-  if (city) query = query.ilike('city', `%${city}%`);
-  if (category) query = query.ilike('category', `%${category}%`);
-  if (cap) query = query.ilike('cap', `%${cap}%`);
+return ( <div className="max-w-4xl mx-auto py-10 px-6 text-white"> <h2 className="text-3xl font-bold mb-8">Area personale</h2>
 
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Errore nel caricamento profili:', error.message);
-  } else {
-    setProfiles(data);
-  }
-
-  setLoading(false);
-};
-
-fetchProfiles();
-
-}, [user, role, city, category, cap]);
-
-if (loading) { return <p className="text-center mt-10">Caricamento profili...</p>; }
-
-const buttonClass = "text-sm font-semibold px-4 py-2 rounded-full transition w-full sm:w-auto";
-
-return ( <div className="max-w-5xl mx-auto py-10 px-6 md:px-20"> <h2 className="text-3xl font-bold text-white mb-6">Area personale</h2> <div className="flex flex-wrap gap-4 mb-8"> <button onClick={() => router.push('/modifica-profilo')} className={${buttonClass} bg-yellow-400 hover:bg-yellow-500} > Modifica Profilo </button> <button onClick={() => router.push('/contatti-bloccati')} className={${buttonClass} bg-red-500 hover:bg-red-600} > Contatti Bloccati </button> <button onClick={() => router.push('/contatti-cancellati')} className={${buttonClass} bg-gray-500 hover:bg-gray-600} > Contatti Cancellati </button> <button onClick={() => router.push('/abbonamento')} className={${buttonClass} bg-blue-500 hover:bg-blue-600} > Abbonamento </button> </div>
-
-{profiles.length === 0 ? (
-    <p className="text-gray-300">Nessun profilo trovato.</p>
-  ) : (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {profiles.map((profile) => (
-        <div key={profile.id} className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-xl font-semibold text-gray-800">{profile.nickname || profile.name}</h3>
-          <p className="text-gray-600">{profile.role} - {profile.category}</p>
-          <p className="text-gray-600">{profile.city}, {profile.cap}</p>
-          {profile.description && <p className="text-gray-600 mt-2">{profile.description}</p>}
-          <a
-            href={`/chat?to=${profile.id}`}
-            className="text-blue-600 mt-4 inline-block font-medium"
-          >
-            Invia messaggio
-          </a>
-        </div>
-      ))}
+{/* Modifica profilo */}
+  <div className="bg-gray-800 p-6 rounded-xl mb-10">
+    <h3 className="text-xl font-semibold mb-4">Modifica Profilo</h3>
+    <div className="space-y-4">
+      <input
+        type="text"
+        name="nickname"
+        placeholder="Nickname"
+        value={profile.nickname}
+        onChange={handleChange}
+        className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
+      />
+      <input
+        type="text"
+        name="city"
+        placeholder="Città"
+        value={profile.city}
+        onChange={handleChange}
+        className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
+      />
+      <input
+        type="text"
+        name="cap"
+        placeholder="CAP"
+        value={profile.cap}
+        onChange={handleChange}
+        className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
+      />
+      <textarea
+        name="description"
+        placeholder="Descrizione"
+        value={profile.description}
+        onChange={handleChange}
+        className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none h-32"
+      ></textarea>
+      <button
+        onClick={handleSave}
+        className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded font-semibold"
+        disabled={saving}
+      >
+        {saving ? 'Salvataggio in corso...' : 'Salva modifiche'}
+      </button>
     </div>
-  )}
+  </div>
+
+  {/* Abbonamento */}
+  <div className="bg-gray-800 p-6 rounded-xl">
+    <h3 className="text-xl font-semibold mb-4">Abbonamento</h3>
+    <p className="mb-4 text-gray-300">
+      Al momento il tuo account è attivo. In futuro, ai professionisti verrà richiesto un abbonamento dopo un periodo di prova.
+    </p>
+    <button className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded font-semibold">
+      Scopri di più
+    </button>
+  </div>
 </div>
 
 ); }
