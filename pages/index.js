@@ -29,7 +29,6 @@ export default function Home() {
       <Navbar />
 
       <main className="bg-[#f9fafb] text-gray-900">
-
         {/* HERO SECTION */}
         <section className="bg-[#0f1e3c] text-white pt-24 pb-16 px-6 md:px-20 relative">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
@@ -114,10 +113,10 @@ export default function Home() {
                 className={`font-semibold px-5 py-2 rounded-md w-full md:w-auto transition ${
                   !role || !city
                     ? 'bg-gray-300 cursor-not-allowed text-gray-600'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-yellow-500 hover:bg-yellow-600 text-black'
                 }`}
               >
-                Cerca
+                Trova contatti
               </button>
             </div>
           </div>
@@ -163,10 +162,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-
       </main>
 
-      <Footer /> {/* <-- aggiunto qui sotto il main */}
+      <Footer />
     </>
   );
-}
+          }
