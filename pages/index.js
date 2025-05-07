@@ -23,34 +23,28 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Connectiamo - La piattaforma che connette professionisti e segnalatori</title>
+        <title>Connectiamo</title>
       </Head>
 
       <Navbar />
 
-      <main className="bg-[#f9fafb] text-gray-900">
+      <main className="bg-white text-gray-900">
         {/* HERO SECTION */}
-        <section className="bg-[#0f1e3c] text-white pt-24 pb-16 px-6 md:px-20 relative">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
-            <div className="md:w-1/2 text-center md:text-left space-y-6 z-10">
+        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Trova chi ti serve, subito
+                Connetti segnalatori <br /> e professionisti
               </h1>
               <p className="text-lg text-blue-100">
                 Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
               </p>
-              <button
-                onClick={() => router.push('/search-results')}
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded-lg transition duration-300"
-              >
-                Scopri subito
-              </button>
             </div>
 
-            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center md:justify-end">
+            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
               <Image
                 src="/images/connect-hero.png"
-                alt="Professionisti che si connettono"
+                alt="Professionisti"
                 width={400}
                 height={600}
                 className="rounded-lg"
@@ -61,9 +55,9 @@ export default function Home() {
         </section>
 
         {/* BARRA DI RICERCA */}
-        <section className="bg-white py-12 px-6 md:px-20 flex justify-center">
+        <section className="bg-white py-10 px-6 md:px-20 flex justify-center">
           <div className="w-full max-w-4xl">
-            <div className="bg-yellow-400 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
+            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -113,7 +107,7 @@ export default function Home() {
                 className={`font-semibold px-5 py-2 rounded-md w-full md:w-auto transition ${
                   !role || !city
                     ? 'bg-gray-300 cursor-not-allowed text-gray-600'
-                    : 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                    : 'bg-[#d4a600] hover:bg-[#b89400] text-black'
                 }`}
               >
                 Trova contatti
