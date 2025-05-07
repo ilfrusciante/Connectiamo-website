@@ -2,7 +2,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -32,28 +31,18 @@ export default function Home() {
 
       <main className="bg-white text-gray-900">
         {/* HERO */}
-        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
+        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
-            <motion.div
-              className="md:w-1/2 space-y-6 z-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
+            <div className="md:w-1/2 space-y-6">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
                 Connetti segnalatori <br /> e professionisti
               </h1>
               <p className="text-lg text-blue-100">
                 Una piattaforma per creare connessioni di valore e collaborazioni locali.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="md:w-1/2 mt-10 md:mt-0 flex justify-center"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
+            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
               <Image
                 src="/images/connect-hero.png"
                 alt="Illustrazione connessione"
@@ -62,14 +51,14 @@ export default function Home() {
                 className="rounded-lg"
                 priority
               />
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* RICERCA */}
         <section className="bg-white py-10 px-6 md:px-20 flex justify-center">
           <div className="w-full max-w-4xl">
-            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
+            <div className="bg-yellow-400 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -133,11 +122,10 @@ export default function Home() {
           <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
             <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> mette in contatto chi ha una rete di conoscenze locali — come guide turistiche, portieri, reception — con chi ha bisogno di visibilità professionale.
-              Nessuna intermediazione, solo contatto diretto.
+              <strong>Connectiamo</strong> è una piattaforma che mette in contatto chi ha una rete di contatti locali (guide, portieri, ecc.) con chi offre servizi professionali. Le parti si accordano in autonomia e in modo trasparente.
             </p>
             <p className="text-gray-800 text-lg">
-              Il nostro obiettivo è facilitare relazioni di valore, locali e tracciabili, offrendo strumenti semplici ma efficaci: ricerca avanzata, profili pubblici, messaggistica privata.
+              Funziona con ricerca avanzata, profili pubblici e messaggistica interna.
             </p>
           </div>
         </section>
@@ -147,32 +135,23 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow text-center"
-                whileHover={{ scale: 1.03 }}
-              >
+              <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
                 <p className="text-gray-600 text-base">Crea un profilo come connector o professionista</p>
-              </motion.div>
+              </div>
 
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow text-center"
-                whileHover={{ scale: 1.03 }}
-              >
+              <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
                 <p className="text-gray-600 text-base">Filtra per città, CAP e categoria</p>
-              </motion.div>
+              </div>
 
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow text-center"
-                whileHover={{ scale: 1.03 }}
-              >
+              <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-                <p className="text-gray-600 text-base">Usa la messaggistica interna per collaborare</p>
-              </motion.div>
+                <p className="text-gray-600 text-base">Usa la messaggistica privata per collaborare</p>
+              </div>
             </div>
           </div>
         </section>
