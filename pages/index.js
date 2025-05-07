@@ -23,31 +23,37 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Connectiamo</title>
-        <meta name="description" content="Connetti segnalatori e professionisti" />
+        <title>Connectiamo - La piattaforma che connette professionisti e segnalatori</title>
       </Head>
 
       <Navbar />
 
-      <main className="bg-white text-gray-900">
-        {/* HERO */}
-        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
-            <div className="md:w-1/2 space-y-6">
+      <main className="bg-[#f9fafb] text-gray-900">
+
+        {/* HERO SECTION */}
+        <section className="bg-[#0f1e3c] text-white pt-24 pb-16 px-6 md:px-20 relative">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+            <div className="md:w-1/2 text-center md:text-left space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Connetti segnalatori <br /> e professionisti
+                Trova chi ti serve, subito
               </h1>
               <p className="text-lg text-blue-100">
-                Una piattaforma per creare connessioni di valore e collaborazioni locali.
+                Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
               </p>
+              <button
+                onClick={() => router.push('/search-results')}
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded-lg transition duration-300"
+              >
+                Scopri subito
+              </button>
             </div>
 
-            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
+            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center md:justify-end">
               <Image
                 src="/images/connect-hero.png"
-                alt="Illustrazione connessione"
-                width={420}
-                height={420}
+                alt="Professionisti che si connettono"
+                width={400}
+                height={600}
                 className="rounded-lg"
                 priority
               />
@@ -55,8 +61,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* RICERCA */}
-        <section className="bg-white py-10 px-6 md:px-20 flex justify-center">
+        {/* BARRA DI RICERCA */}
+        <section className="bg-white py-12 px-6 md:px-20 flex justify-center">
           <div className="w-full max-w-4xl">
             <div className="bg-yellow-400 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
               <select
@@ -75,8 +81,8 @@ export default function Home() {
                 className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
               >
                 <option value="">Città</option>
-                <option value="Roma">Roma</option>
                 <option value="Milano">Milano</option>
+                <option value="Roma">Roma</option>
                 <option value="Napoli">Napoli</option>
               </select>
 
@@ -122,10 +128,12 @@ export default function Home() {
           <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
             <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> è una piattaforma che mette in contatto chi ha una rete di contatti locali (guide, portieri, ecc.) con chi offre servizi professionali. Le parti si accordano in autonomia e in modo trasparente.
+              <strong>Connectiamo</strong> è una piattaforma nata per facilitare lo scambio e la valorizzazione delle connessioni personali e professionali.
+              Il suo scopo è permettere a chi ha una rete di contatti — come portieri, guide turistiche, personal trainer — di metterla a disposizione di professionisti
+              come idraulici, giardinieri, ristoratori, dietisti, ecc. Le parti possono accordarsi privatamente sul tipo di compenso.
             </p>
             <p className="text-gray-800 text-lg">
-              Funziona con ricerca avanzata, profili pubblici e messaggistica interna.
+              Gli utenti possono cercare contatti con una <strong>barra di ricerca avanzata</strong>, comunicare tramite <strong>messaggistica interna</strong> e gestire tutto tramite una <strong>dashboard personale</strong>.
             </p>
           </div>
         </section>
@@ -138,26 +146,27 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base">Crea un profilo come connector o professionista</p>
+                <p className="text-gray-600 text-base">Crea un profilo come segnalatore o professionista</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
-                <p className="text-gray-600 text-base">Filtra per città, CAP e categoria</p>
+                <p className="text-gray-600 text-base">Usa la ricerca per trovare persone nella tua zona e categoria</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-                <p className="text-gray-600 text-base">Usa la messaggistica privata per collaborare</p>
+                <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
               </div>
             </div>
           </div>
         </section>
+
       </main>
 
-      <Footer />
+      <Footer /> {/* <-- aggiunto qui sotto il main */}
     </>
   );
 }
