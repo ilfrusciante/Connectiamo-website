@@ -133,7 +133,7 @@ export default function ChatPage() {
           ? fakeBlocked.map((id) => {
               const blocked = fakeContacts.find((c) => c.id === id);
               return (
-                <div key={id} className="flex justify-between items-center bg-gray-800 p-2 rounded mb-2">
+                <div key={id} className="p-3 rounded bg-gray-800 mb-2 flex justify-between items-center">
                   <span>{blocked?.nickname || 'Utente'}</span>
                   <button
                     onClick={() => unblockFakeUser(id)}
@@ -189,22 +189,24 @@ export default function ChatPage() {
               <div className="flex items-center gap-2">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    isOnline(selectedUser.last_seen) ? 'bg-green-400' : 'bg-gray-500'
+                    isOnline(selectedUser.last_seen)
+                      ? 'bg-green-400'
+                      : 'bg-gray-500'
                   }`}
                 ></div>
-                <span className="text-lg font-semibold">{selectedUser.nickname}</span>
+                <span className="text-lg font-semibold">
+                  {selectedUser.nickname}
+                </span>
                 <span className="text-sm text-gray-400 ml-2">
                   {isOnline(selectedUser.last_seen) ? 'Online' : 'Offline'}
                 </span>
               </div>
-              <div className="space-x-2">
-                <button
-                  onClick={blockUser}
-                  className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 rounded-full"
-                >
-                  Blocca
-                </button>
-              </div>
+              <button
+                onClick={blockUser}
+                className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 rounded-full"
+              >
+                Blocca
+              </button>
             </div>
 
             {/* Messaggi */}
