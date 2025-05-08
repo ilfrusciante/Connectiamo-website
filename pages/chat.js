@@ -1,28 +1,17 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 import dayjs from 'dayjs';
 
 export default function ChatPage() {
+  const router = useRouter();
+  const { to } = router.query;
+
   const [user, setUser] = useState(null);
+  const [contacts, setContacts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [fakeBlocked, setFakeBlocked] = useState([]);
-  const [showBlocked, setShowBlocked] = useState(false);
-
-  const fakeContacts = [
-    { id: 'f1', nickname: 'Luca23', last_seen: new Date(Date.now() - 30 * 1000).toISOString() },
-    { id: 'f2', nickname: 'Anna_Design', last_seen: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-    { id: 'f3', nickname: 'Marco.Tech', last_seen: new Date(Date.now() - 20 * 1000).toISOString() },
-  ];
-
-  const fakeMessages = [
-    { id: 1, sender_id: 'me', receiver_id: 'f1', content: 'Ciao Luca, ti occupi anche di piccoli lavori?', created_at: new Date().toISOString() },
-    { id: 2, sender_id: 'f1', receiver_id: 'me', content: 'Certo! Di cosa hai bisogno?', created_at: new Date(Date.now() + 10000).toISOString() },
-    { id: 3, sender_id: 'me', receiver_id: 'f1', content: 'Una parete da imbiancare. Ti va?', created_at: new Date(Date.now() + 20000).toISOString() },
-    { id: 4, sender_id: 'f1', receiver_id: 'me', content: 'Perfetto, ci organizziamo!', created_at: new Date(Date.now() + 30000).toISOString() },
-  ];
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -33,20 +22,29 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    if (user) fetchConversations();
-    else setConversations(fakeContacts);
+    if (user) {
+      fetchContacts();
+    }
   }, [user]);
 
   useEffect(() => {
-    if (user && selectedUser) fetchMessages();
-    else if (selectedUser?.id === 'f1') setMessages(fakeMessages);
-    else setMessages([]);
+    if (contacts.length > 0 && to) {
+      const found = contacts.find((c) => c.id === to);
+      if (found) setSelectedUser(found);
+    }
+  }, [contacts, to]);
+
+  useEffect(() => {
+    if (user && selectedUser) {
+      fetchMessages();
+    }
   }, [selectedUser]);
 
-  const fetchConversations = async () => {
-    const { data, error } = await supabase.rpc('get_conversations', { current_user_id: user.id });
-    if (!error && data?.length) setConversations(data);
-    else setConversations(fakeContacts);
+  const fetchContacts = async () => {
+    const { data, error } = await supabase
+      .rpc('get_conversations', { current_user_id: user.id });
+
+    if (!error) setContacts(data || []);
   };
 
   const fetchMessages = async () => {
@@ -56,7 +54,7 @@ export default function ChatPage() {
       .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .order('created_at', { ascending: true });
 
-    if (!error) {
+    if (!error && data) {
       const filtered = data.filter(
         (msg) =>
           (msg.sender_id === user.id && msg.receiver_id === selectedUser.id) ||
@@ -69,153 +67,39 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    const newMsg = {
-      id: Date.now(),
-      sender_id: 'me',
-      receiver_id: selectedUser.id,
-      content: newMessage,
-      created_at: new Date().toISOString(),
-    };
-
-    if (selectedUser.id.startsWith('f')) {
-      setMessages([...messages, newMsg]);
-      setNewMessage('');
-      return;
-    }
-
     const { error } = await supabase.from('messages').insert({
       sender_id: user.id,
       receiver_id: selectedUser.id,
       content: newMessage,
     });
+
     if (!error) {
       setNewMessage('');
       fetchMessages();
     }
   };
 
-  const blockUser = async () => {
-    if (!selectedUser || !user) return;
-    if (selectedUser.id.startsWith('f')) {
-      setFakeBlocked([...fakeBlocked, selectedUser.id]);
-    } else {
-      await supabase.from('blocked_contacts').insert({
-        user_id: user.id,
-        blocked_user_id: selectedUser.id,
-      });
-    }
-    setSelectedUser(null);
-  };
-
-  const unblockFakeUser = (id) => {
-    setFakeBlocked((prev) => prev.filter((uid) => uid !== id));
-  };
-
-  const isOnline = (lastSeen) => {
-    if (!lastSeen) return false;
-    const secondsAgo = (Date.now() - new Date(lastSeen).getTime()) / 1000;
-    return secondsAgo < 60;
-  };
-
   return (
-    <div className="flex h-screen text-white bg-[#0f1e3c]">
-      {/* Lista contatti */}
-      <div className="w-1/3 border-r border-gray-800 p-4 overflow-y-auto hidden md:block">
-        <h2 className="text-xl font-bold mb-4">Contatti</h2>
-        <button
-          onClick={() => setShowBlocked(!showBlocked)}
-          className="text-xs bg-yellow-500 px-2 py-1 rounded-full hover:bg-yellow-600 mb-4"
-        >
-          {showBlocked ? 'Torna alla chat' : 'Bloccati'}
-        </button>
+    <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
+      <h1 className="text-center text-2xl font-semibold mb-6">Chat privata</h1>
 
-        {showBlocked
-          ? fakeBlocked.map((id) => {
-              const blocked = fakeContacts.find((c) => c.id === id);
-              return (
-                <div key={id} className="p-3 rounded bg-gray-800 mb-2 flex justify-between items-center">
-                  <span>{blocked?.nickname || 'Utente'}</span>
-                  <button
-                    onClick={() => unblockFakeUser(id)}
-                    className="text-xs bg-green-500 px-2 py-1 rounded-full hover:bg-green-600"
-                  >
-                    Sblocca
-                  </button>
-                </div>
-              );
-            })
-          : conversations
-              .filter((c) => !fakeBlocked.includes(c.id))
-              .map((profile) => (
-                <div
-                  key={profile.id}
-                  onClick={() => setSelectedUser(profile)}
-                  className={`p-3 cursor-pointer rounded mb-2 flex items-center gap-3 transition ${
-                    selectedUser?.id === profile.id
-                      ? 'bg-yellow-600 text-black'
-                      : 'hover:bg-gray-700'
-                  }`}
-                >
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      isOnline(profile.last_seen) ? 'bg-green-400' : 'bg-gray-500'
-                    }`}
-                  ></span>
-                  <span className="font-medium">{profile.nickname}</span>
-                </div>
-              ))}
-      </div>
-
-      {/* Chat */}
-      <div className="flex-1 flex flex-col p-4">
-        {!selectedUser ? (
-          <p className="text-gray-400 mt-10 text-center">
-            Seleziona un contatto per iniziare a chattare.
-          </p>
-        ) : fakeBlocked.includes(selectedUser.id) ? (
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-gray-300">Utente bloccato</span>
-            <button
-              onClick={() => unblockFakeUser(selectedUser.id)}
-              className="text-xs px-3 py-1 bg-green-500 hover:bg-green-600 rounded-full"
-            >
-              Sblocca
-            </button>
+      {!selectedUser ? (
+        <p className="text-center text-gray-400">Seleziona un contatto per iniziare a chattare.</p>
+      ) : (
+        <>
+          <div className="bg-gray-800 p-4 rounded-lg mb-4">
+            <p className="font-semibold">{selectedUser.nickname || 'Utente'}</p>
           </div>
-        ) : (
-          <>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isOnline(selectedUser.last_seen)
-                      ? 'bg-green-400'
-                      : 'bg-gray-500'
-                  }`}
-                ></div>
-                <span className="text-lg font-semibold">
-                  {selectedUser.nickname}
-                </span>
-                <span className="text-sm text-gray-400 ml-2">
-                  {isOnline(selectedUser.last_seen) ? 'Online' : 'Offline'}
-                </span>
-              </div>
-              <button
-                onClick={blockUser}
-                className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 rounded-full"
-              >
-                Blocca
-              </button>
-            </div>
 
-            {/* Messaggi */}
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4 px-2 py-1 bg-gray-900 rounded-md">
-              {messages.map((msg) => (
+          <div className="bg-gray-900 p-4 rounded-lg mb-4 min-h-[200px] max-h-[400px] overflow-y-auto">
+            {messages.length === 0 ? (
+              <p className="text-gray-500">Nessun messaggio</p>
+            ) : (
+              messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md ${
-                    msg.sender_id === 'me' || msg.sender_id === user?.id
+                  className={`mb-3 max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
+                    msg.sender_id === user.id
                       ? 'bg-yellow-400 text-black ml-auto'
                       : 'bg-gray-700 text-white'
                   }`}
@@ -225,28 +109,27 @@ export default function ChatPage() {
                     {dayjs(msg.created_at).format('HH:mm')}
                   </p>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
+          </div>
 
-            {/* Input */}
-            <div className="flex gap-2 mt-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Scrivi un messaggio..."
-                className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
-              />
-              <button
-                onClick={sendMessage}
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition"
-              >
-                Invia
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Scrivi un messaggio..."
+              className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+            />
+            <button
+              onClick={sendMessage}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full"
+            >
+              Invia
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
