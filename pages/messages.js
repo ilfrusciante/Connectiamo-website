@@ -46,7 +46,15 @@ export default function Messages() {
       }
 
       const contactIds = Object.keys(contactMap);
-      if (contactIds.length === 0) return;
+      if (contactIds.length === 0) {
+        // Inserimento contatti finti
+        setContacts([
+          { id: 'fake1', nickname: 'muratore92', unread: 0 },
+          { id: 'fake2', nickname: 'contattiMario', unread: 2 },
+          { id: 'fake3', nickname: 'guidaRomaCentro', unread: 0 }
+        ]);
+        return;
+      }
 
       const { data: profiles } = await supabase
         .from('profiles')
@@ -79,7 +87,7 @@ export default function Messages() {
               onClick={() => router.push(`/chat?user=${contact.id}`)}
               className="flex justify-between items-center p-4 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
             >
-              <span>{contact.nickname || 'Utente'}</span>
+              <span>{contact.nickname}</span>
               {contact.unread > 0 && (
                 <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
                   {contact.unread}
