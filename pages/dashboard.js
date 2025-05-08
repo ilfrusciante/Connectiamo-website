@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../utils/supabaseClient'; import Link from 'next/link';
 
-export default function Dashboard() { const router = useRouter(); const [user, setUser] = useState(null); const [profile, setProfile] = useState({ nickname: '', description: '', city: '', cap: '' }); const [saving, setSaving] = useState(false); const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Dashboard() { const router = useRouter(); const [user, setUser] = useState(null); const [profile, setProfile] = useState({ nickname: '', description: '', city: '', cap: '', role: '', category: '' }); const [saving, setSaving] = useState(false);
 
-useEffect(() => { const fetchProfile = async () => { const { data: { session } } = await supabase.auth.getSession();
+useEffect(() => { const fetchProfile = async () => { const { data: { session }, } = await supabase.auth.getSession();
 
 if (!session) {
     router.push('/login');
@@ -11,9 +11,9 @@ if (!session) {
 
   setUser(session.user);
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('profiles')
-    .select('nickname, description, city, cap')
+    .select('nickname, description, city, cap, role, category')
     .eq('id', session.user.id)
     .single();
 
@@ -28,11 +28,9 @@ const handleChange = (e) => { setProfile({ ...profile, [e.target.name]: e.target
 
 const handleSave = async () => { setSaving(true); const { error } = await supabase.from('profiles').update(profile).eq('id', user.id); if (!error) alert('Profilo aggiornato con successo.'); setSaving(false); };
 
-return ( <div className="min-h-screen bg-[#0f1e3c] text-white"> {/* NAVBAR */} <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white"> <div className="max-w-7xl mx-auto flex items-center justify-between"> <Link href="/"> <span className="text-xl font-bold cursor-pointer hover:text-yellow-400">Connectiamo</span> </Link> <div className="hidden md:flex space-x-6"> <Link href="/"><a className="hover:text-yellow-400">Home</a></Link> <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link> <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link> <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link> </div> <div className="md:hidden flex items-center gap-3"> <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}> {mobileMenuOpen ? '✖' : '☰'} </button> </div> </div> {mobileMenuOpen && ( <div className="md:hidden mt-3 space-y-2"> <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link> <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link> <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link> <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link> </div> )} </nav>
+return ( <div className="min-h-screen bg-[#0f1e3c] text-white px-4 py-6"> <div className="max-w-5xl mx-auto"> <div className="flex justify-between items-center mb-8"> <Link href="/"> <span className="text-xl font-bold text-white cursor-pointer hover:text-yellow-400">Connectiamo</span> </Link> <div className="space-x-4"> <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link> <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link> </div> </div>
 
-{/* CONTENUTO DASHBOARD */}
-  <div className="max-w-4xl mx-auto py-10 px-6">
-    <h2 className="text-3xl font-bold mb-8">Area personale</h2>
+<h2 className="text-3xl font-bold mb-8">Area personale</h2>
 
     {/* Modifica profilo */}
     <div className="bg-gray-800 p-6 rounded-xl mb-10">
@@ -46,6 +44,30 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white"> {/* NAVBAR */} <
           onChange={handleChange}
           className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
         />
+        <select
+          name="role"
+          value={profile.role}
+          onChange={handleChange}
+          className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
+        >
+          <option value="">Ruolo</option>
+          <option value="Professionista">Professionista</option>
+          <option value="Connector">Connector</option>
+        </select>
+        <select
+          name="category"
+          value={profile.category}
+          onChange={handleChange}
+          className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none"
+        >
+          <option value="">Categoria</option>
+          <option value="Edilizia">Edilizia</option>
+          <option value="Benessere">Benessere</option>
+          <option value="Tecnologie">Tecnologie</option>
+          <option value="Servizi personali">Servizi personali</option>
+          <option value="Servizi aziendali">Servizi aziendali</option>
+          <option value="Altro">Altro</option>
+        </select>
         <input
           type="text"
           name="city"
