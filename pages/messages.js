@@ -53,6 +53,17 @@ export default function MessagesPage() {
     router.push(`/chat?to=${contactId}`);
   };
 
+  const handleDelete = async (contactId) => {
+    const { error } = await supabase
+      .from('messages')
+      .delete()
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${contactId}),and(sender_id.eq.${contactId},receiver_id.eq.${user.id})`);
+
+    if (!error) {
+      fetchContacts();
+    }
+  };
+
   if (!user) {
     return <p className="text-center mt-10 text-white">Caricamento...</p>;
   }
@@ -89,7 +100,7 @@ export default function MessagesPage() {
 
       {/* CONTATTI */}
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-6">I tuoi contatti</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Messaggi</h1>
 
         {contacts.length === 0 ? (
           <p className="text-center text-gray-300">Non hai ancora messaggiato con nessuno.</p>
@@ -98,23 +109,27 @@ export default function MessagesPage() {
             {contacts.map((contact) => (
               <div
                 key={contact.id}
-                onClick={() => handleClick(contact.id)}
-                className="bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg px-5 py-4 transition flex justify-between items-center"
+                className="bg-gray-800 rounded-lg px-5 py-4 transition flex justify-between items-center"
               >
-                <div>
+                <div className="cursor-pointer" onClick={() => handleClick(contact.id)}>
                   <p className="text-lg font-semibold text-yellow-400">{contact.nickname || 'Utente anonimo'}</p>
                   <p className="text-sm text-gray-300 mt-1">
                     {contact.last_message?.substring(0, 60) || 'Nessun messaggio disponibile'}
                   </p>
                 </div>
-                {contact.last_message_time && (
-                  <p className="text-xs text-gray-400">
-                    {new Date(contact.last_message_time).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                )}
+                <div className="text-right flex flex-col items-end gap-1">
+                  {contact.unread_count > 0 && (
+                    <span className="text-xs bg-yellow-400 text-black rounded-full px-2 py-0.5">
+                      {contact.unread_count}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => handleDelete(contact.id)}
+                    className="text-xs text-red-400 hover:text-red-300"
+                  >
+                    Elimina
+                  </button>
+                </div>
               </div>
             ))}
           </div>
