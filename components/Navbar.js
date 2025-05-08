@@ -1,54 +1,75 @@
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
 export default function Navbar() {
-  const router = useRouter();
   const [user, setUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
     };
-    getUser();
+    checkUser();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
   return (
-    <nav className="bg-[#0f1e3c] text-white px-4 py-4 flex justify-between items-center shadow">
-      <Link href="/" className="text-xl font-bold text-yellow-400 hover:text-yellow-300">
-        Connectiamo
-      </Link>
-      <div className="flex gap-4 items-center">
-        {user ? (
-          <>
-            <Link href="/dashboard" className="hover:underline">
-              Area personale
-            </Link>
-            <Link href="/messages" className="hover:underline">
-              Messaggi
-            </Link>
-            <button onClick={handleLogout} className="hover:underline">
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link href="/login" className="hover:underline">
-              Login
-            </Link>
-            <Link href="/signup" className="hover:underline">
-              Registrati
-            </Link>
-          </>
-        )}
+    <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link href="/">
+          <a className="text-xl font-bold hover:text-yellow-400">Connectiamo</a>
+        </Link>
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex space-x-6 items-center">
+          <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
+          {user ? (
+            <>
+              <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link>
+              <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
+            </>
+          ) : (
+            <>
+              <Link href="/login"><a className="hover:text-yellow-400">Login</a></Link>
+              <Link href="/signup"><a className="hover:text-yellow-400">Registrati</a></Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <div className="md:hidden flex items-center">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Apri menu mobile">
+            {mobileMenuOpen ? (
+              <span className="text-2xl">✖</span>
+            ) : (
+              <span className="text-2xl">☰</span>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden mt-3 space-y-2">
+          <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
+          {user ? (
+            <>
+              <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+              <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link>
+              <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
+            </>
+          ) : (
+            <>
+              <Link href="/login"><a className="block hover:text-yellow-400">Login</a></Link>
+              <Link href="/signup"><a className="block hover:text-yellow-400">Registrati</a></Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
