@@ -17,7 +17,9 @@ export default function Navbar() {
   return (
     <nav className="bg-[#0f1e3c] dark:bg-gray-900 border-b border-gray-800 px-4 py-3 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-xl font-bold">Connectiamo</div>
+        <Link href="/">
+          <a className="text-xl font-bold text-yellow-400 hover:text-yellow-300">Connectiamo</a>
+        </Link>
 
         {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
@@ -25,7 +27,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
-              <Link href="/chat"><a className="hover:text-yellow-400">Messaggi</a></Link>
+              <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link>
               <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
             </>
           ) : (
@@ -51,7 +53,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
-              <Link href="/chat"><a className="block hover:text-yellow-400">Messaggi</a></Link>
+              <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link>
               <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
             </>
           ) : (
