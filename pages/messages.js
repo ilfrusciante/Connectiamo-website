@@ -7,6 +7,7 @@ export default function MessagesPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [unreadCounts, setUnreadCounts] = useState({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -22,7 +23,10 @@ export default function MessagesPage() {
   }, [router]);
 
   useEffect(() => {
-    if (user) fetchContacts();
+    if (user) {
+      fetchContacts();
+      fetchUnreadCounts();
+    }
   }, [user]);
 
   const fetchContacts = async () => {
@@ -32,6 +36,24 @@ export default function MessagesPage() {
 
     if (!error && data) {
       setContacts(data);
+    }
+  };
+
+  const fetchUnreadCounts = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('sender_id', { count: 'exact' })
+      .eq('receiver_id', user.id)
+      .eq('is_read', false);
+
+    if (!error && data) {
+      const counts = {};
+      data.forEach((msg) => {
+        if (msg.sender_id) {
+          counts[msg.sender_id] = (counts[msg.sender_id] || 0) + 1;
+        }
+      });
+      setUnreadCounts(counts);
     }
   };
 
@@ -47,21 +69,11 @@ export default function MessagesPage() {
         sender_id: user.id,
         receiver_id: contactId,
         content: '',
+        is_read: false
       });
     }
 
     router.push(`/chat?to=${contactId}`);
-  };
-
-  const handleDelete = async (contactId) => {
-    const { error } = await supabase
-      .from('messages')
-      .delete()
-      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${contactId}),and(sender_id.eq.${contactId},receiver_id.eq.${user.id})`);
-
-    if (!error) {
-      fetchContacts();
-    }
   };
 
   if (!user) {
@@ -70,7 +82,7 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white">
-      {/* NAVBAR */}
+      {/* Navbar */}
       <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/">
@@ -98,7 +110,7 @@ export default function MessagesPage() {
         )}
       </nav>
 
-      {/* CONTATTI */}
+      {/* Contatti */}
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-6">Messaggi</h1>
 
@@ -109,26 +121,31 @@ export default function MessagesPage() {
             {contacts.map((contact) => (
               <div
                 key={contact.id}
-                className="bg-gray-800 rounded-lg px-5 py-4 transition flex justify-between items-center"
+                onClick={() => handleClick(contact.id)}
+                className="bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg px-5 py-4 transition flex justify-between items-center"
               >
-                <div className="cursor-pointer" onClick={() => handleClick(contact.id)}>
-                  <p className="text-lg font-semibold text-yellow-400">{contact.nickname || 'Utente anonimo'}</p>
+                <div>
+                  <p className="text-lg font-semibold text-yellow-400">
+                    {contact.nickname || 'Utente anonimo'}
+                  </p>
                   <p className="text-sm text-gray-300 mt-1">
                     {contact.last_message?.substring(0, 60) || 'Nessun messaggio disponibile'}
                   </p>
                 </div>
-                <div className="text-right flex flex-col items-end gap-1">
-                  {contact.unread_count > 0 && (
-                    <span className="text-xs bg-yellow-400 text-black rounded-full px-2 py-0.5">
-                      {contact.unread_count}
+                <div className="flex items-center space-x-2">
+                  {contact.last_message_time && (
+                    <p className="text-xs text-gray-400">
+                      {new Date(contact.last_message_time).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  )}
+                  {unreadCounts[contact.id] > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      {unreadCounts[contact.id]}
                     </span>
                   )}
-                  <button
-                    onClick={() => handleDelete(contact.id)}
-                    className="text-xs text-red-400 hover:text-red-300"
-                  >
-                    Elimina
-                  </button>
                 </div>
               </div>
             ))}
