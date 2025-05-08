@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState({
     nickname: '',
     description: '',
@@ -26,7 +27,7 @@ export default function Dashboard() {
 
       setUser(session.user);
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('nickname, description, city, cap, role, category')
         .eq('id', session.user.id)
@@ -54,19 +55,35 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white px-4 py-6">
-      {/* Navbar */}
-      <div className="flex justify-between items-center mb-10">
-        <Link href="/">
-          <span className="text-xl font-bold text-white cursor-pointer hover:text-yellow-400">Connectiamo</span>
-        </Link>
-        <div className="space-x-4">
-          <Link href="/messages" className="hover:text-yellow-400">Messaggi</Link>
-          <Link href="/logout" className="hover:text-yellow-400">Logout</Link>
+    <div className="min-h-screen bg-[#0f1e3c] text-white">
+      {/* NAVBAR */}
+      <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
+          <div className="hidden md:flex space-x-6">
+            <Link href="/" className="hover:text-yellow-400">Home</Link>
+            <Link href="/dashboard" className="hover:text-yellow-400">Area personale</Link>
+            <Link href="/messages" className="hover:text-yellow-400">Messaggi</Link>
+            <Link href="/logout" className="hover:text-yellow-400">Logout</Link>
+          </div>
+          <div className="md:hidden">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? '✖' : '☰'}
+            </button>
+          </div>
         </div>
-      </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-3 space-y-2">
+            <Link href="/" className="block hover:text-yellow-400">Home</Link>
+            <Link href="/dashboard" className="block hover:text-yellow-400">Area personale</Link>
+            <Link href="/messages" className="block hover:text-yellow-400">Messaggi</Link>
+            <Link href="/logout" className="block hover:text-yellow-400">Logout</Link>
+          </div>
+        )}
+      </nav>
 
-      <div className="max-w-4xl mx-auto">
+      {/* CONTENUTO */}
+      <div className="max-w-4xl mx-auto py-10 px-6">
         <h2 className="text-3xl font-bold mb-8 text-center">Area personale</h2>
 
         {/* Modifica profilo */}
