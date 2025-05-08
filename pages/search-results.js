@@ -51,6 +51,31 @@ export default function SearchResults() {
     }
   }, [router.isReady, role, city, category, cap]);
 
+  const handleContact = async (receiverId) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    // Verifica se già esiste un messaggio tra questi utenti
+    const { data: existing, error } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .eq('sender_id', user.id)
+      .eq('receiver_id', receiverId);
+
+    if (!error && (!existing || existing.length === 0)) {
+      await supabase.from('messages').insert({
+        sender_id: user.id,
+        receiver_id: receiverId,
+        content: '',
+      });
+    }
+
+    router.push(`/chat?to=${receiverId}`);
+  };
+
   if (loading) {
     return (
       <div className="text-center mt-10 text-white">Caricamento dei profili in corso...</div>
@@ -104,7 +129,7 @@ export default function SearchResults() {
 
             {user ? (
               <button
-                onClick={() => router.push(`/messages?to=${profile.id}`)}
+                onClick={() => handleContact(profile.id)}
                 className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded transition"
               >
                 Contatta
