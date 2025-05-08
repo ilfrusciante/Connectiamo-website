@@ -38,10 +38,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Trova chi ti serve, <br /> subito
+                Trova chi conosce e, <br /> fatti conoscere
               </h1>
               <p className="text-lg text-blue-100">
-                Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
+                Connettiti con chi ha una rete di contatti o offri il tuo talento. Costruisci relazioni di valore per il tuo lavoro o la tua attività.
               </p>
               <button
                 onClick={handleDiscover}
@@ -131,10 +131,10 @@ export default function Home() {
           <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
             <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> è una piattaforma che ti permette di scoprire e valorizzare il potere delle connessioni. Segnalatori e professionisti collaborano per creare opportunità concrete.
+              <strong>Connectiamo</strong> nasce per creare connessioni utili e concrete. Che tu sia un segnalatore o un professionista, qui puoi valorizzare la tua rete e far crescere il tuo lavoro.
             </p>
             <p className="text-gray-800 text-lg">
-              Registrati, cerca tra decine di categorie e mettiti in contatto tramite una <strong>chat interna</strong>. Tutto in modo semplice, veloce e gratuito.
+              Trova contatti affidabili, scambia opportunità e gestisci tutto dalla tua area personale con una <strong>chat integrata</strong>.
             </p>
           </div>
         </section>
@@ -153,13 +153,13 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
-                <p className="text-gray-600 text-base">Filtra per zona, categoria e ruolo</p>
+                <p className="text-gray-600 text-base">Cerca per zona, ruolo e categoria</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-                <p className="text-gray-600 text-base">Scrivi direttamente nella piattaforma</p>
+                <p className="text-gray-600 text-base">Scrivi nella chat privata e inizia subito</p>
               </div>
             </div>
           </div>
