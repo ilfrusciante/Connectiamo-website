@@ -30,15 +30,21 @@ export default function Home() {
 
       <main className="bg-white text-gray-900">
         {/* HERO SECTION */}
-        <section className="bg-[#0f1e3c] text-white pt-20 pb-12 px-6 md:px-20 relative overflow-hidden">
+        <section className="bg-[#0f1e3c] text-white pt-20 pb-16 px-6 md:px-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Connetti segnalatori <br /> e professionisti
+                Trova chi ti serve, <br /> subito
               </h1>
               <p className="text-lg text-blue-100">
                 Una piattaforma che mette in contatto segnalatori e professionisti per scopi di business e referral.
               </p>
+              <button
+                onClick={() => document.getElementById('chi-siamo')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition"
+              >
+                Scopri subito
+              </button>
             </div>
 
             <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
@@ -117,16 +123,14 @@ export default function Home() {
         </section>
 
         {/* CHI SIAMO */}
-        <section className="py-16 px-6 md:px-20 bg-white">
+        <section id="chi-siamo" className="py-16 px-6 md:px-20 bg-white">
           <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
             <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> è una piattaforma nata per facilitare lo scambio e la valorizzazione delle connessioni personali e professionali.
-              Il suo scopo è permettere a chi ha una rete di contatti — come portieri, guide turistiche, personal trainer — di metterla a disposizione di professionisti
-              come idraulici, giardinieri, ristoratori, dietisti, ecc. Le parti possono accordarsi privatamente sul tipo di compenso.
+              <strong>Connectiamo</strong> è una piattaforma che valorizza le reti personali: chi ha connessioni può aiutare i professionisti a crescere, guadagnando fiducia e magari anche una ricompensa.
             </p>
             <p className="text-gray-800 text-lg">
-              Gli utenti possono cercare contatti con una <strong>barra di ricerca avanzata</strong>, comunicare tramite <strong>messaggistica interna</strong> e gestire tutto tramite una <strong>dashboard personale</strong>.
+              Con una <strong>ricerca avanzata</strong>, <strong>messaggi privati</strong> e una <strong>dashboard personale</strong>, ti aiutiamo a trovare subito chi ti serve. Niente pagamenti online, solo connessioni autentiche.
             </p>
           </div>
         </section>
@@ -138,20 +142,18 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base">Crea un profilo come segnalatore o professionista</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">1. Registrati</h3>
+                <p className="text-gray-600 text-base">Crea un profilo come segnalatore o professionista.</p>
               </div>
-
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
-                <p className="text-gray-600 text-base">Usa la ricerca per trovare persone nella tua zona e categoria</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">2. Trova contatti</h3>
+                <p className="text-gray-600 text-base">Filtra per zona, categoria e ruolo con la barra avanzata.</p>
               </div>
-
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-                <p className="text-gray-600 text-base">Mettiti in contatto tramite messaggistica privata</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">3. Connettiti</h3>
+                <p className="text-gray-600 text-base">Scrivi in privato e gestisci tutto dalla tua area personale.</p>
               </div>
             </div>
           </div>
@@ -161,4 +163,4 @@ export default function Home() {
       <Footer />
     </>
   );
-          }
+}
