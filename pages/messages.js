@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { supabase } from '../utils/supabaseClient';
 
 export default function MessagesPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -34,7 +36,6 @@ export default function MessagesPage() {
   };
 
   const handleClick = async (contactId) => {
-    // Verifica o crea un primo messaggio se non esiste
     const { data: existing } = await supabase
       .from('messages')
       .select('*')
@@ -57,9 +58,39 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white px-4 py-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[#0f1e3c] text-white">
+      {/* NAVBAR */}
+      <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/">
+            <span className="text-xl font-bold cursor-pointer hover:text-yellow-400">Connectiamo</span>
+          </Link>
+          <div className="hidden md:flex space-x-6">
+            <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
+            <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
+            <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link>
+            <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
+          </div>
+          <div className="md:hidden flex items-center gap-3">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? '✖' : '☰'}
+            </button>
+          </div>
+        </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-3 space-y-2">
+            <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
+            <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
+            <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link>
+            <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
+          </div>
+        )}
+      </nav>
+
+      {/* CONTATTI */}
+      <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-6">I tuoi contatti</h1>
+
         {contacts.length === 0 ? (
           <p className="text-center text-gray-300">Non hai ancora messaggiato con nessuno.</p>
         ) : (
