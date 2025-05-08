@@ -1,81 +1,40 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../utils/supabaseClient'
-import MessageList from '../components/MessageList'
-import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../utils/supabaseClient';
 
-export default function Messages() {
-  const [user, setUser] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState('')
-  const router = useRouter()
-  const { to } = router.query  // Prendiamo il destinatario dalla URL
+export default function Messages() { const router = useRouter(); const [user, setUser] = useState(null); const [contacts, setContacts] = useState([]); const [unreadCounts, setUnreadCounts] = useState({});
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-      } else {
-        setUser(user)
-      }
-    }
+useEffect(() => { const fetchUser = async () => { const { data: { user } } = await supabase.auth.getUser(); if (!user) router.push('/login'); else setUser(user); }; fetchUser(); }, []);
 
-    fetchUser()
-  }, [router])
+useEffect(() => { if (!user) return;
 
-  useEffect(() => {
-    if (!user || !to) return
-
-    const fetchMessages = async () => {
-      let { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${to}),and(sender_id.eq.${to},receiver_id.eq.${user.id})`)
-        .order('created_at', { ascending: true })
-
-      if (!error) setMessages(data)
-    }
-
-    fetchMessages()
-  }, [user, to])
-
-  const handleSend = async () => {
-    if (newMessage.trim() === '' || !to) return
-
-    const { data, error } = await supabase
-      .from('messages')
-      .insert([{ sender_id: user.id, receiver_id: to, content: newMessage }])
-
-    if (!error) {
-      setMessages([...messages, ...data])
-      setNewMessage('')
-    }
+const fetchContacts = async () => {
+  const { data, error } = await supabase.rpc('get_conversations', {
+    current_user_id: user.id,
+  });
+  if (!error) {
+    setContacts(data);
+    fetchUnreadCounts(data);
   }
+};
 
-  if (!user) return <p className="text-center mt-10">Caricamento...</p>
-  if (!to) return <p className="text-center mt-10 text-red-500">Nessun destinatario selezionato.</p>
+const fetchUnreadCounts = async (contactsList) => {
+  const { data } = await supabase
+    .from('messages')
+    .select('sender_id, read')
+    .eq('receiver_id', user.id)
+    .eq('read', false);
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-6">
-      <h1 className="text-2xl font-bold text-center mb-4">Chat privata</h1>
-      <div className="max-w-3xl mx-auto bg-gray-50 dark:bg-gray-800 p-4 rounded shadow">
-        <MessageList messages={messages} userId={user.id} />
-        <div className="mt-4 flex gap-2">
-          <input
-            type="text"
-            placeholder="Scrivi un messaggio..."
-            className="flex-1 p-2 rounded bg-white dark:bg-gray-700 border dark:border-gray-600"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-          />
-          <button
-            onClick={handleSend}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Invia
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+  const counts = {};
+  for (const msg of data) {
+    counts[msg.sender_id] = (counts[msg.sender_id] || 0) + 1;
+  }
+  setUnreadCounts(counts);
+};
+
+fetchContacts();
+
+}, [user]);
+
+const goToChat = (contactId) => { router.push(/chat?user=${contactId}); };
+
+return ( <div className="max-w-4xl mx-auto px-4 py-10 text-white"> <h1 className="text-3xl font-bold mb-6">I tuoi messaggi</h1> {contacts.length === 0 ? ( <p>Non hai ancora conversazioni.</p> ) : ( <ul className="space-y-3"> {contacts.map((contact) => ( <li key={contact.id} className="bg-[#1e2a44] p-4 rounded-xl shadow flex items-center justify-between cursor-pointer hover:bg-[#26334d]" onClick={() => goToChat(contact.id)} > <div> <p className="font-semibold text-lg">{contact.nickname || 'Utente'}</p> </div> {unreadCounts[contact.id] > 0 && ( <div className="bg-red-600 text-white text-sm font-bold px-2 py-1 rounded-full"> {unreadCounts[contact.id]} </div> )} </li> ))} </ul> )} </div> ); }
+
