@@ -91,7 +91,7 @@ export default function ChatPage() {
             <p className="font-semibold">{selectedUser.nickname || 'Utente'}</p>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded-lg mb-4 min-h-[200px] max-h-[400px] overflow-y-auto">
+          <div className="bg-white p-4 rounded-lg mb-4 min-h-[200px] max-h-[400px] overflow-y-auto">
             {messages.length === 0 ? (
               <p className="text-gray-500">Nessun messaggio</p>
             ) : (
@@ -101,11 +101,11 @@ export default function ChatPage() {
                   className={`mb-3 max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
                     msg.sender_id === user.id
                       ? 'bg-yellow-400 text-black ml-auto'
-                      : 'bg-gray-700 text-white'
+                      : 'bg-gray-200 text-gray-900'
                   }`}
                 >
                   <p>{msg.content}</p>
-                  <p className="text-[0.7rem] text-right text-gray-300 mt-1">
+                  <p className="text-[0.7rem] text-right text-gray-500 mt-1">
                     {dayjs(msg.created_at).format('HH:mm')}
                   </p>
                 </div>
