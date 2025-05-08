@@ -100,7 +100,7 @@ export default function ChatPage() {
                   key={msg.id}
                   className={`mb-3 max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
                     msg.sender_id === user.id
-                      ? 'bg-yellow-400 text-black ml-auto'
+                      ? 'bg-[#fff3b0] text-black ml-auto'
                       : 'bg-gray-200 text-gray-900'
                   }`}
                 >
@@ -123,7 +123,12 @@ export default function ChatPage() {
             />
             <button
               onClick={sendMessage}
-              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full"
+              disabled={!newMessage.trim()}
+              className={`font-semibold px-5 py-2 rounded-full transition ${
+                newMessage.trim()
+                  ? 'bg-yellow-400 hover:bg-yellow-500 text-black'
+                  : 'bg-gray-400 text-gray-700 opacity-50 cursor-not-allowed'
+              }`}
             >
               Invia
             </button>
