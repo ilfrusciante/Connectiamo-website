@@ -45,7 +45,7 @@ export default function Home() {
               </p>
               <button
                 onClick={handleDiscover}
-                className="bg-[#d4a600] hover:bg-[#b89400] text-black font-semibold px-5 py-3 rounded-md shadow transition"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-3 rounded-md shadow transition"
               >
                 Scopri subito
               </button>
