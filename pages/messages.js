@@ -2,19 +2,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 
-export default function Messages() {
+export default function MessagesPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [contacts, setContacts] = useState([]);
-  const router = useRouter();
-
-  const fakeContacts = [
-    { id: '1', nickname: 'muratore92', message: 'Esperto in ristrutturazioni interne ed esterne.' },
-    { id: '2', nickname: 'contattiMario', message: 'Ho contatti diretti con oltre 30 ristoratori a Milano.' },
-    { id: '3', nickname: 'dietistaVera', message: 'Offro consulenze nutrizionali online e in presenza.' },
-    { id: '4', nickname: 'receptionConnect', message: 'Receptionisti con rete di contatti nel settore turistico.' },
-    { id: '5', nickname: 'Paperino', message: 'Connector con contatti nel turismo a Milano.' },
-    { id: '6', nickname: 'Pippo', message: 'Professionista nel settore ristorazione a Roma.' },
-  ];
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,31 +14,64 @@ export default function Messages() {
         router.push('/login');
       } else {
         setUser(user);
-        setContacts(fakeContacts); // Sostituisci con fetch reale in futuro
       }
     };
     fetchUser();
   }, [router]);
 
-  if (!user) return <p className="text-center mt-10 text-white">Caricamento...</p>;
+  useEffect(() => {
+    if (user) {
+      fetchContacts();
+    }
+  }, [user]);
+
+  const fetchContacts = async () => {
+    const { data, error } = await supabase.rpc('get_conversations', {
+      current_user_id: user.id,
+    });
+
+    if (!error) {
+      setContacts(data);
+    }
+  };
+
+  const openChat = (contactId) => {
+    router.push(`/messages?to=${contactId}`);
+  };
+
+  if (!user) {
+    return <p className="text-center mt-10 text-white">Caricamento...</p>;
+  }
 
   return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">I tuoi contatti</h1>
-      <div className="max-w-3xl mx-auto space-y-4">
-        {contacts.map((contact) => (
-          <div
-            key={contact.id}
-            onClick={() => router.push(`/chat?to=${contact.id}`)}
-            className="cursor-pointer bg-[#1e2a44] rounded-xl px-6 py-4 shadow hover:bg-[#24304d] transition"
-          >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-yellow-400">{contact.nickname}</h2>
-              <span className="text-sm bg-red-600 px-2 py-1 rounded-full">1</span> {/* segnaposto badge */}
-            </div>
-            <p className="text-gray-300 mt-1 text-sm truncate">{contact.message}</p>
+    <div className="min-h-screen bg-[#0f1e3c] text-white px-4 py-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">I tuoi contatti</h1>
+        {contacts.length === 0 ? (
+          <p className="text-center text-gray-300">Non hai ancora messaggiato con nessuno.</p>
+        ) : (
+          <div className="space-y-4">
+            {contacts.map((contact) => (
+              <div
+                key={contact.id}
+                onClick={() => openChat(contact.id)}
+                className="bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg px-4 py-3 flex items-center justify-between transition"
+              >
+                <div>
+                  <p className="text-lg font-semibold text-yellow-400">{contact.nickname}</p>
+                  <p className="text-sm text-gray-300">
+                    {contact.last_message?.substring(0, 60) || 'Nessun messaggio disponibile'}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-400">
+                  {contact.last_message_time
+                    ? new Date(contact.last_message_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : ''}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
