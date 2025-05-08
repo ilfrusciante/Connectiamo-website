@@ -22,56 +22,14 @@ export default function Messages() {
   useEffect(() => {
     if (!user) return;
 
-    const fetchContacts = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('sender_id, receiver_id, read, created_at')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order('created_at', { ascending: false });
+    // Contatti finti visibili sempre
+    const fakeContacts = [
+      { id: 'fake1', nickname: 'muratore92', unread: 0 },
+      { id: 'fake2', nickname: 'contattiMario', unread: 1 },
+      { id: 'fake3', nickname: 'guidaRomaCentro', unread: 0 },
+    ];
 
-      if (error) {
-        console.error('Errore caricamento messaggi:', error);
-        return;
-      }
-
-      const contactMap = {};
-      for (const msg of data) {
-        const contactId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-        if (!contactMap[contactId]) {
-          contactMap[contactId] = { unread: 0, lastTime: msg.created_at };
-        }
-        if (msg.receiver_id === user.id && !msg.read) {
-          contactMap[contactId].unread += 1;
-        }
-      }
-
-      const contactIds = Object.keys(contactMap);
-      if (contactIds.length === 0) {
-        // Inserimento contatti finti
-        setContacts([
-          { id: 'fake1', nickname: 'muratore92', unread: 0 },
-          { id: 'fake2', nickname: 'contattiMario', unread: 2 },
-          { id: 'fake3', nickname: 'guidaRomaCentro', unread: 0 }
-        ]);
-        return;
-      }
-
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, nickname')
-        .in('id', contactIds);
-
-      const enriched = profiles.map((p) => ({
-        id: p.id,
-        nickname: p.nickname,
-        unread: contactMap[p.id]?.unread || 0,
-        lastTime: contactMap[p.id]?.lastTime,
-      }));
-
-      setContacts(enriched.sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime)));
-    };
-
-    fetchContacts();
+    setContacts(fakeContacts);
   }, [user]);
 
   return (
