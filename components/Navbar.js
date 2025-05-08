@@ -1,69 +1,8 @@
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { supabase } from '../utils/supabaseClient';
+import { useEffect, useState } from 'react' import { useRouter } from 'next/router'
 
-export default function Navbar() {
-  const [user, setUser] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Messages() { const router = useRouter() const [contacts, setContacts] = useState([])
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    checkUser();
-  }, []);
+// Contatti finti (da search-results) useEffect(() => { setContacts([ { id: '1', nickname: 'muratore92', role: 'Professionista', category: 'Edilizia', city: 'Roma', cap: '00100', lastMessage: 'Esperto in ristrutturazioni interne ed esterne.', unread: 2 }, { id: '2', nickname: 'contattiMario', role: 'Connector', category: 'Ristorazione', city: 'Milano', cap: '20100', lastMessage: 'Ho contatti diretti con oltre 20 ristoratori a Milano.', unread: 0 }, { id: '3', nickname: 'dietistaVera', role: 'Professionista', category: 'Benessere', city: 'Torino', cap: '10100', lastMessage: 'Offro consulenze nutrizionali online e in presenza.', unread: 1 }, { id: '4', nickname: 'receptionConnect', role: 'Connector', category: 'Turismo', city: 'Firenze', cap: '50100', lastMessage: 'Receptionisti con rete di contatti nel settore turistico.', unread: 0 }, { id: '5', nickname: 'Paperino', role: 'Connector', category: 'Turismo', city: 'Milano', cap: '00148', lastMessage: 'Sempre disponibile per nuovi contatti nel turismo.', unread: 3 }, { id: '6', nickname: 'Pippo', role: 'Professionista', category: 'Ristorazione', city: 'Roma', cap: '00148', lastMessage: 'Chef con esperienza pluriennale.', unread: 0 }, ]) }, [])
 
-  return (
-    <nav className="bg-[#0f1e3c] dark:bg-gray-900 border-b border-gray-800 px-4 py-3 shadow-md text-white">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/">
-          <a className="text-xl font-bold text-yellow-400 hover:text-yellow-300">Connectiamo</a>
-        </Link>
+return ( <div className="min-h-screen bg-gray-900 text-white px-4 py-6"> <h1 className="text-2xl font-bold text-center mb-6">I tuoi contatti</h1> <div className="max-w-4xl mx-auto space-y-4"> {contacts.map((contact) => ( <div key={contact.id} onClick={() => router.push(/messages?to=${contact.id})} className="bg-[#1e2a44] hover:bg-[#2a3b5c] cursor-pointer transition rounded-xl p-4 flex items-center justify-between shadow" > <div> <p className="font-semibold text-yellow-400 text-lg">{contact.nickname}</p> <p className="text-sm text-gray-300">{contact.role} - {contact.category}</p> <p className="text-sm text-gray-400">{contact.city}, {contact.cap}</p> <p className="text-sm mt-1 text-gray-200 italic truncate max-w-xs">{contact.lastMessage}</p> </div> {contact.unread > 0 && ( <span className="ml-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"> {contact.unread} </span> )} </div> ))} </div> </div> ) }
 
-        {/* Desktop menu */}
-        <div className="hidden md:flex space-x-6">
-          <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
-          {user ? (
-            <>
-              <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
-              <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link>
-              <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login"><a className="hover:text-yellow-400">Login</a></Link>
-              <Link href="/signup"><a className="hover:text-yellow-400">Registrati</a></Link>
-            </>
-          )}
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center gap-3">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? '✖' : '☰'}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile dropdown */}
-      {mobileMenuOpen && (
-        <div className="md:hidden mt-3 space-y-2">
-          <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
-          {user ? (
-            <>
-              <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
-              <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link>
-              <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login"><a className="block hover:text-yellow-400">Login</a></Link>
-              <Link href="/signup"><a className="block hover:text-yellow-400">Registrati</a></Link>
-            </>
-          )}
-        </div>
-      )}
-    </nav>
-  );
-}
