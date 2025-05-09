@@ -38,7 +38,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 space-y-6 z-10">
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Trova chi conosce e, <br /> fatti conoscere
+                <span className="block">Trova chi conosce e,</span>
+                <span className="block text-yellow-300">fatti conoscere</span>
               </h1>
               <p className="text-lg text-blue-100">
                 Connettiti con chi ha una rete di contatti o offri il tuo talento. Costruisci relazioni di valore per il tuo lavoro o la tua attività.
