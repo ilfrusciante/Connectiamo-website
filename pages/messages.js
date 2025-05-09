@@ -114,3 +114,6 @@ return ( <div className="min-h-screen bg-[#0f1e3c] text-white p-4 relative"> <di
 </div>
 
 ); }
+
+Ridammi il codice di messages con le modifiche ma considera che questo è l'attuale codice e non fare danni
+
