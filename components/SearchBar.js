@@ -24,6 +24,8 @@ export default function SearchBar() {
         <option>Ristoranti</option>
         <option>Pittori</option>
         <option>Parrucchieri</option>
+        <option>Ristorazione</option>
+        <option>Intrattenimento</option>
       </select>
       <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-2 rounded shadow w-full md:w-auto">
         Cerca
