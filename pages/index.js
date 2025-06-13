@@ -147,12 +147,10 @@ export default function Home() {
         <section className="bg-gray-100 py-16 px-6 md:px-20">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">
-              <Link
-                href="/come-funziona"
-                className="text-yellow-500 hover:text-yellow-600 underline underline-offset-4 decoration-2 inline-flex items-center gap-2 transition"
-              >
-                Come funziona
-                <span className="text-2xl">→</span>
+              <Link href="/come-funziona">
+                <span className="text-yellow-500 hover:text-yellow-600 transition-colors duration-200 underline underline-offset-4">
+                  Come funziona
+                </span>
               </Link>
             </h2>
 
@@ -182,4 +180,4 @@ export default function Home() {
       <Footer />
     </>
   );
-                  }
+}
