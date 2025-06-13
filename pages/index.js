@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link'; // <== AGGIUNTA IMPORTANTE
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
@@ -145,7 +146,11 @@ export default function Home() {
         {/* COME FUNZIONA */}
         <section className="bg-gray-100 py-16 px-6 md:px-20">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold mb-10">Come funziona</h2>
+            <h2 className="text-3xl font-bold mb-10">
+              <Link href="/come-funziona" className="hover:text-yellow-400 transition">
+                Come funziona
+              </Link>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
@@ -172,4 +177,4 @@ export default function Home() {
       <Footer />
     </>
   );
-}
+          }
