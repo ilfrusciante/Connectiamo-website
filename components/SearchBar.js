@@ -1,4 +1,21 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../utils/supabaseClient';
+
 export default function SearchBar() {
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      const { data, error } = await supabase.from('profiles').select('city');
+      if (!error && data) {
+        // Filtra città uniche e non vuote
+        const uniqueCities = Array.from(new Set(data.map(p => (p.city || '').trim()).filter(Boolean)));
+        setCities(uniqueCities.sort((a, b) => a.localeCompare(b)));
+      }
+    };
+    fetchCities();
+  }, []);
+
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md flex flex-col md:flex-row gap-4">
       <select className="w-full md:w-1/4 p-2 rounded border dark:bg-gray-900 dark:border-gray-700 dark:text-white">
@@ -9,9 +26,9 @@ export default function SearchBar() {
       <select className="w-full md:w-1/4 p-2 rounded border dark:bg-gray-900 dark:border-gray-700 dark:text-white">
         <option>Città</option>
         <option>Tutta la città</option>
-        <option>Roma</option>
-        <option>Milano</option>
-        <option>Napoli</option>
+        {cities.map(city => (
+          <option key={city} value={city}>{city}</option>
+        ))}
       </select>
       <select className="w-full md:w-1/4 p-2 rounded border dark:bg-gray-900 dark:border-gray-700 dark:text-white">
         <option>Zona</option>

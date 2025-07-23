@@ -97,11 +97,19 @@ export default function MessagesPage() {
                 className="bg-gray-800 hover:bg-gray-700 rounded-lg px-5 py-4 transition"
               >
                 <div className="flex justify-between items-center">
-                  <div onClick={() => handleClick(contact.id)} className="cursor-pointer w-full">
-                    <p className="text-lg font-semibold text-yellow-400">{contact.nickname || 'Utente anonimo'}</p>
-                    <p className="text-sm text-gray-300 mt-1">
-                      {contact.last_message?.substring(0, 60) || 'Nessun messaggio disponibile'}
-                    </p>
+                  <div onClick={() => handleClick(contact.id)} className="cursor-pointer w-full flex items-center gap-3">
+                    <img
+                      src={contact.avatar || '/images/default-avatar.png'}
+                      alt="Avatar"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
+                      style={{ minWidth: 48, minHeight: 48 }}
+                    />
+                    <div>
+                      <p className="text-lg font-semibold text-yellow-400">{contact.nickname || 'Utente anonimo'}</p>
+                      <p className="text-sm text-gray-300 mt-1">
+                        {contact.last_message?.substring(0, 60) || 'Nessun messaggio disponibile'}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3 ml-4">
                     {contact.unread_count > 0 && (

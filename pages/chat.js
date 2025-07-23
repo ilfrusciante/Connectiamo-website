@@ -108,7 +108,13 @@ export default function ChatPage() {
         <p className="text-center text-gray-400">Seleziona un contatto per iniziare a chattare.</p>
       ) : (
         <>
-          <div className="bg-gray-800 p-4 rounded-lg mb-4">
+          <div className="bg-gray-800 p-4 rounded-lg mb-4 flex items-center gap-3">
+            <img
+              src={selectedUser?.avatar || '/images/default-avatar.png'}
+              alt="Avatar"
+              className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
+              style={{ minWidth: 48, minHeight: 48 }}
+            />
             <p className="font-semibold">{selectedUser.nickname || 'Utente'}</p>
           </div>
 
@@ -116,21 +122,33 @@ export default function ChatPage() {
             {messages.length === 0 ? (
               <p className="text-gray-500">Nessun messaggio</p>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`mb-3 max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
-                    msg.sender_id === user.id
-                      ? 'bg-[#ffe066] bg-opacity-70 text-black ml-auto'
-                      : 'bg-gray-200 text-black'
-                  }`}
-                >
-                  <p>{msg.content}</p>
-                  <p className="text-[0.7rem] text-right text-gray-600 mt-1">
-                    {dayjs(msg.created_at).format('HH:mm')}
-                  </p>
-                </div>
-              ))
+              messages.map((msg) => {
+                const isSent = msg.sender_id === user.id;
+                return (
+                  <div key={msg.id} className={`flex mb-3 ${isSent ? 'justify-end' : 'justify-start'}`}>
+                    {!isSent && (
+                      <img
+                        src={selectedUser?.avatar || '/images/default-avatar.png'}
+                        alt="Avatar"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
+                        style={{ minWidth: 32, minHeight: 32 }}
+                      />
+                    )}
+                    <div
+                      className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
+                        isSent
+                          ? 'bg-[#ffe066] bg-opacity-70 text-black ml-auto'
+                          : 'bg-gray-200 text-black'
+                      }`}
+                    >
+                      <p>{msg.content}</p>
+                      <p className="text-[0.7rem] text-right text-gray-600 mt-1">
+                        {dayjs(msg.created_at).format('HH:mm')}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
 

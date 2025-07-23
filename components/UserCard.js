@@ -8,7 +8,7 @@ const UserCard = ({ user }) => {
         <img
           src={user.avatar || "/images/default-avatar.png"}
           alt="Avatar"
-          className="w-16 h-16 rounded-full object-cover border border-gray-300"
+          className="w-20 h-20 rounded-full object-cover border-2 border-yellow-400"
         />
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{user.nickname}</h3>

@@ -10,7 +10,7 @@ const UserProfile = ({ user }) => {
         <img
           src={user.avatar || "/images/default-avatar.png"}
           alt="Avatar"
-          className="w-16 h-16 rounded-full border border-gray-300 dark:border-gray-600"
+          className="w-20 h-20 rounded-full object-cover border-2 border-yellow-400"
         />
         <div>
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{user.nickname}</h2>

@@ -5,7 +5,7 @@ export default function ProfileCard({ user }) {
         <img
           src={user?.avatar || '/images/default-avatar.png'}
           alt="Avatar"
-          className="w-16 h-16 rounded-full object-cover"
+          className="w-20 h-20 rounded-full object-cover border-2 border-yellow-400"
         />
         <div>
           <h3 className="text-xl font-semibold text-blue-900 dark:text-white">{user?.nickname || 'Utente anonimo'}</h3>
