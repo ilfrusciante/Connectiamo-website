@@ -22,8 +22,11 @@ export default function AvatarUpload({ onUpload }) {
       {preview ? (
         <img src={preview} alt="Preview" className="w-24 h-24 rounded-full object-cover border border-gray-300 dark:border-gray-600" />
       ) : (
-        <div className="w-24 h-24 flex items-center justify-center border border-dashed border-gray-400 dark:border-gray-600 rounded-full">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Nessuna foto</span>
+        <div className="w-24 h-24 flex items-center justify-center border border-dashed border-gray-400 dark:border-gray-600 rounded-full bg-white dark:bg-gray-900">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+          </svg>
         </div>
       )}
       <input

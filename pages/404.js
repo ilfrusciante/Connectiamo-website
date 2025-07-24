@@ -8,10 +8,8 @@ export default function Custom404() {
       <p className="text-xl text-gray-800 dark:text-gray-200 mb-6">
         Pagina non trovata.
       </p>
-      <Link href="/">
-        <a className="text-blue-500 dark:text-yellow-400 hover:underline text-lg">
-          Torna alla home
-        </a>
+      <Link href="/" className="text-blue-500 dark:text-yellow-400 hover:underline text-lg">
+        Torna alla home
       </Link>
     </div>
   );

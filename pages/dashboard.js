@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 import Link from 'next/link';
+import AvatarUpload from '../components/AvatarUpload';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -14,8 +15,10 @@ export default function Dashboard() {
     cap: '',
     role: '',
     category: '',
+    avatar: '',
   });
   const [saving, setSaving] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,7 +32,7 @@ export default function Dashboard() {
 
       const { data } = await supabase
         .from('profiles')
-        .select('nickname, description, city, cap, role, category')
+        .select('nickname, description, city, cap, role, category, avatar')
         .eq('id', session.user.id)
         .single();
 
@@ -43,45 +46,37 @@ export default function Dashboard() {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
+  const handleAvatarUpload = (file) => {
+    setAvatarFile(file);
+  };
+
   const handleSave = async () => {
     setSaving(true);
+    let avatarUrl = profile.avatar;
+    if (avatarFile && user) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const filePath = `avatars/${user.id}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        avatarUrl = publicUrlData.publicUrl;
+      }
+    }
     const { error } = await supabase
       .from('profiles')
-      .update(profile)
+      .update({ ...profile, avatar: avatarUrl })
       .eq('id', user.id);
 
-    if (!error) alert('Profilo aggiornato con successo.');
+    if (!error) {
+      setProfile((prev) => ({ ...prev, avatar: avatarUrl }));
+      setAvatarFile(null);
+      alert('Profilo aggiornato con successo.');
+    }
     setSaving(false);
   };
 
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white">
-      {/* NAVBAR */}
-      <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
-          <div className="hidden md:flex space-x-6">
-            <Link href="/" className="hover:text-yellow-400">Home</Link>
-            <Link href="/dashboard" className="hover:text-yellow-400">Area personale</Link>
-            <Link href="/messages" className="hover:text-yellow-400">Messaggi</Link>
-            <Link href="/logout" className="hover:text-yellow-400">Logout</Link>
-          </div>
-          <div className="md:hidden">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? '✖' : '☰'}
-            </button>
-          </div>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3 space-y-2">
-            <Link href="/" className="block hover:text-yellow-400">Home</Link>
-            <Link href="/dashboard" className="block hover:text-yellow-400">Area personale</Link>
-            <Link href="/messages" className="block hover:text-yellow-400">Messaggi</Link>
-            <Link href="/logout" className="block hover:text-yellow-400">Logout</Link>
-          </div>
-        )}
-      </nav>
-
       {/* CONTENUTO */}
       <div className="max-w-4xl mx-auto py-10 px-6">
         <h2 className="text-3xl font-bold mb-8 text-center">Area personale</h2>
@@ -90,6 +85,12 @@ export default function Dashboard() {
         <div className="bg-gray-800 p-6 rounded-xl mb-10">
           <h3 className="text-xl font-semibold mb-4">Modifica Profilo</h3>
           <div className="space-y-4">
+            <div className="flex flex-col items-center mb-4">
+              <AvatarUpload onUpload={handleAvatarUpload} />
+              {profile.avatar && !avatarFile && (
+                <img src={profile.avatar} alt="Avatar attuale" className="w-24 h-24 rounded-full object-cover border-2 border-yellow-400 mt-2" />
+              )}
+            </div>
             <input
               type="text"
               name="nickname"

@@ -40,6 +40,14 @@ export default function Navbar() {
       }
     };
     checkUser();
+
+    // Listener per login/logout
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      checkUser();
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
   return (
@@ -48,20 +56,27 @@ export default function Navbar() {
         <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
         {/* Mostra avatar e nickname se loggato (desktop) */}
         {user && (
-          <div className="hidden md:flex items-center ml-6 gap-2">
-            {avatar ? (
-              <Link href="/dashboard">
+          <div className="hidden md:flex items-center ml-6 gap-3">
+            <Link href="/dashboard">
+              {avatar ? (
                 <img
                   src={avatar}
                   alt="Avatar"
                   className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400 cursor-pointer hover:scale-105 transition"
                   style={{ minWidth: 36, minHeight: 36 }}
                 />
-              </Link>
-            ) : null}
-            {nickname && (
-              <span className="text-yellow-300 font-semibold">Ciao, {nickname}!</span>
-            )}
+              ) : (
+                <span className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 cursor-pointer">
+                  <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                    <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                  </svg>
+                </span>
+              )}
+            </Link>
+            <span className="text-yellow-300 font-semibold">
+              {nickname ? `Ciao, ${nickname}!` : 'Utente'}
+            </span>
           </div>
         )}
         {/* Desktop Menu */}
@@ -90,19 +105,26 @@ export default function Navbar() {
         {/* Mostra avatar e nickname se loggato (mobile) */}
         {user && (
           <div className="md:hidden flex items-center ml-4 gap-2">
-            {avatar ? (
-              <Link href="/dashboard">
+            <Link href="/dashboard">
+              {avatar ? (
                 <img
                   src={avatar}
                   alt="Avatar"
                   className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 cursor-pointer hover:scale-105 transition"
                   style={{ minWidth: 32, minHeight: 32 }}
                 />
-              </Link>
-            ) : null}
-            {nickname && (
-              <span className="text-yellow-300 font-semibold">{nickname}</span>
-            )}
+              ) : (
+                <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 cursor-pointer">
+                  <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                    <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                  </svg>
+                </span>
+              )}
+            </Link>
+            <span className="text-yellow-300 font-semibold">
+              {nickname ? nickname : 'Utente'}
+            </span>
           </div>
         )}
         {/* Mobile Menu Toggle */}

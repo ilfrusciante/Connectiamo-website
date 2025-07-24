@@ -90,11 +90,7 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
-      {/* HEADER NAV */}
-      <div className="flex justify-between items-center mb-6">
-        <Link href="/">
-          <span className="text-xl font-bold text-white cursor-pointer hover:text-yellow-400">Connectiamo</span>
-        </Link>
+      <div className="flex justify-end items-center mb-6">
         <Link href="/messages">
           <button className="text-sm bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded-full transition">
             Torna ai contatti
@@ -109,12 +105,21 @@ export default function ChatPage() {
       ) : (
         <>
           <div className="bg-gray-800 p-4 rounded-lg mb-4 flex items-center gap-3">
-            <img
-              src={selectedUser?.avatar || '/images/default-avatar.png'}
-              alt="Avatar"
-              className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
-              style={{ minWidth: 48, minHeight: 48 }}
-            />
+            {selectedUser?.avatar ? (
+              <img
+                src={selectedUser.avatar}
+                alt="Avatar"
+                className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
+                style={{ minWidth: 48, minHeight: 48 }}
+              />
+            ) : (
+              <span className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900">
+                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                  <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                </svg>
+              </span>
+            )}
             <p className="font-semibold">{selectedUser.nickname || 'Utente'}</p>
           </div>
 
@@ -127,12 +132,21 @@ export default function ChatPage() {
                 return (
                   <div key={msg.id} className={`flex mb-3 ${isSent ? 'justify-end' : 'justify-start'}`}>
                     {!isSent && (
-                      <img
-                        src={selectedUser?.avatar || '/images/default-avatar.png'}
-                        alt="Avatar"
-                        className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
-                        style={{ minWidth: 32, minHeight: 32 }}
-                      />
+                      selectedUser?.avatar ? (
+                        <img
+                          src={selectedUser.avatar}
+                          alt="Avatar"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
+                          style={{ minWidth: 32, minHeight: 32 }}
+                        />
+                      ) : (
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 mr-2">
+                          <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                          </svg>
+                        </span>
+                      )
                     )}
                     <div
                       className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${

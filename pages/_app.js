@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import '../styles/globals.css';
+import Navbar from '../components/Navbar';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
@@ -23,7 +24,12 @@ function MyApp({ Component, pageProps }) {
     return () => clearInterval(interval);
   }, []);
 
-  return <Component {...pageProps} />;
+  return (
+    <>
+      <Navbar />
+      <Component {...pageProps} />
+    </>
+  );
 }
 
 export default MyApp;

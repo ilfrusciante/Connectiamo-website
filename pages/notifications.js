@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
-import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function Notifications() {
@@ -26,7 +25,6 @@ export default function Notifications() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-      <Navbar />
       <main className="p-4 max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Notifiche</h1>
         {notifications.length > 0 ? (

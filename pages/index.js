@@ -3,8 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SearchBar from '../components/SearchBar';
 
 export default function Home() {
   const router = useRouter();
@@ -30,8 +30,6 @@ export default function Home() {
       <Head>
         <title>Connectiamo</title>
       </Head>
-
-      <Navbar />
 
       <main className="bg-white text-gray-900">
         {/* HERO */}
@@ -69,64 +67,17 @@ export default function Home() {
         {/* BARRA DI RICERCA */}
         <section className="bg-white py-10 px-6 md:px-20 flex justify-center">
           <div className="w-full max-w-4xl">
-            <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Ruolo</option>
-                <option value="Professionista">Professionista</option>
-                <option value="Connector">Connector</option>
-              </select>
-
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Città</option>
-                <option value="Milano">Milano</option>
-                <option value="Roma">Roma</option>
-                <option value="Napoli">Napoli</option>
-              </select>
-
-              <input
-                type="text"
-                value={cap}
-                onChange={(e) => setCap(e.target.value)}
-                placeholder="CAP"
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              />
-
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
-              >
-                <option value="">Categoria</option>
-                <option value="Edilizia">Edilizia</option>
-                <option value="Benessere">Benessere</option>
-                <option value="Tecnologie">Tecnologie</option>
-                <option value="Servizi personali">Servizi personali</option>
-                <option value="Servizi aziendali">Servizi aziendali</option>
-                <option value="Ristorazione">Ristorazione</option>
-                <option value="Intrattenimento">Intrattenimento</option>
-                <option value="Altro">Altro</option>
-              </select>
-
-              <button
-                onClick={handleSearch}
-                disabled={!role || !city}
-                className={`font-semibold px-5 py-2 rounded-md w-full md:w-auto transition ${
-                  !role || !city
-                    ? 'bg-gray-300 cursor-not-allowed text-gray-600'
-                    : 'bg-[#d4a600] hover:bg-[#b89400] text-black'
-                }`}
-              >
-                Trova contatti
-              </button>
-            </div>
+            <SearchBar
+              role={role}
+              setRole={setRole}
+              city={city}
+              setCity={setCity}
+              category={category}
+              setCategory={setCategory}
+              cap={cap}
+              setCap={setCap}
+              onSearch={handleSearch}
+            />
           </div>
         </section>
 

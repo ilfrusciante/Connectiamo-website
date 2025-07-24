@@ -55,34 +55,6 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white">
-      {/* NAVBAR */}
-      <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/">
-            <span className="text-xl font-bold cursor-pointer hover:text-yellow-400">Connectiamo</span>
-          </Link>
-          <div className="hidden md:flex space-x-6">
-            <Link href="/"><a className="hover:text-yellow-400">Home</a></Link>
-            <Link href="/dashboard"><a className="hover:text-yellow-400">Area personale</a></Link>
-            <Link href="/messages"><a className="hover:text-yellow-400">Messaggi</a></Link>
-            <Link href="/logout"><a className="hover:text-yellow-400">Logout</a></Link>
-          </div>
-          <div className="md:hidden flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? '✖' : '☰'}
-            </button>
-          </div>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3 space-y-2">
-            <Link href="/"><a className="block hover:text-yellow-400">Home</a></Link>
-            <Link href="/dashboard"><a className="block hover:text-yellow-400">Area personale</a></Link>
-            <Link href="/messages"><a className="block hover:text-yellow-400">Messaggi</a></Link>
-            <Link href="/logout"><a className="block hover:text-yellow-400">Logout</a></Link>
-          </div>
-        )}
-      </nav>
-
       {/* CONTATTI */}
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-6">Messaggi</h1>
@@ -98,12 +70,21 @@ export default function MessagesPage() {
               >
                 <div className="flex justify-between items-center">
                   <div onClick={() => handleClick(contact.id)} className="cursor-pointer w-full flex items-center gap-3">
-                    <img
-                      src={contact.avatar || '/images/default-avatar.png'}
-                      alt="Avatar"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
-                      style={{ minWidth: 48, minHeight: 48 }}
-                    />
+                    {contact.avatar ? (
+                      <img
+                        src={contact.avatar}
+                        alt="Avatar"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
+                        style={{ minWidth: 48, minHeight: 48 }}
+                      />
+                    ) : (
+                      <span className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900">
+                        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                          <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                        </svg>
+                      </span>
+                    )}
                     <div>
                       <p className="text-lg font-semibold text-yellow-400">{contact.nickname || 'Utente anonimo'}</p>
                       <p className="text-sm text-gray-300 mt-1">
