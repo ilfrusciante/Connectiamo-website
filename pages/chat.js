@@ -40,6 +40,33 @@ export default function ChatPage() {
     if (user && selectedUser) fetchMessages();
   }, [selectedUser]);
 
+  useEffect(() => {
+    if (!user || !selectedUser) return;
+
+    // Listener realtime per nuovi messaggi in questa chat
+    const channel = supabase
+      .channel('chat-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `or=(receiver_id.eq.${user.id},sender_id.eq.${user.id})`
+      }, (payload) => {
+        const msg = payload.new;
+        if (
+          (msg.sender_id === user.id && msg.receiver_id === selectedUser.id) ||
+          (msg.sender_id === selectedUser.id && msg.receiver_id === user.id)
+        ) {
+          fetchMessages();
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, selectedUser]);
+
   const fetchContacts = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
       current_user_id: user.id
