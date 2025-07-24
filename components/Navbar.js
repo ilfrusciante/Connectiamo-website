@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
@@ -9,7 +9,45 @@ export default function Navbar() {
   const [avatar, setAvatar] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [dropdownOpenDesktop, setDropdownOpenDesktop] = useState(false);
+  const [dropdownOpenMobile, setDropdownOpenMobile] = useState(false);
   const router = useRouter();
+  const dropdownRefDesktop = useRef();
+  const dropdownRefMobile = useRef();
+
+  // Gestione click fuori dal dropdown desktop
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRefDesktop.current && !dropdownRefDesktop.current.contains(event.target)) {
+        setDropdownOpenDesktop(false);
+      }
+    }
+    if (dropdownOpenDesktop) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpenDesktop]);
+
+  // Gestione click fuori dal dropdown mobile
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRefMobile.current && !dropdownRefMobile.current.contains(event.target)) {
+        setDropdownOpenMobile(false);
+      }
+    }
+    if (dropdownOpenMobile) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpenMobile]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -19,11 +57,11 @@ export default function Navbar() {
         // Recupera nickname e avatar dal profilo
         const { data: profile } = await supabase
           .from('profiles')
-          .select('nickname, avatar')
+          .select('nickname, avatar_url')
           .eq('id', user.id)
           .single();
         if (profile && profile.nickname) setNickname(profile.nickname);
-        if (profile && profile.avatar) setAvatar(profile.avatar);
+        if (profile && profile.avatar_url) setAvatar(profile.avatar_url);
         else setAvatar('');
         // Recupera conteggio messaggi non letti
         const { data: contacts, error } = await supabase.rpc('get_conversations', {
@@ -56,8 +94,13 @@ export default function Navbar() {
         <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
         {/* Mostra avatar e nickname se loggato (desktop) */}
         {user && (
-          <div className="hidden md:flex items-center ml-6 gap-3">
-            <Link href="/dashboard">
+          <div className="hidden md:flex items-center ml-6 gap-3 relative" ref={dropdownRefDesktop}>
+            <button
+              className="flex items-center gap-2 focus:outline-none hover:bg-yellow-100/10 px-2 py-1 rounded transition"
+              onClick={() => setDropdownOpenDesktop((open) => !open)}
+              aria-haspopup="true"
+              aria-expanded={dropdownOpenDesktop}
+            >
               {avatar ? (
                 <img
                   src={avatar}
@@ -73,10 +116,27 @@ export default function Navbar() {
                   </svg>
                 </span>
               )}
-            </Link>
-            <span className="text-yellow-300 font-semibold">
-              {nickname ? `Ciao, ${nickname}!` : 'Utente'}
-            </span>
+              <span className="text-yellow-300 font-semibold cursor-pointer">
+                {nickname ? `Ciao, ${nickname}!` : 'Utente'}
+              </span>
+              <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {dropdownOpenDesktop && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
+                <button
+                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-t"
+                  onClick={() => { setDropdownOpenDesktop(false); router.push('/dashboard'); }}
+                >
+                  Modifica profilo
+                </button>
+                <button
+                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-b"
+                  onClick={() => { setDropdownOpenDesktop(false); router.push('/logout'); }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         )}
         {/* Desktop Menu */}
@@ -84,7 +144,6 @@ export default function Navbar() {
           <Link href="/" className="hover:text-yellow-400">Home</Link>
           {user ? (
             <>
-              <Link href="/dashboard" className="hover:text-yellow-400">Area personale</Link>
               <Link href="/messages" className="hover:text-yellow-400 flex items-center gap-1">
                 Messaggi
                 {unreadCount > 0 && (
@@ -93,7 +152,6 @@ export default function Navbar() {
                   </span>
                 )}
               </Link>
-              <Link href="/logout" className="hover:text-yellow-400">Logout</Link>
             </>
           ) : (
             <>
@@ -104,8 +162,13 @@ export default function Navbar() {
         </div>
         {/* Mostra avatar e nickname se loggato (mobile) */}
         {user && (
-          <div className="md:hidden flex items-center ml-4 gap-2">
-            <Link href="/dashboard">
+          <div className="md:hidden flex items-center ml-4 gap-2 relative" ref={dropdownRefMobile}>
+            <button
+              className="flex items-center gap-2 focus:outline-none hover:bg-yellow-100/10 px-2 py-1 rounded transition"
+              onClick={() => setDropdownOpenMobile((open) => !open)}
+              aria-haspopup="true"
+              aria-expanded={dropdownOpenMobile}
+            >
               {avatar ? (
                 <img
                   src={avatar}
@@ -121,10 +184,27 @@ export default function Navbar() {
                   </svg>
                 </span>
               )}
-            </Link>
-            <span className="text-yellow-300 font-semibold">
-              {nickname ? nickname : 'Utente'}
-            </span>
+              <span className="text-yellow-300 font-semibold cursor-pointer">
+                {nickname ? nickname : 'Utente'}
+              </span>
+              <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenMobile ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {dropdownOpenMobile && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
+                <button
+                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-t"
+                  onClick={() => { setDropdownOpenMobile(false); router.push('/dashboard'); }}
+                >
+                  Modifica profilo
+                </button>
+                <button
+                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-b"
+                  onClick={() => { setDropdownOpenMobile(false); router.push('/logout'); }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         )}
         {/* Mobile Menu Toggle */}
@@ -145,7 +225,6 @@ export default function Navbar() {
           <Link href="/" className="block hover:text-yellow-400 text-lg py-3 rounded">Home</Link>
           {user ? (
             <>
-              <Link href="/dashboard" className="block hover:text-yellow-400 text-lg py-3 rounded">Area personale</Link>
               <Link href="/messages" className="block hover:text-yellow-400 flex items-center gap-2 text-lg py-3 rounded">
                 Messaggi
                 {unreadCount > 0 && (
@@ -154,7 +233,6 @@ export default function Navbar() {
                   </span>
                 )}
               </Link>
-              <Link href="/logout" className="block hover:text-yellow-400 text-lg py-3 rounded">Logout</Link>
             </>
           ) : (
             <>

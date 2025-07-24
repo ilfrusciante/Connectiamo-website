@@ -69,16 +69,21 @@ export default function Signup() {
     if (userId && avatarFile) {
       // Carica l'avatar su Supabase Storage
       const fileExt = avatarFile.name.split('.').pop();
-      const filePath = `avatars/${userId}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-        avatarUrl = publicUrlData.publicUrl;
+      const filePath = `${userId}.${fileExt}`;
+      const { error: uploadError, data: uploadData } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
+      console.log('Risultato upload:', { uploadError, uploadData });
+      if (uploadError) {
+        setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
+        setUploading(false);
+        return;
       }
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      console.log('Public URL generato:', publicUrlData);
+      avatarUrl = publicUrlData.publicUrl;
     }
 
     if (userId) {
-      const { error: profileError } = await supabase.from('profiles').insert([{
+      const { error: profileError, data: profileData } = await supabase.from('profiles').insert([{
         id: userId,
         nome,
         cognome,
@@ -89,9 +94,10 @@ export default function Signup() {
         category,
         description,
         email,
-        avatar: avatarUrl,
+        avatar_url: avatarUrl, // <-- usa avatar_url
         created_at: new Date().toISOString(),
       }]);
+      console.log('Risultato insert profilo:', { profileError, profileData });
 
       if (profileError) {
         setError('Errore durante la creazione del profilo: ' + profileError.message);

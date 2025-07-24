@@ -15,7 +15,7 @@ export default function Dashboard() {
     cap: '',
     role: '',
     category: '',
-    avatar: '',
+    avatar_url: '', // <-- usa avatar_url
   });
   const [saving, setSaving] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);
@@ -32,7 +32,7 @@ export default function Dashboard() {
 
       const { data } = await supabase
         .from('profiles')
-        .select('nickname, description, city, cap, role, category, avatar')
+        .select('nickname, description, city, cap, role, category, avatar_url')
         .eq('id', session.user.id)
         .single();
 
@@ -52,10 +52,10 @@ export default function Dashboard() {
 
   const handleSave = async () => {
     setSaving(true);
-    let avatarUrl = profile.avatar;
+    let avatarUrl = profile.avatar_url;
     if (avatarFile && user) {
       const fileExt = avatarFile.name.split('.').pop();
-      const filePath = `avatars/${user.id}.${fileExt}`;
+      const filePath = `${user.id}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
       if (!uploadError) {
         const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
@@ -64,13 +64,14 @@ export default function Dashboard() {
     }
     const { error } = await supabase
       .from('profiles')
-      .update({ ...profile, avatar: avatarUrl })
+      .update({ ...profile, avatar_url: avatarUrl })
       .eq('id', user.id);
 
     if (!error) {
-      setProfile((prev) => ({ ...prev, avatar: avatarUrl }));
+      setProfile((prev) => ({ ...prev, avatar_url: avatarUrl }));
       setAvatarFile(null);
       alert('Profilo aggiornato con successo.');
+      window.location.reload(); // aggiorna subito la Navbar
     }
     setSaving(false);
   };
@@ -87,8 +88,8 @@ export default function Dashboard() {
           <div className="space-y-4">
             <div className="flex flex-col items-center mb-4">
               <AvatarUpload onUpload={handleAvatarUpload} />
-              {profile.avatar && !avatarFile && (
-                <img src={profile.avatar} alt="Avatar attuale" className="w-24 h-24 rounded-full object-cover border-2 border-yellow-400 mt-2" />
+              {profile.avatar_url && !avatarFile && (
+                <img src={profile.avatar_url} alt="Avatar attuale" className="w-24 h-24 rounded-full object-cover border-2 border-yellow-400 mt-2" />
               )}
             </div>
             <input
