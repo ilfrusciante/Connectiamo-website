@@ -94,14 +94,14 @@ export default function Navbar() {
       checkUser();
     });
 
-    // Listener realtime per nuovi messaggi
+    // Listener realtime per nuovi messaggi e aggiornamenti di lettura
     let messageSub = null;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         messageSub = supabase
           .channel('messages-unread-badge')
           .on('postgres_changes', {
-            event: '*',
+            event: '*', // ascolta sia INSERT che UPDATE che DELETE
             schema: 'public',
             table: 'messages',
             filter: `receiver_id=eq.${user.id}`
