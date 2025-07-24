@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 import dayjs from 'dayjs';
@@ -13,6 +13,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,11 +44,10 @@ export default function ChatPage() {
   useEffect(() => {
     if (!user || !selectedUser) return;
 
-    // Listener realtime per nuovi messaggi in questa chat
-    const channel = supabase
-      .channel('chat-realtime')
+    const chatChannel = supabase
+      .channel(`chat-realtime-${user.id}-${selectedUser.id}`)
       .on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'messages',
         filter: `or=(receiver_id.eq.${user.id},sender_id.eq.${user.id})`
@@ -59,13 +59,22 @@ export default function ChatPage() {
         ) {
           fetchMessages();
         }
+        // Aggiorna sempre la lista contatti
+        fetchContacts();
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(chatChannel);
     };
   }, [user, selectedUser]);
+
+  // Scroll automatico in fondo dopo ogni aggiornamento dei messaggi
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const fetchContacts = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
@@ -202,6 +211,7 @@ export default function ChatPage() {
                 );
               })
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="flex gap-2">

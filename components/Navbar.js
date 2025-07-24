@@ -10,7 +10,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [prevUnreadCount, setPrevUnreadCount] = useState(0);
-  const notificationAudio = useRef(null);
   const [dropdownOpenDesktop, setDropdownOpenDesktop] = useState(false);
   const [dropdownOpenMobile, setDropdownOpenMobile] = useState(false);
   const router = useRouter();
@@ -72,10 +71,6 @@ export default function Navbar() {
         if (!error && contacts) {
           const totalUnread = contacts.reduce((sum, c) => sum + (c.unread_count || 0), 0);
           setPrevUnreadCount((prev) => {
-            if (totalUnread > prev && notificationAudio.current) {
-              notificationAudio.current.currentTime = 0;
-              notificationAudio.current.play();
-            }
             return totalUnread;
           });
           setUnreadCount(totalUnread);
@@ -94,19 +89,20 @@ export default function Navbar() {
       checkUser();
     });
 
-    // Listener realtime per nuovi messaggi e aggiornamenti di lettura
-    let messageSub = null;
+    // Listener realtime per badge messaggi non letti
+    let badgeChannel = null;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        messageSub = supabase
-          .channel('messages-unread-badge')
+        badgeChannel = supabase
+          .channel('badge-unread-messages')
           .on('postgres_changes', {
-            event: '*', // ascolta sia INSERT che UPDATE che DELETE
+            event: '*',
             schema: 'public',
             table: 'messages',
             filter: `receiver_id=eq.${user.id}`
-          }, () => {
-            checkUser(); // aggiorna badge
+          }, (payload) => {
+            console.log('Navbar realtime event:', payload);
+            checkUser();
           })
           .subscribe();
       }
@@ -118,14 +114,13 @@ export default function Navbar() {
 
     return () => {
       listener?.subscription.unsubscribe();
-      if (messageSub) supabase.removeChannel(messageSub);
+      if (badgeChannel) supabase.removeChannel(badgeChannel);
       window.removeEventListener('update-unread-badge', handleUpdateBadge);
     };
   }, []);
 
   return (
     <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
-      <audio ref={notificationAudio} src="/notification.mp3" preload="auto" />
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
         {/* Mostra avatar e nickname se loggato (desktop) */}

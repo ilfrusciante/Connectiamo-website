@@ -25,6 +25,24 @@ export default function MessagesPage() {
     if (user) fetchContacts();
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    const messagesChannel = supabase
+      .channel(`messages-realtime-${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'messages',
+        filter: `or=(receiver_id.eq.${user.id},sender_id.eq.${user.id})`
+      }, () => {
+        fetchContacts();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(messagesChannel);
+    };
+  }, [user]);
+
   const fetchContacts = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
       current_user_id: user.id,
