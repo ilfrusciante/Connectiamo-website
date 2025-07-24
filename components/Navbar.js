@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useBadge } from './BadgeContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
@@ -8,13 +9,12 @@ export default function Navbar() {
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [prevUnreadCount, setPrevUnreadCount] = useState(0);
   const [dropdownOpenDesktop, setDropdownOpenDesktop] = useState(false);
   const [dropdownOpenMobile, setDropdownOpenMobile] = useState(false);
   const router = useRouter();
   const dropdownRefDesktop = useRef();
   const dropdownRefMobile = useRef();
+  const { unreadCount } = useBadge();
 
   // Gestione click fuori dal dropdown desktop
   useEffect(() => {
@@ -70,16 +70,16 @@ export default function Navbar() {
         });
         if (!error && contacts) {
           const totalUnread = contacts.reduce((sum, c) => sum + (c.unread_count || 0), 0);
-          setPrevUnreadCount((prev) => {
-            return totalUnread;
-          });
-          setUnreadCount(totalUnread);
+          // setPrevUnreadCount((prev) => { // This line is removed as per the edit hint
+          //   return totalUnread;
+          // });
+          // setUnreadCount(totalUnread); // This line is removed as per the edit hint
         }
       } else {
         setNickname('');
         setAvatar('');
-        setUnreadCount(0);
-        setPrevUnreadCount(0);
+        // setUnreadCount(0); // This line is removed as per the edit hint
+        // setPrevUnreadCount(0); // This line is removed as per the edit hint
       }
     };
     checkUser();
