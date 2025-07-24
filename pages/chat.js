@@ -80,12 +80,23 @@ export default function ChatPage() {
   };
 
   const markMessagesAsRead = async (senderId) => {
-    await supabase
+    console.log('Segno come letti i messaggi ricevuti da', senderId, 'per l\'utente', user?.id);
+    console.log('user.id:', user?.id, typeof user?.id);
+    console.log('senderId:', senderId, typeof senderId);
+    const { error, data } = await supabase
       .from('messages')
-      .update({ read: true })
+      .update({ read_at: new Date().toISOString() })
       .eq('receiver_id', user.id)
       .eq('sender_id', senderId)
-      .eq('read', false);
+      .is('read_at', null)
+      .select();
+    console.log('Risultato update:', { error, data });
+    // Notifica la Navbar di aggiornare il badge dopo un piccolo delay
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('update-unread-badge'));
+      }, 200);
+    }
   };
 
   return (

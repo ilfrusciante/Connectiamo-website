@@ -19,6 +19,7 @@ export default function Dashboard() {
   });
   const [saving, setSaving] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,6 +49,15 @@ export default function Dashboard() {
 
   const handleAvatarUpload = (file) => {
     setAvatarFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAvatarPreview(null);
+    }
   };
 
   const handleSave = async () => {
@@ -70,7 +80,7 @@ export default function Dashboard() {
     if (!error) {
       setProfile((prev) => ({ ...prev, avatar_url: avatarUrl }));
       setAvatarFile(null);
-      alert('Profilo aggiornato con successo.');
+      setAvatarPreview(null);
       window.location.reload(); // aggiorna subito la Navbar
     }
     setSaving(false);
@@ -87,10 +97,7 @@ export default function Dashboard() {
           <h3 className="text-xl font-semibold mb-4">Modifica Profilo</h3>
           <div className="space-y-4">
             <div className="flex flex-col items-center mb-4">
-              <AvatarUpload onUpload={handleAvatarUpload} />
-              {profile.avatar_url && !avatarFile && (
-                <img src={profile.avatar_url} alt="Avatar attuale" className="w-24 h-24 rounded-full object-cover border-2 border-yellow-400 mt-2" />
-              )}
+              <AvatarUpload onUpload={handleAvatarUpload} previewUrl={avatarPreview || profile.avatar_url} />
             </div>
             <input
               type="text"

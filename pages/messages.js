@@ -63,7 +63,7 @@ export default function MessagesPage() {
           <p className="text-center text-gray-300">Non hai ancora messaggiato con nessuno.</p>
         ) : (
           <div className="space-y-4">
-            {contacts.map((contact) => (
+            {contacts.filter(contact => contact.last_message && contact.last_message.trim() !== '').map((contact) => (
               <div
                 key={contact.id}
                 className="bg-gray-800 hover:bg-gray-700 rounded-lg px-5 py-4 transition"

@@ -1,9 +1,13 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
-export default function AvatarUpload({ onUpload }) {
-  const [preview, setPreview] = useState(null);
+export default function AvatarUpload({ onUpload, previewUrl }) {
+  const [preview, setPreview] = useState(previewUrl || null);
   const fileInputRef = useRef();
+
+  useEffect(() => {
+    setPreview(previewUrl || null);
+  }, [previewUrl]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

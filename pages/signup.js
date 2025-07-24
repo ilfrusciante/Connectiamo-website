@@ -18,6 +18,7 @@ export default function Signup() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -25,6 +26,15 @@ export default function Signup() {
 
   const handleAvatarUpload = (file) => {
     setAvatarFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAvatarPreview(null);
+    }
   };
 
   const handleSignup = async (e) => {
@@ -134,7 +144,7 @@ export default function Signup() {
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
         <form onSubmit={handleSignup} className="space-y-4">
-          <AvatarUpload onUpload={handleAvatarUpload} />
+          <AvatarUpload onUpload={handleAvatarUpload} previewUrl={avatarPreview} />
           <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Nome" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
           <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} required placeholder="Cognome" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
           <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required placeholder="Nickname" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
