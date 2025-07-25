@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useBadge } from './BadgeContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
@@ -14,7 +13,7 @@ export default function Navbar() {
   const router = useRouter();
   const dropdownRefDesktop = useRef();
   const dropdownRefMobile = useRef();
-  const { unreadCount } = useBadge();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Gestione click fuori dal dropdown desktop
   useEffect(() => {
@@ -51,6 +50,27 @@ export default function Navbar() {
   }, [dropdownOpenMobile]);
 
   useEffect(() => {
+    let interval;
+    const fetchUnread = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: contacts, error } = await supabase.rpc('get_conversations', {
+          current_user_id: user.id,
+        });
+        if (!error && contacts) {
+          const totalUnread = contacts.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+          setUnreadCount(totalUnread);
+        }
+      } else {
+        setUnreadCount(0);
+      }
+    };
+    fetchUnread();
+    interval = setInterval(fetchUnread, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
@@ -69,7 +89,6 @@ export default function Navbar() {
           current_user_id: user.id,
         });
         if (!error && contacts) {
-          const totalUnread = contacts.reduce((sum, c) => sum + (c.unread_count || 0), 0);
           // setPrevUnreadCount((prev) => { // This line is removed as per the edit hint
           //   return totalUnread;
           // });
@@ -258,11 +277,7 @@ export default function Navbar() {
             <>
               <Link href="/messages" className="block hover:text-yellow-400 flex items-center gap-2 text-lg py-3 rounded">
                 Messaggi
-                {unreadCount > 0 && (
-                  <span className="ml-1 bg-yellow-400 text-black rounded-full px-2 text-xs font-bold">
-                    {unreadCount}
-                  </span>
-                )}
+                {/* Badge rimosso */}
               </Link>
             </>
           ) : (

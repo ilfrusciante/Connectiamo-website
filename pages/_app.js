@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import '../styles/globals.css';
 import Navbar from '../components/Navbar';
-import { BadgeProvider } from '../components/BadgeContext';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
@@ -26,10 +25,10 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <BadgeProvider>
+    <>
       <Navbar />
       <Component {...pageProps} />
-    </BadgeProvider>
+    </>
   );
 }
 

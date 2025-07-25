@@ -27,6 +27,14 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!user) return;
+    const interval = setInterval(() => {
+      fetchContacts();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
     const messagesChannel = supabase
       .channel(`messages-realtime-${user.id}`)
       .on('postgres_changes', {

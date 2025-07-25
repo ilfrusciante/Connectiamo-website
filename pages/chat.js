@@ -41,6 +41,15 @@ export default function ChatPage() {
     if (user && selectedUser) fetchMessages();
   }, [selectedUser]);
 
+  // Polling ogni 3 secondi per aggiornare i messaggi della chat
+  useEffect(() => {
+    if (!user || !selectedUser) return;
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [user, selectedUser]);
+
   useEffect(() => {
     if (!user || !selectedUser) return;
 
