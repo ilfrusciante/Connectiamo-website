@@ -22,7 +22,12 @@ export default function Signup() {
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const normalize = (str) => str.toLowerCase().trim();
+  const normalizeText = (text) =>
+    text
+      .normalize('NFD') // rimuove accenti
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
 
   const handleAvatarUpload = (file) => {
     setAvatarFile(file);
@@ -49,10 +54,12 @@ export default function Signup() {
       if (!res.ok) throw new Error('Errore nella richiesta a GeoNames');
       const data = await res.json();
       const places = data.postalcodes || [];
-      const match = places.some(place => normalize(place.placeName) === normalize(normalizedCity));
+      const match = places.some(place =>
+        normalizeText(place.placeName).includes(normalizeText(normalizedCity))
+      );
 
       if (!match) {
-        setError(`Il CAP ${cap} non corrisponde alla città inserita (${normalizedCity}).`);
+        setError(`⚠️ Il CAP ${cap} non corrisponde alla città inserita: "${normalizedCity}".`);
         setUploading(false);
         return;
       }
@@ -77,23 +84,20 @@ export default function Signup() {
     let avatarUrl = '';
 
     if (userId && avatarFile) {
-      // Carica l'avatar su Supabase Storage
       const fileExt = avatarFile.name.split('.').pop();
       const filePath = `${userId}.${fileExt}`;
-      const { error: uploadError, data: uploadData } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
-      console.log('Risultato upload:', { uploadError, uploadData });
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
       if (uploadError) {
         setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
         setUploading(false);
         return;
       }
       const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      console.log('Public URL generato:', publicUrlData);
       avatarUrl = publicUrlData.publicUrl;
     }
 
     if (userId) {
-      const { error: profileError, data: profileData } = await supabase.from('profiles').insert([{
+      const { error: profileError } = await supabase.from('profiles').insert([{
         id: userId,
         nome,
         cognome,
@@ -104,10 +108,9 @@ export default function Signup() {
         category,
         description,
         email,
-        avatar_url: avatarUrl, // <-- usa avatar_url
+        avatar_url: avatarUrl,
         created_at: new Date().toISOString(),
       }]);
-      console.log('Risultato insert profilo:', { profileError, profileData });
 
       if (profileError) {
         setError('Errore durante la creazione del profilo: ' + profileError.message);
@@ -119,8 +122,6 @@ export default function Signup() {
       setTimeout(() => {
         router.push('/');
       }, 2000);
-      setUploading(false);
-      return;
     }
     setUploading(false);
   };
@@ -180,7 +181,7 @@ export default function Signup() {
           </button>
         </form>
       </div>
-      {/* Modale di successo */}
+
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-xs mx-auto">
@@ -192,4 +193,3 @@ export default function Signup() {
     </div>
   );
 }
-
