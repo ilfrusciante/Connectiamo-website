@@ -14,11 +14,20 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const messagesEndRef = useRef(null);
+  const [userAvatar, setUserAvatar] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+        if (profile && profile.avatar_url) setUserAvatar(profile.avatar_url);
+      }
     };
     fetchUser();
   }, []);
@@ -198,15 +207,32 @@ export default function ChatPage() {
                 return (
                   <div key={msg.id} className={`flex mb-3 ${isSent ? 'justify-end' : 'justify-start'}`}>
                     {!isSent && (
-                      selectedUser?.avatar ? (
+                      selectedUser?.avatar_url ? (
                         <img
-                          src={selectedUser.avatar}
+                          src={selectedUser.avatar_url}
                           alt="Avatar"
                           className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
                           style={{ minWidth: 32, minHeight: 32 }}
                         />
                       ) : (
                         <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 mr-2">
+                          <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                          </svg>
+                        </span>
+                      )
+                    )}
+                    {isSent && (
+                      userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt="Avatar"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 ml-2"
+                          style={{ minWidth: 32, minHeight: 32 }}
+                        />
+                      ) : (
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 ml-2">
                           <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
                             <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
