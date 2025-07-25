@@ -46,6 +46,8 @@ export default function ChatPage() {
     if (!user || !selectedUser) return;
     const interval = setInterval(() => {
       fetchMessages();
+      // Dopo aver aggiornato i messaggi, segna come letti quelli ricevuti
+      markMessagesAsRead(selectedUser.id);
     }, 3000);
     return () => clearInterval(interval);
   }, [user, selectedUser]);
@@ -144,6 +146,14 @@ export default function ChatPage() {
     }
   };
 
+  // Quando arriva un nuovo messaggio tramite polling, segna come letti
+  useEffect(() => {
+    if (!user || !selectedUser) return;
+    if (messages.length > 0) {
+      markMessagesAsRead(selectedUser.id);
+    }
+  }, [messages, user, selectedUser]);
+
   return (
     <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
       <div className="flex justify-end items-center mb-6">
@@ -230,6 +240,12 @@ export default function ChatPage() {
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Scrivi un messaggio..."
               className="flex-1 p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
             />
             <button
               onClick={sendMessage}
