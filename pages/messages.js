@@ -96,9 +96,9 @@ export default function MessagesPage() {
               >
                 <div className="flex justify-between items-center">
                   <div onClick={() => handleClick(contact.id)} className="cursor-pointer w-full flex items-center gap-3">
-                    {contact.avatar ? (
+                    {contact.avatar_url ? (
                       <img
-                        src={contact.avatar}
+                        src={contact.avatar_url}
                         alt="Avatar"
                         className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
                         style={{ minWidth: 48, minHeight: 48 }}

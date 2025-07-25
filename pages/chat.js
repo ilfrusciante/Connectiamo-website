@@ -168,7 +168,7 @@ export default function ChatPage() {
       <div className="flex justify-end items-center mb-6">
         <Link href="/messages">
           <button className="text-sm bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded-full transition">
-            Torna ai contatti
+            Torna ai messaggi
           </button>
         </Link>
       </div>
@@ -180,9 +180,9 @@ export default function ChatPage() {
       ) : (
         <>
           <div className="bg-gray-800 p-4 rounded-lg mb-4 flex items-center gap-3">
-            {selectedUser?.avatar ? (
+            {selectedUser?.avatar_url ? (
               <img
-                src={selectedUser.avatar}
+                src={selectedUser.avatar_url}
                 alt="Avatar"
                 className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400"
                 style={{ minWidth: 48, minHeight: 48 }}
@@ -205,40 +205,25 @@ export default function ChatPage() {
               messages.map((msg) => {
                 const isSent = msg.sender_id === user.id;
                 return (
-                  <div key={msg.id} className={`flex mb-3 ${isSent ? 'justify-end' : 'justify-start'}`}>
+                  <div key={msg.id} className={`flex mb-3 items-end ${isSent ? 'justify-end' : 'justify-start'}`}>
                     {!isSent && (
-                      selectedUser?.avatar_url ? (
-                        <img
-                          src={selectedUser.avatar_url}
-                          alt="Avatar"
-                          className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
-                          style={{ minWidth: 32, minHeight: 32 }}
-                        />
-                      ) : (
-                        <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 mr-2">
-                          <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
-                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
-                          </svg>
-                        </span>
-                      )
-                    )}
-                    {isSent && (
-                      userAvatar ? (
-                        <img
-                          src={userAvatar}
-                          alt="Avatar"
-                          className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 ml-2"
-                          style={{ minWidth: 32, minHeight: 32 }}
-                        />
-                      ) : (
-                        <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 ml-2">
-                          <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
-                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
-                          </svg>
-                        </span>
-                      )
+                      <>
+                        {selectedUser?.avatar_url ? (
+                          <img
+                            src={selectedUser.avatar_url}
+                            alt="Avatar"
+                            className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 mr-2"
+                            style={{ minWidth: 32, minHeight: 32 }}
+                          />
+                        ) : (
+                          <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 mr-2">
+                            <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                              <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                            </svg>
+                          </span>
+                        )}
+                      </>
                     )}
                     <div
                       className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-md ${
@@ -251,7 +236,29 @@ export default function ChatPage() {
                       <p className="text-[0.7rem] text-right text-gray-600 mt-1">
                         {dayjs(msg.created_at).format('HH:mm')}
                       </p>
+                      <p className="text-[0.7rem] text-left text-gray-500 mt-1">
+                        {isSent ? (user?.user_metadata?.nickname || 'Tu') : (selectedUser.nickname || 'Utente')}
+                      </p>
                     </div>
+                    {isSent && (
+                      <>
+                        {userAvatar ? (
+                          <img
+                            src={userAvatar}
+                            alt="Avatar"
+                            className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 ml-2"
+                            style={{ minWidth: 32, minHeight: 32 }}
+                          />
+                        ) : (
+                          <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 ml-2">
+                            <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
+                              <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
+                            </svg>
+                          </span>
+                        )}
+                      </>
+                    )}
                   </div>
                 );
               })
