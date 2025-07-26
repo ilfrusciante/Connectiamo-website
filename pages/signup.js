@@ -1,47 +1,130 @@
-import { useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../utils/supabaseClient'; import Image from 'next/image';
+// pages/signup.js
+import { useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import { useRouter } from 'next/router';
 
-export default function Signup() { const router = useRouter(); const [formData, setFormData] = useState({ nome: '', cognome: '', nickname: '', email: '', password: '', role: '', city: '', cap: '', category: '', description: '', }); const [error, setError] = useState(''); const [avatarUrl, setAvatarUrl] = useState('');
+export default function Signup() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    nome: '',
+    cognome: '',
+    nickname: '',
+    email: '',
+    password: '',
+    role: 'Connector',
+    city: '',
+    cap: '',
+    category: '',
+    description: '',
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-const handleChange = (e) => { const { name, value } = e.target; setFormData((prev) => ({ ...prev, [name]: value })); };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-const validateCityCap = async () => { const { city, cap } = formData; const response = await fetch(https://api.zippopotam.us/it/${cap}); if (!response.ok) return false;
+  const validateCityCap = async (city, cap) => {
+    const response = await fetch(`https://api.zippopotam.us/it/${cap}`);
+    if (!response.ok) return false;
+    const data = await response.json();
+    const matchingPlace = data.places.find((place) =>
+      place['place name'].toLowerCase().includes(city.toLowerCase())
+    );
+    return !!matchingPlace;
+  };
 
-const data = await response.json();
-const matchingPlace = data.places.find((place) => {
-  const normalizedPlace = place['place name'].toLowerCase().replace(/\s+/g, '');
-  const normalizedCity = city.toLowerCase().replace(/\s+/g, '');
-  return normalizedPlace.includes(normalizedCity) || normalizedCity.includes(normalizedPlace);
-});
-return !!matchingPlace;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-};
+    const { nome, cognome, nickname, email, password, role, city, cap, category, description } = formData;
 
-const handleSubmit = async (e) => { e.preventDefault(); setError('');
+    if (!nome || !cognome || !nickname || !email || !password || !role || !city || !cap) {
+      setError('Tutti i campi obbligatori devono essere compilati.');
+      return;
+    }
 
-const isValidLocation = await validateCityCap();
-if (!isValidLocation) {
-  setError(`⚠️ Il CAP ${formData.cap} non corrisponde alla città inserita: "${formData.city}".`);
-  return;
+    if (role === 'Professionista' && !category) {
+      setError('La categoria è obbligatoria per i Professionisti.');
+      return;
+    }
+
+    const isValidCityCap = await validateCityCap(city, cap);
+    if (!isValidCityCap) {
+      setError(`⚠️ Il CAP ${cap} non corrisponde alla città inserita: "${city}".`);
+      return;
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      return;
+    }
+
+    const user = data.user;
+
+    const { error: insertError } = await supabase.from('profiles').insert([
+      {
+        id: user.id,
+        nome,
+        cognome,
+        nickname,
+        email,
+        role,
+        city: city.charAt(0).toUpperCase() + city.slice(1).toLowerCase(),
+        cap,
+        category: role === 'Professionista' ? category : '',
+        description,
+      },
+    ]);
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+
+    setSuccess('Registrazione completata con successo!');
+    router.push('/dashboard');
+  };
+
+  return (
+    <div className="signup-container">
+      <h2>Registrati</h2>
+      <p>Crea un nuovo account per connetterti con altri professionisti.</p>
+      <p><strong>Il tuo nome e cognome resteranno privati</strong> e non verranno mostrati ad altri utenti.<br />
+         Solo il <strong>nickname</strong> sarà visibile pubblicamente.</p>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+      <form onSubmit={handleSubmit}>
+        <input name="nome" placeholder="Nome" onChange={handleChange} />
+        <input name="cognome" placeholder="Cognome" onChange={handleChange} />
+        <input name="nickname" placeholder="Nickname" onChange={handleChange} />
+        <input name="email" placeholder="Email" onChange={handleChange} type="email" />
+        <input name="password" placeholder="Password" onChange={handleChange} type="password" />
+        <select name="role" onChange={handleChange}>
+          <option value="Connector">Connector</option>
+          <option value="Professionista">Professionista</option>
+        </select>
+        <input name="city" placeholder="Città" onChange={handleChange} />
+        <input name="cap" placeholder="CAP" onChange={handleChange} />
+        {formData.role === 'Professionista' && (
+          <select name="category" onChange={handleChange}>
+            <option value="">Seleziona categoria</option>
+            <option value="Turismo">Turismo</option>
+            <option value="Ristorazione">Ristorazione</option>
+            <option value="Servizi">Servizi</option>
+            {/* Aggiungi altre categorie se necessario */}
+          </select>
+        )}
+        <textarea name="description" placeholder="Descrizione (facoltativa)" onChange={handleChange} />
+        <button type="submit">Registrati</button>
+      </form>
+    </div>
+  );
 }
-
-const { email, password, ...profileData } = formData;
-const { data, error: signUpError } = await supabase.auth.signUp({
-  email,
-  password,
-});
-
-if (signUpError) {
-  setError(signUpError.message);
-  return;
-}
-
-const userId = data.user?.id;
-if (userId) {
-  await supabase.from('profiles').insert({ id: userId, ...profileData, avatar_url: avatarUrl });
-  router.push('/dashboard');
-}
-
-};
-
-return ( <div className="min-h-screen bg-[#0b1d36] flex flex-col items-center justify-center text-white"> <div className="text-center mb-6"> <Image src="/connectiamo_register.png" width={200} height={200} alt="Registrati" /> <h2 className="text-2xl font-bold mt-4">Registrati</h2> <p className="text-sm mt-2 text-gray-300"> Crea un nuovo account per connetterti con altri professionisti.<br /> <span className="text-yellow-400 font-semibold">Il tuo nome e cognome resteranno privati</span> e non verranno mostrati ad altri utenti.<br /> Solo il <span className="text-yellow-400 font-semibold">nickname</span> sarà visibile pubblicamente. </p> </div> {error && <p className="text-red-500 text-center mb-2">{error}</p>} <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3"> <input name="nome" onChange={handleChange} value={formData.nome} placeholder="Nome" className="input" required /> <input name="cognome" onChange={handleChange} value={formData.cognome} placeholder="Cognome" className="input" required /> <input name="nickname" onChange={handleChange} value={formData.nickname} placeholder="Nickname" className="input" required /> <input type="email" name="email" onChange={handleChange} value={formData.email} placeholder="Email" className="input" required /> <input type="password" name="password" onChange={handleChange} value={formData.password} placeholder="Password" className="input" required /> <select name="role" onChange={handleChange} value={formData.role} className="input" required> <option value="">Ruolo</option> <option value="Connector">Connector</option> <option value="Professionista">Professionista</option> </select> <div className="flex space-x-2"> <input name="city" onChange={handleChange} value={formData.city} placeholder="Città" className="input flex-1" required /> <input name="cap" onChange={handleChange} value={formData.cap} placeholder="CAP" className="input w-24" required /> </div> {formData.role === 'Professionista' && ( <select name="category" onChange={handleChange} value={formData.category} className="input" required> <option value="">Categoria</option> <option value="Turismo">Turismo</option> <option value="Ristorazione">Ristorazione</option> <option value="Benessere">Benessere</option> <option value="Servizi">Servizi</option> </select> )} <textarea name="description" onChange={handleChange} value={formData.description} placeholder="Descrizione (facoltativa)" className="input" /> <button type="submit" className="w-full py-2 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400">Registrati</button> </form> </div> ); }
-
