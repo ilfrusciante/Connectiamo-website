@@ -25,8 +25,8 @@ export default function Signup() {
   const normalize = (str) =>
     str
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // rimuove accenti
-      .replace(/[^\w\s]/gi, '')       // rimuove caratteri speciali
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s]/gi, '')
       .trim()
       .toLowerCase();
 
@@ -57,10 +57,13 @@ export default function Signup() {
       const places = data.postalcodes || [];
 
       const match = places.some((place) => {
-        const placeName = normalize(place.placeName);
+        const placeName = normalize(place.placeName || '');
+        const adminName2 = normalize(place.adminName2 || '');
         return (
           placeName.includes(normalizedCity) ||
-          normalizedCity.includes(placeName)
+          normalizedCity.includes(placeName) ||
+          adminName2.includes(normalizedCity) ||
+          normalizedCity.includes(adminName2)
         );
       });
 
