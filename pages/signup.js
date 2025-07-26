@@ -1,204 +1,47 @@
-import { useState } from 'react';
-import { supabase } from '../utils/supabaseClient';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
-import AvatarUpload from '../components/AvatarUpload';
+import { useState } from 'react'; import { useRouter } from 'next/router'; import { supabase } from '../utils/supabaseClient'; import Image from 'next/image';
 
-export default function Signup() {
-  const router = useRouter();
-  const [nome, setNome] = useState('');
-  const [cognome, setCognome] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
-  const [city, setCity] = useState('');
-  const [cap, setCap] = useState('');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+export default function Signup() { const router = useRouter(); const [formData, setFormData] = useState({ nome: '', cognome: '', nickname: '', email: '', password: '', role: '', city: '', cap: '', category: '', description: '', }); const [error, setError] = useState(''); const [avatarUrl, setAvatarUrl] = useState('');
 
-  const normalize = (str) =>
-    str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // rimuove accenti
-      .replace(/[^\w\s]/gi, '')       // rimuove caratteri speciali
-      .trim()
-      .toLowerCase();
+const handleChange = (e) => { const { name, value } = e.target; setFormData((prev) => ({ ...prev, [name]: value })); };
 
-  const handleAvatarUpload = (file) => {
-    setAvatarFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setAvatarPreview(null);
-    }
-  };
+const validateCityCap = async () => { const { city, cap } = formData; const response = await fetch(https://api.zippopotam.us/it/${cap}); if (!response.ok) return false;
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setError('');
-    setUploading(true);
+const data = await response.json();
+const matchingPlace = data.places.find((place) => {
+  const normalizedPlace = place['place name'].toLowerCase().replace(/\s+/g, '');
+  const normalizedCity = city.toLowerCase().replace(/\s+/g, '');
+  return normalizedPlace.includes(normalizedCity) || normalizedCity.includes(normalizedPlace);
+});
+return !!matchingPlace;
 
-    const normalizedCity = normalize(city);
+};
 
-    try {
-      const res = await fetch(`https://secure.geonames.org/postalCodeLookupJSON?postalcode=${cap}&maxRows=10&username=RobyRob`);
-      if (!res.ok) throw new Error('Errore nella richiesta a GeoNames');
-      const data = await res.json();
-      const places = data.postalcodes || [];
+const handleSubmit = async (e) => { e.preventDefault(); setError('');
 
-      const match = places.some((place) => {
-        const placeName = normalize(place.placeName);
-        return (
-          placeName.includes(normalizedCity) ||
-          normalizedCity.includes(placeName)
-        );
-      });
-
-      if (!match) {
-        setError(`⚠️ Il CAP ${cap} non corrisponde alla città inserita: "${city}".`);
-        setUploading(false);
-        return;
-      }
-    } catch (err) {
-      setError('Errore nella verifica del CAP: ' + err.message);
-      setUploading(false);
-      return;
-    }
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setUploading(false);
-      return;
-    }
-
-    const userId = signUpData.user?.id;
-    let avatarUrl = '';
-
-    if (userId && avatarFile) {
-      const fileExt = avatarFile.name.split('.').pop();
-      const filePath = `${userId}.${fileExt}`;
-      const { error: uploadError, data: uploadData } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
-      if (uploadError) {
-        setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
-        setUploading(false);
-        return;
-      }
-      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      avatarUrl = publicUrlData.publicUrl;
-    }
-
-    if (userId) {
-      const { error: profileError } = await supabase.from('profiles').insert([{
-        id: userId,
-        nome,
-        cognome,
-        nickname,
-        role,
-        city: city.trim(),
-        cap,
-        category,
-        description,
-        email,
-        avatar_url: avatarUrl,
-        created_at: new Date().toISOString(),
-      }]);
-
-      if (profileError) {
-        setError('Errore durante la creazione del profilo: ' + profileError.message);
-        setUploading(false);
-        return;
-      }
-
-      setShowSuccessModal(true);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
-      setUploading(false);
-      return;
-    }
-
-    setUploading(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center justify-center px-4">
-      <div className="max-w-lg w-full p-6">
-        <div className="w-full flex justify-center mb-6">
-          <Image src="/images/illustration-signup.png" alt="Registrazione" width={0} height={0} sizes="100vw" style={{ width: '100%', maxWidth: '360px', height: 'auto' }} className="rounded-md" />
-        </div>
-
-        <h2 className="text-2xl font-semibold text-center mb-1">Registrati</h2>
-        <p className="text-center text-gray-300 text-sm mb-4">
-          Crea un nuovo account per connetterti con altri professionisti.
-        </p>
-        <p className="text-xs text-yellow-300 text-center mb-6">
-          Il tuo <strong>nome e cognome resteranno privati</strong> e non verranno mostrati ad altri utenti. <br />
-          Solo il <strong>nickname</strong> sarà visibile pubblicamente.
-        </p>
-
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-        <form onSubmit={handleSignup} className="space-y-4">
-          <AvatarUpload onUpload={handleAvatarUpload} previewUrl={avatarPreview} />
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Nome" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
-          <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} required placeholder="Cognome" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
-          <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required placeholder="Nickname" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
-
-          <select value={role} onChange={(e) => setRole(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
-            <option value="">Seleziona ruolo</option>
-            <option value="Professionista">Professionista</option>
-            <option value="Connector">Connector</option>
-          </select>
-
-          <div className="flex space-x-4">
-            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Città" className="w-2/3 px-3 py-2 rounded bg-gray-700 text-white" />
-            <input type="text" value={cap} onChange={(e) => setCap(e.target.value)} required placeholder="CAP" className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white" />
-          </div>
-
-          <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
-            <option value="">Seleziona categoria</option>
-            <option value="Edilizia">Edilizia</option>
-            <option value="Benessere">Benessere</option>
-            <option value="Servizi personali">Servizi personali</option>
-            <option value="Servizi aziendali">Servizi aziendali</option>
-            <option value="Ristorazione">Ristorazione</option>
-            <option value="Turismo">Turismo</option>
-            <option value="Altro">Altro</option>
-          </select>
-
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrizione (facoltativa)" className="w-full px-3 py-2 rounded bg-gray-700 text-white" rows={3}></textarea>
-
-          <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded" disabled={uploading}>
-            {uploading ? 'Registrazione in corso...' : 'Registrati'}
-          </button>
-        </form>
-      </div>
-
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-xs mx-auto">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">Grazie per esserti registrato</h2>
-            <p className="text-gray-700 mb-2">Verrai reindirizzato alla home...</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+const isValidLocation = await validateCityCap();
+if (!isValidLocation) {
+  setError(`⚠️ Il CAP ${formData.cap} non corrisponde alla città inserita: "${formData.city}".`);
+  return;
 }
+
+const { email, password, ...profileData } = formData;
+const { data, error: signUpError } = await supabase.auth.signUp({
+  email,
+  password,
+});
+
+if (signUpError) {
+  setError(signUpError.message);
+  return;
+}
+
+const userId = data.user?.id;
+if (userId) {
+  await supabase.from('profiles').insert({ id: userId, ...profileData, avatar_url: avatarUrl });
+  router.push('/dashboard');
+}
+
+};
+
+return ( <div className="min-h-screen bg-[#0b1d36] flex flex-col items-center justify-center text-white"> <div className="text-center mb-6"> <Image src="/connectiamo_register.png" width={200} height={200} alt="Registrati" /> <h2 className="text-2xl font-bold mt-4">Registrati</h2> <p className="text-sm mt-2 text-gray-300"> Crea un nuovo account per connetterti con altri professionisti.<br /> <span className="text-yellow-400 font-semibold">Il tuo nome e cognome resteranno privati</span> e non verranno mostrati ad altri utenti.<br /> Solo il <span className="text-yellow-400 font-semibold">nickname</span> sarà visibile pubblicamente. </p> </div> {error && <p className="text-red-500 text-center mb-2">{error}</p>} <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3"> <input name="nome" onChange={handleChange} value={formData.nome} placeholder="Nome" className="input" required /> <input name="cognome" onChange={handleChange} value={formData.cognome} placeholder="Cognome" className="input" required /> <input name="nickname" onChange={handleChange} value={formData.nickname} placeholder="Nickname" className="input" required /> <input type="email" name="email" onChange={handleChange} value={formData.email} placeholder="Email" className="input" required /> <input type="password" name="password" onChange={handleChange} value={formData.password} placeholder="Password" className="input" required /> <select name="role" onChange={handleChange} value={formData.role} className="input" required> <option value="">Ruolo</option> <option value="Connector">Connector</option> <option value="Professionista">Professionista</option> </select> <div className="flex space-x-2"> <input name="city" onChange={handleChange} value={formData.city} placeholder="Città" className="input flex-1" required /> <input name="cap" onChange={handleChange} value={formData.cap} placeholder="CAP" className="input w-24" required /> </div> {formData.role === 'Professionista' && ( <select name="category" onChange={handleChange} value={formData.category} className="input" required> <option value="">Categoria</option> <option value="Turismo">Turismo</option> <option value="Ristorazione">Ristorazione</option> <option value="Benessere">Benessere</option> <option value="Servizi">Servizi</option> </select> )} <textarea name="description" onChange={handleChange} value={formData.description} placeholder="Descrizione (facoltativa)" className="input" /> <button type="submit" className="w-full py-2 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400">Registrati</button> </form> </div> ); }
+
