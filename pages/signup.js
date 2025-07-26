@@ -22,7 +22,13 @@ export default function Signup() {
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const normalize = (str) => str.toLowerCase().trim();
+  const normalize = (str) =>
+    str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // rimuove accenti
+      .replace(/[^\w\s]/gi, '')       // rimuove caratteri speciali
+      .trim()
+      .toLowerCase();
 
   const handleAvatarUpload = (file) => {
     setAvatarFile(file);
@@ -42,7 +48,7 @@ export default function Signup() {
     setError('');
     setUploading(true);
 
-    const normalizedCity = city.trim().toLowerCase();
+    const normalizedCity = normalize(city);
 
     try {
       const res = await fetch(`https://secure.geonames.org/postalCodeLookupJSON?postalcode=${cap}&maxRows=10&username=RobyRob`);
@@ -51,9 +57,10 @@ export default function Signup() {
       const places = data.postalcodes || [];
 
       const match = places.some((place) => {
-        const placeName = place.placeName.toLowerCase();
+        const placeName = normalize(place.placeName);
         return (
-          placeName.includes(normalizedCity) || normalizedCity.includes(placeName)
+          placeName.includes(normalizedCity) ||
+          normalizedCity.includes(placeName)
         );
       });
 
@@ -86,13 +93,11 @@ export default function Signup() {
       const fileExt = avatarFile.name.split('.').pop();
       const filePath = `${userId}.${fileExt}`;
       const { error: uploadError, data: uploadData } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
-
       if (uploadError) {
         setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
         setUploading(false);
         return;
       }
-
       const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
       avatarUrl = publicUrlData.publicUrl;
     }
@@ -123,6 +128,8 @@ export default function Signup() {
       setTimeout(() => {
         router.push('/');
       }, 2000);
+      setUploading(false);
+      return;
     }
 
     setUploading(false);
