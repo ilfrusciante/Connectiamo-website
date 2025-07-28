@@ -2,11 +2,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
 export default function Dashboard() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -19,35 +14,32 @@ export default function Dashboard() {
     notify_on_message: false,
   });
 
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
   useEffect(() => {
     const fetchProfile = async () => {
-      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
 
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
+      if (!user) {
         setError('Utente non autenticato');
         setLoading(false);
         return;
       }
 
-      const { data, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (profileError || !data) {
-        console.error('Errore nel recupero del profilo:', profileError);
-        setError('Profilo non trovato');
+      if (error) {
+        setError('Errore nel recupero del profilo');
         setLoading(false);
         return;
       }
 
-      setProfile(data);
       setFormData({
         nome: data.nome || '',
         cognome: data.cognome || '',
@@ -79,9 +71,30 @@ export default function Dashboard() {
     setMessage('');
     setError('');
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Controllo CAP ↔ città via API Zippopotam.us
+    const cap = formData.cap.trim();
+    const città = formData.città.trim().toLowerCase();
+
+    try {
+      const res = await fetch(`https://api.zippopotam.us/it/${cap}`);
+      const data = await res.json();
+
+      const match = data.places?.some(
+        (place) =>
+          place['place name'].toLowerCase().includes(città) ||
+          place['state'].toLowerCase().includes(città)
+      );
+
+      if (!match) {
+        setError(`Il CAP ${cap} non corrisponde alla città ${formData.città}`);
+        return;
+      }
+    } catch (err) {
+      setError('Errore durante la verifica del CAP e città');
+      return;
+    }
 
     const { error: updateError } = await supabase
       .from('profiles')
@@ -89,22 +102,22 @@ export default function Dashboard() {
       .eq('id', user.id);
 
     if (updateError) {
-      console.error('Errore aggiornamento profilo:', updateError);
-      setError("Errore nell'aggiornamento del profilo.");
+      setError('Errore durante il salvataggio');
     } else {
       setMessage('Modifiche salvate con successo!');
     }
   };
 
-  if (loading) return <p className="text-white text-center mt-10">Caricamento...</p>;
+  if (loading) return <p className="text-white p-4">Caricamento...</p>;
 
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h2 className="text-white text-xl font-bold mb-4">Area Personale</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
 
+        {/* Nome */}
         <div>
-          <label className="text-white text-sm">Nome</label>
+          <label className="text-white text-sm block mb-1">Nome</label>
           <input
             type="text"
             name="nome"
@@ -114,8 +127,9 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Cognome */}
         <div>
-          <label className="text-white text-sm">Cognome</label>
+          <label className="text-white text-sm block mb-1">Cognome</label>
           <input
             type="text"
             name="cognome"
@@ -125,8 +139,9 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Nickname */}
         <div>
-          <label className="text-white text-sm">Nickname</label>
+          <label className="text-white text-sm block mb-1">Nickname</label>
           <input
             type="text"
             name="nickname"
@@ -136,8 +151,9 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Città */}
         <div>
-          <label className="text-white text-sm">Città</label>
+          <label className="text-white text-sm block mb-1">Città</label>
           <input
             type="text"
             name="città"
@@ -147,8 +163,9 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* CAP */}
         <div>
-          <label className="text-white text-sm">CAP</label>
+          <label className="text-white text-sm block mb-1">CAP</label>
           <input
             type="text"
             name="cap"
@@ -158,30 +175,44 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Ruolo */}
         <div>
-          <label className="text-white text-sm">Ruolo</label>
-          <input
-            type="text"
+          <label className="text-white text-sm block mb-1">Ruolo</label>
+          <select
             name="ruolo"
             value={formData.ruolo}
             onChange={handleChange}
             className="w-full p-2 rounded bg-white text-black"
-          />
+          >
+            <option value="">Seleziona un ruolo</option>
+            <option value="Professionista">Professionista</option>
+            <option value="Connector">Connector</option>
+            <option value="Admin">Admin</option>
+          </select>
         </div>
 
-        <div>
-          <label className="text-white text-sm">Categoria</label>
-          <input
-            type="text"
-            name="categoria"
-            value={formData.categoria}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
+        {/* Categoria (solo se Professionista) */}
+        {formData.ruolo === 'Professionista' && (
+          <div>
+            <label className="text-white text-sm block mb-1">Categoria</label>
+            <select
+              name="categoria"
+              value={formData.categoria}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-white text-black"
+            >
+              <option value="">Seleziona una categoria</option>
+              <option value="Turismo">Turismo</option>
+              <option value="Ristorazione">Ristorazione</option>
+              <option value="Benessere">Benessere</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+        )}
 
+        {/* Descrizione */}
         <div>
-          <label className="text-white text-sm">Descrizione</label>
+          <label className="text-white text-sm block mb-1">Descrizione</label>
           <textarea
             name="descrizione"
             value={formData.descrizione}
@@ -190,6 +221,7 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Checkbox notifica email */}
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -198,17 +230,15 @@ export default function Dashboard() {
             onChange={handleChange}
             className="mr-2"
           />
-          <label className="text-white text-sm">
-            Ricevi notifiche email quando ricevi un messaggio
-          </label>
+          <label className="text-white text-sm">Ricevi notifiche email quando ricevi un messaggio</label>
         </div>
 
         <button type="submit" className="bg-yellow-400 px-4 py-2 rounded">
           Salva Modifiche
         </button>
 
-        {message && <p className="text-green-500 mt-2">{message}</p>}
-        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {message && <p className="text-green-400 mt-2">{message}</p>}
+        {error && <p className="text-red-400 mt-2">{error}</p>}
       </form>
     </div>
   );
