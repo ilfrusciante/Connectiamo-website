@@ -1,124 +1,65 @@
-import { useEffect, useState } from "react"; import { useRouter } from "next/router"; import { supabase } from "../utils/supabaseClient"; import LanguageSwitcher from "../components/LanguageSwitcher";
+// pages/dashboard.js
 
-export default function Dashboard() { const router = useRouter(); const [profile, setProfile] = useState(null); const [loading, setLoading] = useState(true); const [notifyOnMessage, setNotifyOnMessage] = useState(false);
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { supabase } from '../utils/supabaseClient';
 
-useEffect(() => { const fetchProfile = async () => { const { data: sessionData } = await supabase.auth.getSession(); const user = sessionData?.session?.user; if (!user) return router.push("/login");
+export default function Dashboard() {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
 
-  if (data) {
-    setProfile(data);
-    setNotifyOnMessage(data.notify_on_message);
+      if (!user) {
+        router.push('/login');
+        return;
+      }
 
-    if (data.role === "Admin") {
-      router.push("/admin-dashboard");
-    }
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !profile) {
+        router.push('/login');
+        return;
+      }
+
+      if (profile.role === 'Admin') {
+        router.push('/admin-dashboard');
+        return;
+      }
+
+      setUserData(profile);
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, [router]);
+
+  if (loading) {
+    return <div className="text-white text-center mt-10">Caricamento...</div>;
   }
-  setLoading(false);
-};
 
-fetchProfile();
-
-}, []);
-
-const handleSave = async () => { if (!profile) return;
-
-const { error } = await supabase.from("profiles").update({
-  notify_on_message: notifyOnMessage,
-}).eq("id", profile.id);
-
-if (!error) alert("Preferenze salvate");
-
-};
-
-if (loading) return <div className="p-6 text-white">Caricamento...</div>;
-
-return ( <div className="min-h-screen bg-[#0f1e3c] text-white p-6"> <h1 className="text-3xl font-bold mb-6"> {profile?.role === "Admin" ? "Pannello di Controllo" : "Area Personale"} </h1>
-
-{profile?.role !== "Admin" && (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-[#1c2a4d] p-4 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-2">Lingua</h2>
-        <LanguageSwitcher />
-      </div>
-      <div className="bg-[#1c2a4d] p-4 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-2">Tema</h2>
-        <button
-          onClick={() => document.documentElement.classList.toggle("dark")}
-          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-        >
-          Attiva Modalità Scura
-        </button>
-      </div>
-      <div className="col-span-2 bg-[#1c2a4d] p-4 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-4">Dati Profilo</h2>
-        <input
-          type="text"
-          value={profile.nome || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          value={profile.cognome || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          value={profile.city || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          value={profile.cap || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          value={profile.role || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          value={profile.category || ""}
-          disabled
-          className="w-full mb-2 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <textarea
-          value={profile.description || ""}
-          disabled
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white"
-          rows={3}
-        ></textarea>
-        <div className="mt-4">
-          <label className="inline-flex items-center">
-            <input
-              type="checkbox"
-              checked={notifyOnMessage}
-              onChange={() => setNotifyOnMessage(!notifyOnMessage)}
-              className="mr-2"
-            />
-            Ricevi notifiche email quando ricevi un messaggio
-          </label>
-        </div>
-        <button
-          onClick={handleSave}
-          className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded"
-        >
-          Salva Modifiche
-        </button>
+  return (
+    <div className="min-h-screen bg-[#0f172a] text-white px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Area Personale</h1>
+      <div className="bg-gray-800 rounded-xl p-6 shadow-md max-w-2xl mx-auto space-y-4">
+        <p><strong>Nome:</strong> {userData.nome}</p>
+        <p><strong>Cognome:</strong> {userData.cognome}</p>
+        <p><strong>Nickname:</strong> {userData.nickname}</p>
+        <p><strong>Email:</strong> {userData.email}</p>
+        <p><strong>Ruolo:</strong> {userData.role}</p>
+        <p><strong>Categoria:</strong> {userData.categoria}</p>
+        <p><strong>Città:</strong> {userData.citta}</p>
+        <p><strong>CAP:</strong> {userData.cap}</p>
+        <p><strong>Descrizione:</strong> {userData.descrizione || '—'}</p>
+        <p><strong>Notifiche email:</strong> {userData.notify_on_message ? 'Attive' : 'Disattivate'}</p>
       </div>
     </div>
-  )}
-</div>
-
-); }
-
+  );
+}
