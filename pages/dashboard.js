@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
 export default function Dashboard() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -14,32 +19,34 @@ export default function Dashboard() {
     notify_on_message: false,
   });
 
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      setLoading(true);
 
-      if (!user) {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
         setError('Utente non autenticato');
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error) {
-        setError('Errore nel recupero del profilo');
+      if (profileError || !data) {
+        setError('Profilo non trovato');
         setLoading(false);
         return;
       }
 
+      setProfile(data);
       setFormData({
         nome: data.nome || '',
         cognome: data.cognome || '',
@@ -71,30 +78,9 @@ export default function Dashboard() {
     setMessage('');
     setError('');
 
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Controllo CAP ↔ città via API Zippopotam.us
-    const cap = formData.cap.trim();
-    const città = formData.città.trim().toLowerCase();
-
-    try {
-      const res = await fetch(`https://api.zippopotam.us/it/${cap}`);
-      const data = await res.json();
-
-      const match = data.places?.some(
-        (place) =>
-          place['place name'].toLowerCase().includes(città) ||
-          place['state'].toLowerCase().includes(città)
-      );
-
-      if (!match) {
-        setError(`Il CAP ${cap} non corrisponde alla città ${formData.città}`);
-        return;
-      }
-    } catch (err) {
-      setError('Errore durante la verifica del CAP e città');
-      return;
-    }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     const { error: updateError } = await supabase
       .from('profiles')
@@ -102,126 +88,50 @@ export default function Dashboard() {
       .eq('id', user.id);
 
     if (updateError) {
-      setError('Errore durante il salvataggio');
+      setError('Errore nell\'aggiornamento del profilo.');
     } else {
       setMessage('Modifiche salvate con successo!');
     }
   };
 
-  if (loading) return <p className="text-white p-4">Caricamento...</p>;
+  if (loading) return <p>Caricamento...</p>;
 
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h2 className="text-white text-xl font-bold mb-4">Area Personale</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-
-        {/* Nome */}
-        <div>
-          <label className="text-white text-sm block mb-1">Nome</label>
-          <input
-            type="text"
-            name="nome"
-            value={formData.nome}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
-
-        {/* Cognome */}
-        <div>
-          <label className="text-white text-sm block mb-1">Cognome</label>
-          <input
-            type="text"
-            name="cognome"
-            value={formData.cognome}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
-
-        {/* Nickname */}
-        <div>
-          <label className="text-white text-sm block mb-1">Nickname</label>
-          <input
-            type="text"
-            name="nickname"
-            value={formData.nickname}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
-
-        {/* Città */}
-        <div>
-          <label className="text-white text-sm block mb-1">Città</label>
-          <input
-            type="text"
-            name="città"
-            value={formData.città}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
-
-        {/* CAP */}
-        <div>
-          <label className="text-white text-sm block mb-1">CAP</label>
-          <input
-            type="text"
-            name="cap"
-            value={formData.cap}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
+        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+        <input type="text" name="cognome" placeholder="Cognome" value={formData.cognome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+        <input type="text" name="nickname" placeholder="Nickname" value={formData.nickname} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+        <input type="text" name="città" placeholder="Città" value={formData.città} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+        <input type="text" name="cap" placeholder="CAP" value={formData.cap} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
 
         {/* Ruolo */}
-        <div>
-          <label className="text-white text-sm block mb-1">Ruolo</label>
-          <select
-            name="ruolo"
-            value={formData.ruolo}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          >
-            <option value="">Seleziona un ruolo</option>
-            <option value="Professionista">Professionista</option>
-            <option value="Connector">Connector</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
+        <select name="ruolo" value={formData.ruolo} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
+          <option value="">Seleziona un ruolo</option>
+          <option value="Connector">Connector</option>
+          <option value="Professionista">Professionista</option>
+          <option value="Admin">Admin</option>
+        </select>
 
-        {/* Categoria (solo se Professionista) */}
-        {formData.ruolo === 'Professionista' && (
-          <div>
-            <label className="text-white text-sm block mb-1">Categoria</label>
-            <select
-              name="categoria"
-              value={formData.categoria}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-white text-black"
-            >
-              <option value="">Seleziona una categoria</option>
-              <option value="Turismo">Turismo</option>
-              <option value="Ristorazione">Ristorazione</option>
-              <option value="Benessere">Benessere</option>
-              <option value="Altro">Altro</option>
-            </select>
-          </div>
-        )}
+        {/* Categoria */}
+        <select name="categoria" value={formData.categoria} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
+          <option value="">Seleziona una categoria</option>
+          <option value="Edilizia">Edilizia</option>
+          <option value="Turismo">Turismo</option>
+          <option value="Benessere">Benessere</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Altro">Altro</option>
+        </select>
 
-        {/* Descrizione */}
-        <div>
-          <label className="text-white text-sm block mb-1">Descrizione</label>
-          <textarea
-            name="descrizione"
-            value={formData.descrizione}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-white text-black"
-          />
-        </div>
+        <textarea
+          name="descrizione"
+          placeholder="Descrizione"
+          value={formData.descrizione}
+          onChange={handleChange}
+          className="w-full p-2 rounded bg-white text-black"
+        />
 
-        {/* Checkbox notifica email */}
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -237,8 +147,8 @@ export default function Dashboard() {
           Salva Modifiche
         </button>
 
-        {message && <p className="text-green-400 mt-2">{message}</p>}
-        {error && <p className="text-red-400 mt-2">{error}</p>}
+        {message && <p className="text-green-500 mt-2">{message}</p>}
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </form>
     </div>
   );
