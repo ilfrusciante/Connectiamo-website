@@ -26,6 +26,8 @@ export default function Dashboard() {
           .eq('id', user.id)
           .single();
 
+        console.log('Dati profilo:', data); // 👈 controllo
+
         if (!error && data) {
           setProfile(data);
           setForm({
@@ -87,8 +89,11 @@ export default function Dashboard() {
       .update(form)
       .eq('id', user.id);
 
-    if (!error) setMessage('✅ Profilo aggiornato con successo!');
-    else setMessage('❌ Errore nell\'aggiornamento del profilo.');
+    if (!error) {
+      setMessage('✅ Profilo aggiornato con successo!');
+    } else {
+      setMessage(`❌ Errore: ${error.message}`); // mostra errore reale
+    }
   };
 
   if (!profile) return <p className="text-white text-center mt-10">Caricamento profilo...</p>;
@@ -166,7 +171,6 @@ export default function Dashboard() {
             <option value="">Seleziona un ruolo</option>
             <option value="Connector">Connector</option>
             <option value="Professionista">Professionista</option>
-            <option value="Admin">Admin</option>
           </select>
         </div>
 
@@ -186,8 +190,8 @@ export default function Dashboard() {
             <option value="Servizi aziendali">Servizi aziendali</option>
             <option value="Ristorazione">Ristorazione</option>
             <option value="Intrattenimento">Intrattenimento</option>
-            <option value="Altro">Altro</option>
             <option value="Turismo">Turismo</option>
+            <option value="Altro">Altro</option>
           </select>
         </div>
 
