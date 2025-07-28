@@ -14,6 +14,7 @@ export default function Dashboard() {
     description: '',
     notify_on_message: false
   });
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -53,17 +54,41 @@ export default function Dashboard() {
     }));
   };
 
+  const validateCityZip = async (city, cap) => {
+    try {
+      const res = await fetch(`https://api.zippopotam.us/it/${cap}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data.places.some((place) => {
+        const normalizedCity = city.toLowerCase();
+        return (
+          place['place name'].toLowerCase().includes(normalizedCity) ||
+          place['state'].toLowerCase().includes(normalizedCity)
+        );
+      });
+    } catch (error) {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data: { user } } = await supabase.auth.getUser();
+    setMessage('');
 
+    const isValid = await validateCityZip(form.city, form.cap);
+    if (!isValid) {
+      setMessage('⚠️ Il CAP non corrisponde alla città.');
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from('profiles')
       .update(form)
       .eq('id', user.id);
 
-    if (!error) alert('Profilo aggiornato con successo!');
-    else alert('Errore nell\'aggiornamento del profilo');
+    if (!error) setMessage('✅ Profilo aggiornato con successo!');
+    else setMessage('❌ Errore nell\'aggiornamento del profilo.');
   };
 
   if (!profile) return <p className="text-white text-center mt-10">Caricamento profilo...</p>;
@@ -184,6 +209,8 @@ export default function Dashboard() {
         >
           Salva Modifiche
         </button>
+
+        {message && <p className="mt-4 text-sm">{message}</p>}
       </form>
     </div>
   );
