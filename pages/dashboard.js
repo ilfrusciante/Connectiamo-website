@@ -1,155 +1,101 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../utils/supabaseClient';
+import { useEffect, useState } from 'react'; import { supabase } from '../utils/supabaseClient';
 
-export default function Dashboard() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+export default function Dashboard() { const [formData, setFormData] = useState({ nome: '', cognome: '', nickname: '', città: '', cap: '', ruolo: '', categoria: '', descrizione: '', notify_on_message: false, });
 
-  const [formData, setFormData] = useState({
-    nome: '',
-    cognome: '',
-    nickname: '',
-    città: '',
-    cap: '',
-    ruolo: '',
-    categoria: '',
-    descrizione: '',
-    notify_on_message: false,
+const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
+
+const ruoli = ['Professionista', 'Connector']; const categorie = [ 'Edilizia', 'Benessere', 'Tecnologie', 'Servizi personali', 'Servizi aziendali', 'Ristorazione', 'Intrattenimento', 'Altro' ];
+
+useEffect(() => { const fetchProfile = async () => { setLoading(true); const { data: { user }, error: userError, } = await supabase.auth.getUser();
+
+if (userError || !user) {
+    setError('Utente non autenticato');
+    setLoading(false);
+    return;
+  }
+
+  const { data, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !data) {
+    setError('Profilo non trovato');
+    setLoading(false);
+    return;
+  }
+
+  setFormData({
+    nome: data.nome || '',
+    cognome: data.cognome || '',
+    nickname: data.nickname || '',
+    città: data.città || '',
+    cap: data.cap || '',
+    ruolo: data.ruolo || '',
+    categoria: data.categoria || '',
+    descrizione: data.descrizione || '',
+    notify_on_message: data.notify_on_message || false,
   });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
+  setLoading(false);
+};
 
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+fetchProfile();
 
-      if (userError || !user) {
-        setError('Utente non autenticato');
-        setLoading(false);
-        return;
-      }
+}, []);
 
-      const { data, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+const handleChange = (e) => { const { name, value, type, checked } = e.target; setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value, })); };
 
-      if (profileError || !data) {
-        setError('Profilo non trovato');
-        setLoading(false);
-        return;
-      }
+const handleSubmit = async (e) => { e.preventDefault(); setMessage(''); setError('');
 
-      setProfile(data);
-      setFormData({
-        nome: data.nome || '',
-        cognome: data.cognome || '',
-        nickname: data.nickname || '',
-        città: data.città || '',
-        cap: data.cap || '',
-        ruolo: data.ruolo || '',
-        categoria: data.categoria || '',
-        descrizione: data.descrizione || '',
-        notify_on_message: data.notify_on_message || false,
-      });
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 
-      setLoading(false);
-    };
+const { error: updateError } = await supabase
+  .from('profiles')
+  .update(formData)
+  .eq('id', user.id);
 
-    fetchProfile();
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage('');
-    setError('');
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update(formData)
-      .eq('id', user.id);
-
-    if (updateError) {
-      setError('Errore nell\'aggiornamento del profilo.');
-    } else {
-      setMessage('Modifiche salvate con successo!');
-    }
-  };
-
-  if (loading) return <p>Caricamento...</p>;
-
-  return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h2 className="text-white text-xl font-bold mb-4">Area Personale</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
-        <input type="text" name="cognome" placeholder="Cognome" value={formData.cognome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
-        <input type="text" name="nickname" placeholder="Nickname" value={formData.nickname} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
-        <input type="text" name="città" placeholder="Città" value={formData.città} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
-        <input type="text" name="cap" placeholder="CAP" value={formData.cap} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
-
-        {/* Ruolo */}
-        <select name="ruolo" value={formData.ruolo} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
-          <option value="">Seleziona un ruolo</option>
-          <option value="Connector">Connector</option>
-          <option value="Professionista">Professionista</option>
-          <option value="Admin">Admin</option>
-        </select>
-
-        {/* Categoria */}
-        <select name="categoria" value={formData.categoria} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
-          <option value="">Seleziona una categoria</option>
-          <option value="Edilizia">Edilizia</option>
-          <option value="Turismo">Turismo</option>
-          <option value="Benessere">Benessere</option>
-          <option value="Tecnologia">Tecnologia</option>
-          <option value="Altro">Altro</option>
-        </select>
-
-        <textarea
-          name="descrizione"
-          placeholder="Descrizione"
-          value={formData.descrizione}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-white text-black"
-        />
-
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="notify_on_message"
-            checked={formData.notify_on_message}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label className="text-white text-sm">Ricevi notifiche email quando ricevi un messaggio</label>
-        </div>
-
-        <button type="submit" className="bg-yellow-400 px-4 py-2 rounded">
-          Salva Modifiche
-        </button>
-
-        {message && <p className="text-green-500 mt-2">{message}</p>}
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </form>
-    </div>
-  );
+if (updateError) {
+  setError("Errore nell'aggiornamento del profilo.");
+} else {
+  setMessage('Modifiche salvate con successo!');
 }
+
+};
+
+if (loading) return <p>Caricamento...</p>;
+
+return ( <div className="p-6 max-w-xl mx-auto"> <h2 className="text-white text-xl font-bold mb-4">Area Personale</h2> <form onSubmit={handleSubmit} className="space-y-4"> <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" /> <input type="text" name="cognome" placeholder="Cognome" value={formData.cognome} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" /> <input type="text" name="nickname" placeholder="Nickname" value={formData.nickname} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" /> <input type="text" name="città" placeholder="Città" value={formData.città} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" /> <input type="text" name="cap" placeholder="CAP" value={formData.cap} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+
+<select name="ruolo" value={formData.ruolo} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
+      <option value="">Seleziona un ruolo</option>
+      {ruoli.map((r) => (
+        <option key={r} value={r}>{r}</option>
+      ))}
+    </select>
+
+    <select name="categoria" value={formData.categoria} onChange={handleChange} className="w-full p-2 rounded bg-white text-black">
+      <option value="">Seleziona una categoria</option>
+      {categorie.map((c) => (
+        <option key={c} value={c}>{c}</option>
+      ))}
+    </select>
+
+    <textarea name="descrizione" placeholder="Descrizione" value={formData.descrizione} onChange={handleChange} className="w-full p-2 rounded bg-white text-black" />
+
+    <div className="flex items-center">
+      <input type="checkbox" name="notify_on_message" checked={formData.notify_on_message} onChange={handleChange} className="mr-2" />
+      <label className="text-white text-sm">Ricevi notifiche email quando ricevi un messaggio</label>
+    </div>
+
+    <button type="submit" className="bg-yellow-400 px-4 py-2 rounded">Salva Modifiche</button>
+    {message && <p className="text-green-500 mt-2">{message}</p>}
+    {error && <p className="text-red-500 mt-2">{error}</p>}
+  </form>
+</div>
+
+); }
+
