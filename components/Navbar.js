@@ -1,3 +1,5 @@
+// pages/Navbar.js
+
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,6 +9,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [role, setRole] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpenDesktop, setDropdownOpenDesktop] = useState(false);
   const [dropdownOpenMobile, setDropdownOpenMobile] = useState(false);
@@ -50,10 +53,21 @@ export default function Navbar() {
   }, [dropdownOpenMobile]);
 
   useEffect(() => {
-    let interval;
-    const fetchUnread = async () => {
+    const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
       if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('nickname, avatar_url, role')
+          .eq('id', user.id)
+          .single();
+        if (profile) {
+          setNickname(profile.nickname || '');
+          setAvatar(profile.avatar_url || '');
+          setRole(profile.role || '');
+        }
+
         const { data: contacts, error } = await supabase.rpc('get_conversations', {
           current_user_id: user.id,
         });
@@ -62,53 +76,18 @@ export default function Navbar() {
           setUnreadCount(totalUnread);
         }
       } else {
-        setUnreadCount(0);
-      }
-    };
-    fetchUnread();
-    interval = setInterval(fetchUnread, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        // Recupera nickname e avatar dal profilo
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('nickname, avatar_url')
-          .eq('id', user.id)
-          .single();
-        if (profile && profile.nickname) setNickname(profile.nickname);
-        if (profile && profile.avatar_url) setAvatar(profile.avatar_url);
-        else setAvatar('');
-        // Recupera conteggio messaggi non letti
-        const { data: contacts, error } = await supabase.rpc('get_conversations', {
-          current_user_id: user.id,
-        });
-        if (!error && contacts) {
-          // setPrevUnreadCount((prev) => { // This line is removed as per the edit hint
-          //   return totalUnread;
-          // });
-          // setUnreadCount(totalUnread); // This line is removed as per the edit hint
-        }
-      } else {
         setNickname('');
         setAvatar('');
-        // setUnreadCount(0); // This line is removed as per the edit hint
-        // setPrevUnreadCount(0); // This line is removed as per the edit hint
+        setRole('');
+        setUnreadCount(0);
       }
     };
     checkUser();
 
-    // Listener per login/logout
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       checkUser();
     });
 
-    // Listener realtime per badge messaggi non letti
     let badgeChannel = null;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -119,15 +98,13 @@ export default function Navbar() {
             schema: 'public',
             table: 'messages',
             filter: `receiver_id=eq.${user.id}`
-          }, (payload) => {
-            console.log('Navbar realtime event:', payload);
+          }, () => {
             checkUser();
           })
           .subscribe();
       }
     });
 
-    // Listener custom event per aggiornare subito il badge
     const handleUpdateBadge = () => checkUser();
     window.addEventListener('update-unread-badge', handleUpdateBadge);
 
@@ -138,11 +115,14 @@ export default function Navbar() {
     };
   }, []);
 
+  const getDashboardLink = () => role === 'Admin' ? '/admin-dashboard' : '/dashboard';
+  const getDashboardLabel = () => role === 'Admin' ? 'Gestione sito' : 'Modifica profilo';
+
   return (
     <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
-        {/* Mostra avatar e nickname se loggato (desktop) */}
+
         {user && (
           <div className="hidden md:flex items-center ml-6 gap-3 relative" ref={dropdownRefDesktop}>
             <button
@@ -155,29 +135,30 @@ export default function Navbar() {
                 <img
                   src={avatar}
                   alt="Avatar"
-                  className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400 cursor-pointer hover:scale-105 transition"
-                  style={{ minWidth: 36, minHeight: 36 }}
+                  className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400"
                 />
               ) : (
-                <span className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 cursor-pointer">
-                  <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <span className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900">
+                  <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
                     <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
                     <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
                   </svg>
                 </span>
               )}
-              <span className="text-yellow-300 font-semibold cursor-pointer">
+              <span className="text-yellow-300 font-semibold">
                 {nickname ? `Ciao, ${nickname}!` : 'Utente'}
               </span>
-              <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
             {dropdownOpenDesktop && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
                 <button
                   className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-t"
-                  onClick={() => { setDropdownOpenDesktop(false); router.push('/dashboard'); }}
+                  onClick={() => { setDropdownOpenDesktop(false); router.push(getDashboardLink()); }}
                 >
-                  Modifica profilo
+                  {getDashboardLabel()}
                 </button>
                 <button
                   className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-b"
@@ -189,20 +170,18 @@ export default function Navbar() {
             )}
           </div>
         )}
-        {/* Desktop Menu */}
+
         <div className="hidden md:flex space-x-6 items-center">
           <Link href="/" className="hover:text-yellow-400">Home</Link>
           {user ? (
-            <>
-              <Link href="/messages" className="hover:text-yellow-400 flex items-center gap-1">
-                Messaggi
-                {unreadCount > 0 && (
-                  <span className="ml-1 bg-yellow-400 text-black rounded-full px-2 text-xs font-bold">
-                    {unreadCount}
-                  </span>
-                )}
-              </Link>
-            </>
+            <Link href="/messages" className="hover:text-yellow-400 flex items-center gap-1">
+              Messaggi
+              {unreadCount > 0 && (
+                <span className="ml-1 bg-yellow-400 text-black rounded-full px-2 text-xs font-bold">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
           ) : (
             <>
               <Link href="/login" className="hover:text-yellow-400">Login</Link>
@@ -210,84 +189,7 @@ export default function Navbar() {
             </>
           )}
         </div>
-        {/* Mostra avatar e nickname se loggato (mobile) */}
-        {user && (
-          <div className="md:hidden flex items-center ml-4 gap-2 relative" ref={dropdownRefMobile}>
-            <button
-              className="flex items-center gap-2 focus:outline-none hover:bg-yellow-100/10 px-2 py-1 rounded transition"
-              onClick={() => setDropdownOpenMobile((open) => !open)}
-              aria-haspopup="true"
-              aria-expanded={dropdownOpenMobile}
-            >
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt="Avatar"
-                  className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 cursor-pointer hover:scale-105 transition"
-                  style={{ minWidth: 32, minHeight: 32 }}
-                />
-              ) : (
-                <span className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 cursor-pointer">
-                  <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="24" cy="16" r="8" fill="#e5e7eb" />
-                    <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e5e7eb" />
-                  </svg>
-                </span>
-              )}
-              <span className="text-yellow-300 font-semibold cursor-pointer">
-                {nickname ? nickname : 'Utente'}
-              </span>
-              <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenMobile ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </button>
-            {dropdownOpenMobile && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
-                <button
-                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-t"
-                  onClick={() => { setDropdownOpenMobile(false); router.push('/dashboard'); }}
-                >
-                  Modifica profilo
-                </button>
-                <button
-                  className="w-full text-left px-4 py-3 hover:bg-yellow-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-b"
-                  onClick={() => { setDropdownOpenMobile(false); router.push('/logout'); }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-        {/* Mobile Menu Toggle */}
-        <div className="md:hidden flex items-center">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Apri menu mobile">
-            {mobileMenuOpen ? (
-              <span className="text-2xl">✖</span>
-            ) : (
-              <span className="text-2xl">☰</span>
-            )}
-          </button>
-        </div>
       </div>
-
-      {/* Mobile Dropdown Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden mt-3 flex flex-col gap-4 px-2">
-          <Link href="/" className="block hover:text-yellow-400 text-lg py-3 rounded">Home</Link>
-          {user ? (
-            <>
-              <Link href="/messages" className="block hover:text-yellow-400 flex items-center gap-2 text-lg py-3 rounded">
-                Messaggi
-                {/* Badge rimosso */}
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="block hover:text-yellow-400 text-lg py-3 rounded">Login</Link>
-              <Link href="/signup" className="block hover:text-yellow-400 text-lg py-3 rounded">Registrati</Link>
-            </>
-          )}
-        </div>
-      )}
     </nav>
   );
 }
