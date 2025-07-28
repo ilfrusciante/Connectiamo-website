@@ -16,6 +16,7 @@ export default function Signup() {
   const [cap, setCap] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
+  const [notifyOnMessage, setNotifyOnMessage] = useState(false); // nuovo stato
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -47,7 +48,6 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     setUploading(true);
-
     const normalizedCity = normalize(city);
 
     try {
@@ -78,11 +78,7 @@ export default function Signup() {
       return;
     }
 
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
     if (signUpError) {
       setError(signUpError.message);
       setUploading(false);
@@ -95,7 +91,7 @@ export default function Signup() {
     if (userId && avatarFile) {
       const fileExt = avatarFile.name.split('.').pop();
       const filePath = `${userId}.${fileExt}`;
-      const { error: uploadError, data: uploadData } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
       if (uploadError) {
         setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
         setUploading(false);
@@ -118,6 +114,7 @@ export default function Signup() {
         description,
         email,
         avatar_url: avatarUrl,
+        notify_on_message: notifyOnMessage, // inserisce il valore scelto
         created_at: new Date().toISOString(),
       }]);
 
@@ -132,10 +129,7 @@ export default function Signup() {
         router.push('/');
       }, 2000);
       setUploading(false);
-      return;
     }
-
-    setUploading(false);
   };
 
   return (
@@ -187,6 +181,11 @@ export default function Signup() {
           </select>
 
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrizione (facoltativa)" className="w-full px-3 py-2 rounded bg-gray-700 text-white" rows={3}></textarea>
+
+          <label className="flex items-center space-x-2 text-sm text-gray-200">
+            <input type="checkbox" checked={notifyOnMessage} onChange={(e) => setNotifyOnMessage(e.target.checked)} />
+            <span>Voglio ricevere una mail quando ricevo un messaggio</span>
+          </label>
 
           <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded" disabled={uploading}>
             {uploading ? 'Registrazione in corso...' : 'Registrati'}
