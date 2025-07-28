@@ -1,16 +1,16 @@
 // pages/dashboard.js
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
+import { useRouter } from 'next/router';
 
 export default function Dashboard() {
-  const [userData, setUserData] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -18,47 +18,57 @@ export default function Dashboard() {
         return;
       }
 
-      const { data: profile, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error || !profile) {
+      if (error || !data) {
         router.push('/login');
         return;
       }
 
-      if (profile.role === 'Admin') {
+      if (data.role === 'Admin') {
         router.push('/admin-dashboard');
         return;
       }
 
-      setUserData(profile);
+      setProfile(data);
       setLoading(false);
     };
 
-    fetchUser();
+    fetchProfile();
   }, [router]);
 
   if (loading) {
-    return <div className="text-white text-center mt-10">Caricamento...</div>;
+    return <div className="text-white p-4">Caricamento...</div>;
   }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Area Personale</h1>
-      <div className="bg-gray-800 rounded-xl p-6 shadow-md max-w-2xl mx-auto space-y-4">
-        <p><strong>Nome:</strong> {userData.nome}</p>
-        <p><strong>Cognome:</strong> {userData.cognome}</p>
-        <p><strong>Nickname:</strong> {userData.nickname}</p>
-        <p><strong>Email:</strong> {userData.email}</p>
-        <p><strong>Ruolo:</strong> {userData.role}</p>
-        <p><strong>Categoria:</strong> {userData.categoria}</p>
-        <p><strong>Città:</strong> {userData.citta}</p>
-        <p><strong>CAP:</strong> {userData.cap}</p>
-        <p><strong>Descrizione:</strong> {userData.descrizione || '—'}</p>
-        <p><strong>Notifiche email:</strong> {userData.notify_on_message ? 'Attive' : 'Disattivate'}</p>
+      <h1 className="text-3xl font-bold mb-6">Area personale</h1>
+
+      <div className="max-w-xl mx-auto bg-gray-800 p-6 rounded-xl space-y-4 shadow-md">
+        <p><strong>Nome:</strong> {profile.nome}</p>
+        <p><strong>Cognome:</strong> {profile.cognome}</p>
+        <p><strong>Nickname:</strong> {profile.nickname}</p>
+        <p><strong>Email:</strong> {profile.email}</p>
+        <p><strong>Ruolo:</strong> {profile.role}</p>
+        {profile.role === 'Professionista' && (
+          <p><strong>Categoria:</strong> {profile.categoria}</p>
+        )}
+        <p><strong>Città:</strong> {profile.citta}</p>
+        <p><strong>CAP:</strong> {profile.cap}</p>
+        <p><strong>Descrizione:</strong> {profile.descrizione || '—'}</p>
+        <p><strong>Notifiche email:</strong> {profile.notify_on_message ? 'Attive' : 'Disattivate'}</p>
+
+        <button
+          className="mt-4 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded"
+          onClick={() => router.push('/impostazioni')}
+        >
+          Modifica profilo
+        </button>
       </div>
     </div>
   );
