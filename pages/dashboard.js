@@ -4,8 +4,8 @@ import { supabase } from '../utils/supabaseClient';
 export default function Dashboard() {
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
-    name: '',
-    surname: '',
+    nome: '',
+    cognome: '',
     nickname: '',
     city: '',
     cap: '',
@@ -15,6 +15,17 @@ export default function Dashboard() {
     notify_on_message: false
   });
   const [message, setMessage] = useState('');
+
+  const categorieDisponibili = [
+    'Edilizia',
+    'Benessere',
+    'Tecnologie',
+    'Servizi personali',
+    'Servizi aziendali',
+    'Ristorazione',
+    'Intrattenimento',
+    'Altro'
+  ];
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -26,13 +37,11 @@ export default function Dashboard() {
           .eq('id', user.id)
           .single();
 
-        console.log('Dati profilo:', data); // 👈 controllo
-
         if (!error && data) {
           setProfile(data);
           setForm({
-            name: data.name || '',
-            surname: data.surname || '',
+            nome: data.nome || '',
+            cognome: data.cognome || '',
             nickname: data.nickname || '',
             city: data.city || '',
             cap: data.cap || '',
@@ -89,11 +98,8 @@ export default function Dashboard() {
       .update(form)
       .eq('id', user.id);
 
-    if (!error) {
-      setMessage('✅ Profilo aggiornato con successo!');
-    } else {
-      setMessage(`❌ Errore: ${error.message}`); // mostra errore reale
-    }
+    if (!error) setMessage('✅ Profilo aggiornato con successo!');
+    else setMessage('❌ Errore nell\'aggiornamento del profilo.');
   };
 
   if (!profile) return <p className="text-white text-center mt-10">Caricamento profilo...</p>;
@@ -107,8 +113,8 @@ export default function Dashboard() {
           <label className="block mb-1 text-sm">Nome</label>
           <input
             type="text"
-            name="name"
-            value={form.name}
+            name="nome"
+            value={form.nome}
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
           />
@@ -118,8 +124,8 @@ export default function Dashboard() {
           <label className="block mb-1 text-sm">Cognome</label>
           <input
             type="text"
-            name="surname"
-            value={form.surname}
+            name="cognome"
+            value={form.cognome}
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
           />
@@ -168,7 +174,7 @@ export default function Dashboard() {
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
           >
-            <option value="">Seleziona un ruolo</option>
+            <option value="">Seleziona ruolo</option>
             <option value="Connector">Connector</option>
             <option value="Professionista">Professionista</option>
           </select>
@@ -182,16 +188,10 @@ export default function Dashboard() {
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
           >
-            <option value="">Seleziona una categoria</option>
-            <option value="Edilizia">Edilizia</option>
-            <option value="Benessere">Benessere</option>
-            <option value="Tecnologie">Tecnologie</option>
-            <option value="Servizi personali">Servizi personali</option>
-            <option value="Servizi aziendali">Servizi aziendali</option>
-            <option value="Ristorazione">Ristorazione</option>
-            <option value="Intrattenimento">Intrattenimento</option>
-            <option value="Turismo">Turismo</option>
-            <option value="Altro">Altro</option>
+            <option value="">Seleziona categoria</option>
+            {categorieDisponibili.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
         </div>
 
