@@ -1,65 +1,86 @@
-
+// pages/admin-dashboard.js
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [profilesCount, setProfilesCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    onlineUsers: 0,
+    dailyRegistrations: 0,
+    weeklyRegistrations: 0,
+    monthlyRegistrations: 0,
+  });
 
   useEffect(() => {
-    const checkAdminAndLoad = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    const fetchData = async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
+
+      if (!user) {
         router.push('/login');
         return;
       }
 
-      const { data: profile, error } = await supabase
+      // Verifica se l'utente è admin (puoi modificare la logica come preferisci)
+      const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
-      if (error || !profile || profile.role !== 'Admin') {
+      if (profile?.role !== 'Admin') {
         router.push('/');
         return;
       }
 
-      setUser(session.user);
-      fetchStats();
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7)).toISOString();
+      const oneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString();
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60000).toISOString();
+
+      const [all, daily, weekly, monthly, online] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('profiles').select('*').gte('created_at', today),
+        supabase.from('profiles').select('*').gte('created_at', sevenDaysAgo),
+        supabase.from('profiles').select('*').gte('created_at', oneMonthAgo),
+        supabase.from('profiles').select('*').gte('last_seen', fiveMinutesAgo),
+      ]);
+
+      setStats({
+        totalUsers: all.data?.length || 0,
+        dailyRegistrations: daily.data?.length || 0,
+        weeklyRegistrations: weekly.data?.length || 0,
+        monthlyRegistrations: monthly.data?.length || 0,
+        onlineUsers: online.data?.length || 0,
+      });
     };
 
-    checkAdminAndLoad();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
-    setLoading(true);
-
-    // Numero totale utenti
-    const { count: totalUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
-
-    setProfilesCount(totalUsers || 0);
-    setLoading(false);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard Amministratore</h1>
-      {loading ? (
-        <p>Caricamento in corso...</p>
-      ) : (
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-            <h2 className="text-xl font-semibold mb-2">Totale Utenti Registrati</h2>
-            <p className="text-3xl">{profilesCount}</p>
-          </div>
-        </div>
-      )}
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card title="Totale Utenti Registrati" value={stats.totalUsers} />
+        <Card title="Utenti Online (ultimi 5 min)" value={stats.onlineUsers} />
+        <Card title="Registrazioni Oggi" value={stats.dailyRegistrations} />
+        <Card title="Registrazioni Ultimi 7 Giorni" value={stats.weeklyRegistrations} />
+        <Card title="Registrazioni Ultimo Mese" value={stats.monthlyRegistrations} />
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, value }) {
+  return (
+    <div className="bg-gray-800 rounded-lg shadow p-4 text-center">
+      <h2 className="text-xl font-semibold mb-2">{title}</h2>
+      <p className="text-3xl font-bold text-yellow-400">{value}</p>
     </div>
   );
 }
