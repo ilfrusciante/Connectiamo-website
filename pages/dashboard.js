@@ -172,13 +172,23 @@ export default function Dashboard() {
 
         <div>
           <label className="block mb-1 text-sm">Categoria</label>
-          <input
-            type="text"
+          <select
             name="category"
             value={form.category}
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
-          />
+          >
+            <option value="">Seleziona una categoria</option>
+            <option value="Edilizia">Edilizia</option>
+            <option value="Benessere">Benessere</option>
+            <option value="Tecnologie">Tecnologie</option>
+            <option value="Servizi personali">Servizi personali</option>
+            <option value="Servizi aziendali">Servizi aziendali</option>
+            <option value="Ristorazione">Ristorazione</option>
+            <option value="Intrattenimento">Intrattenimento</option>
+            <option value="Turismo">Turismo</option>
+            <option value="Altro">Altro</option>
+          </select>
         </div>
 
         <div>
