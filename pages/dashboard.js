@@ -163,7 +163,7 @@ export default function Dashboard() {
             onChange={handleChange}
             className="w-full bg-white text-black rounded px-4 py-2"
           >
-            <option value="">Seleziona ruolo</option>
+            <option value="">Seleziona un ruolo</option>
             <option value="Connector">Connector</option>
             <option value="Professionista">Professionista</option>
             <option value="Admin">Admin</option>
@@ -186,8 +186,8 @@ export default function Dashboard() {
             <option value="Servizi aziendali">Servizi aziendali</option>
             <option value="Ristorazione">Ristorazione</option>
             <option value="Intrattenimento">Intrattenimento</option>
-            <option value="Turismo">Turismo</option>
             <option value="Altro">Altro</option>
+            <option value="Turismo">Turismo</option>
           </select>
         </div>
 
