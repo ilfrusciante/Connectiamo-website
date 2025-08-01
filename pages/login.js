@@ -187,7 +187,6 @@ Connectiamo - La piattaforma per connettere professionisti`
           </form>
         )}
       </form>
-      <Footer />
     </div>
   );
 }
