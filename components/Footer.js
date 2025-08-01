@@ -7,6 +7,7 @@ export default function Footer() {
         <Link href="/faq" className="hover:underline">FAQ</Link>
         <Link href="/contatti" className="hover:underline">Contatti</Link>
         <Link href="/termini-e-condizioni" className="hover:underline">Termini e condizioni</Link>
+        <Link href="/cookie-settings" className="hover:underline">Impostazioni Cookie</Link>
       </div>
       <p className="mt-2 text-sm">&copy; {new Date().getFullYear()} Connectiamo</p>
     </footer>
