@@ -170,14 +170,17 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-6 items-center">
           <Link href="/" className="hover:text-yellow-400">Home</Link>
           {user ? (
-            <Link href="/messages" className="hover:text-yellow-400 flex items-center gap-1">
-              Messaggi
-              {unreadCount > 0 && (
-                <span className="ml-1 bg-yellow-400 text-black rounded-full px-2 text-xs font-bold">
-                  {unreadCount}
-                </span>
-              )}
-            </Link>
+            <>
+              <Link href="/messages" className="hover:text-yellow-400 flex items-center gap-1">
+                Messaggi
+                {unreadCount > 0 && (
+                  <span className="ml-1 bg-yellow-400 text-black rounded-full px-2 text-xs font-bold">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link href="/come-funziona" className="hover:text-yellow-400">Come funziona</Link>
+            </>
           ) : (
             <>
               <Link href="/login" className="hover:text-yellow-400">Login</Link>
@@ -241,7 +244,10 @@ export default function Navbar() {
         <div className="md:hidden mt-3 flex flex-col gap-4 px-2">
           <Link href="/" className="block hover:text-yellow-400 text-lg py-3 rounded">Home</Link>
           {user ? (
-            <Link href="/messages" className="block hover:text-yellow-400 text-lg py-3 rounded">Messaggi</Link>
+            <>
+              <Link href="/messages" className="block hover:text-yellow-400 text-lg py-3 rounded">Messaggi</Link>
+              <Link href="/come-funziona" className="block hover:text-yellow-400 text-lg py-3 rounded">Come funziona</Link>
+            </>
           ) : (
             <>
               <Link href="/login" className="block hover:text-yellow-400 text-lg py-3 rounded">Login</Link>

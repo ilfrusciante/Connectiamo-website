@@ -1,40 +1,42 @@
 
 import React from "react";
+import Footer from '../components/Footer';
 
-const FAQ = () => {
+export default function FAQ() {
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 text-gray-800 dark:text-gray-100">
-      <h1 className="text-4xl font-bold mb-6 text-center">Domande frequenti</h1>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold">Come funziona Connectiamo?</h2>
-          <p className="mt-2 text-base">
-            Connectiamo ti permette di cercare e contattare persone in base a ruolo, città, zona e categoria.
-            Basta creare un profilo e iniziare a interagire.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">È gratuito?</h2>
-          <p className="mt-2 text-base">
-            Sì, la piattaforma è completamente gratuita. In futuro potrebbero essere disponibili funzionalità premium opzionali.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">Come proteggete i miei dati?</h2>
-          <p className="mt-2 text-base">
-            Utilizziamo Supabase e best practices di sicurezza per proteggere i tuoi dati personali.
-            Consulta la sezione Privacy per maggiori dettagli.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">Non trovo persone nella mia zona</h2>
-          <p className="mt-2 text-base">
-            Puoi ampliare la tua ricerca con filtri diversi o invitare nuovi utenti a iscriversi alla piattaforma.
-          </p>
+    <>
+      <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Domande Frequenti</h1>
+          
+          <div className="space-y-6">
+            <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">Come funziona Connectiamo?</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Connectiamo è una piattaforma che ti permette di connetterti con altri professionisti. 
+                Registrati, crea il tuo profilo e inizia a cercare contatti nella tua zona.
+              </p>
+            </div>
+            
+            <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">È gratuito?</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Sì, l'uso base di Connectiamo è completamente gratuito. 
+                Puoi registrarti, creare il tuo profilo e connetterti con altri utenti senza costi.
+              </p>
+            </div>
+            
+            <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">I miei dati sono sicuri?</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Assolutamente sì. Utilizziamo tecnologie avanzate per proteggere i tuoi dati personali 
+                e rispettiamo tutte le normative sulla privacy.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
-};
-
-export default FAQ;
+}

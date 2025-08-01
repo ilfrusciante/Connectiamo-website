@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import AvatarUpload from '../components/AvatarUpload';
+import Footer from '../components/Footer';
 
 export default function Dashboard() {
   const [profile, setProfile] = useState(null);
@@ -14,7 +16,11 @@ export default function Dashboard() {
     description: '',
     notify_on_message: false
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const categorieDisponibili = [
     'Edilizia',
@@ -50,6 +56,8 @@ export default function Dashboard() {
             description: data.description || '',
             notify_on_message: data.notify_on_message || false
           });
+          setAvatarUrl(data.avatar_url || null);
+          setAvatarPreview(data.avatar_url || null);
         }
       }
     };
@@ -63,6 +71,15 @@ export default function Dashboard() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleAvatarUpload = (file) => {
+    setAvatarFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const validateCityZip = async (city, cap) => {
@@ -85,29 +102,49 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+    setSaving(true);
 
     const isValid = await validateCityZip(form.city, form.cap);
     if (!isValid) {
       setMessage('⚠️ Il CAP non corrisponde alla città.');
+      setSaving(false);
       return;
     }
 
     const { data: { user } } = await supabase.auth.getUser();
+    let newAvatarUrl = avatarUrl;
+    if (avatarFile && user) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const filePath = `${user.id}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
+      if (uploadError) {
+        setMessage('❌ Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
+        setSaving(false);
+        return;
+      }
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      newAvatarUrl = publicUrlData.publicUrl;
+      setAvatarUrl(newAvatarUrl);
+    }
     const { error } = await supabase
       .from('profiles')
-      .update(form)
+      .update({ ...form, avatar_url: newAvatarUrl })
       .eq('id', user.id);
 
     if (!error) setMessage('✅ Profilo aggiornato con successo!');
     else setMessage('❌ Errore nell\'aggiornamento del profilo.');
+    setSaving(false);
   };
 
   if (!profile) return <p className="text-white text-center mt-10">Caricamento profilo...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 text-white">
+    <>
+      <div className="max-w-3xl mx-auto p-4 text-white">
       <h1 className="text-2xl font-bold mb-6">Area Personale</h1>
-
+      <div className="flex justify-center mb-6">
+        <AvatarUpload onUpload={handleAvatarUpload} previewUrl={avatarPreview} />
+      </div>
       <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-xl space-y-4">
         <div>
           <label className="block mb-1 text-sm">Nome</label>
@@ -119,7 +156,6 @@ export default function Dashboard() {
             className="w-full bg-white text-black rounded px-4 py-2"
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm">Cognome</label>
           <input
@@ -130,7 +166,6 @@ export default function Dashboard() {
             className="w-full bg-white text-black rounded px-4 py-2"
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm">Nickname</label>
           <input
@@ -141,7 +176,6 @@ export default function Dashboard() {
             className="w-full bg-white text-black rounded px-4 py-2"
           />
         </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 text-sm">Città</label>
@@ -153,7 +187,6 @@ export default function Dashboard() {
               className="w-full bg-white text-black rounded px-4 py-2"
             />
           </div>
-
           <div>
             <label className="block mb-1 text-sm">CAP</label>
             <input
@@ -165,7 +198,6 @@ export default function Dashboard() {
             />
           </div>
         </div>
-
         <div>
           <label className="block mb-1 text-sm">Ruolo</label>
           <select
@@ -179,7 +211,6 @@ export default function Dashboard() {
             <option value="Professionista">Professionista</option>
           </select>
         </div>
-
         <div>
           <label className="block mb-1 text-sm">Categoria</label>
           <select
@@ -194,7 +225,6 @@ export default function Dashboard() {
             ))}
           </select>
         </div>
-
         <div>
           <label className="block mb-1 text-sm">Descrizione</label>
           <textarea
@@ -205,7 +235,6 @@ export default function Dashboard() {
             rows="3"
           />
         </div>
-
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -216,16 +245,17 @@ export default function Dashboard() {
           />
           <label className="text-sm">Ricevi notifiche email quando ricevi un messaggio</label>
         </div>
-
         <button
           type="submit"
           className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-yellow-300 transition"
+          disabled={saving}
         >
-          Salva Modifiche
+          {saving ? 'Salvataggio...' : 'Salva Modifiche'}
         </button>
-
         {message && <p className="mt-4 text-sm">{message}</p>}
       </form>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

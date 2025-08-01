@@ -3,6 +3,7 @@ import { supabase } from '../utils/supabaseClient';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import AvatarUpload from '../components/AvatarUpload';
+import Footer from '../components/Footer';
 
 export default function Signup() {
   const router = useRouter();
@@ -133,7 +134,8 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center justify-center px-4">
+    <>
+      <div className="min-h-screen bg-[#0f1e3c] text-white flex items-center justify-center px-4">
       <div className="max-w-lg w-full p-6">
         <div className="w-full flex justify-center mb-6">
           <Image src="/images/illustration-signup.png" alt="Registrazione" width={0} height={0} sizes="100vw" style={{ width: '100%', maxWidth: '360px', height: 'auto' }} className="rounded-md" />
@@ -201,6 +203,8 @@ export default function Signup() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

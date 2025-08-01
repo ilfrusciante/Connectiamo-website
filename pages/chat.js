@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import Footer from '../components/Footer';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -164,6 +165,7 @@ export default function ChatPage() {
   }, [messages, user, selectedUser]);
 
   return (
+    <>
     <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
       <div className="flex justify-end items-center mb-6">
         <Link href="/messages">
@@ -295,5 +297,7 @@ export default function ChatPage() {
         </>
       )}
     </div>
+    <Footer />
+    </>
   );
 }

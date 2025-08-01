@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import Footer from '../components/Footer';
 
 export default function SearchResults() {
   const router = useRouter();
@@ -111,7 +112,8 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-6 md:px-20 text-white">
+    <>
+      <div className="max-w-5xl mx-auto py-10 px-6 md:px-20 text-white">
       <button
         onClick={() => router.back()}
         className="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold px-4 py-2 rounded shadow"
@@ -149,8 +151,10 @@ export default function SearchResults() {
               </button>
             )}
           </div>
-        ))}
+        )        )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }

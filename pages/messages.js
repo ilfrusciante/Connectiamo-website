@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../utils/supabaseClient';
+import Footer from '../components/Footer';
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -75,12 +76,15 @@ export default function MessagesPage() {
     }
   };
 
+
+
   if (!user) {
     return <p className="text-center mt-10 text-white">Caricamento...</p>;
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1e3c] text-white">
+    <>
+      <div className="min-h-screen bg-[#0f1e3c] text-white">
       {/* CONTATTI */}
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-6">Messaggi</h1>
@@ -136,7 +140,9 @@ export default function MessagesPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
