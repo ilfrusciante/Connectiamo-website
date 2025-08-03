@@ -98,7 +98,8 @@ export default async function handler(req, res) {
                 Puoi disattivare le notifiche email nelle impostazioni del tuo profilo.
               </p>
               <p style="color: #999; font-size: 12px; text-align: center;">
-                Connectiamo - La piattaforma per connettere professionisti
+                Connectiamo - La piattaforma per connettere professionisti<br>
+                <strong>info@connectiamo.com</strong>
               </p>
             </div>
           </div>
@@ -115,7 +116,8 @@ ${process.env.NEXT_PUBLIC_SITE_URL}/messages
 Questa email è stata inviata automaticamente. 
 Puoi disattivare le notifiche email nelle impostazioni del tuo profilo.
 
-Connectiamo - La piattaforma per connettere professionisti`
+Connectiamo - La piattaforma per connettere professionisti
+info@connectiamo.com`
       };
 
       // Invia l'email
