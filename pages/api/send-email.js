@@ -32,9 +32,9 @@ export default async function handler(req, res) {
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        socketTimeout: 30000
+        connectionTimeout: 60000,
+        greetingTimeout: 60000,
+        socketTimeout: 60000
       },
       {
         host: 'smtp-mail.outlook.com',
@@ -48,9 +48,9 @@ export default async function handler(req, res) {
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        socketTimeout: 30000
+        connectionTimeout: 60000,
+        greetingTimeout: 60000,
+        socketTimeout: 60000
       }
     ];
 
