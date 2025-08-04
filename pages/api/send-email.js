@@ -18,22 +18,54 @@ export default async function handler(req, res) {
   try {
     console.log('Creazione transporter SMTP...');
     
-    // Configurazioni SMTP alternative per GoDaddy
+    // Configurazioni SMTP alternative per GoDaddy con timeout ridotti
     const smtpConfigs = [
       {
         host: 'smtpout.secureserver.net',
         port: 587,
-        secure: false
+        secure: false,
+        auth: {
+          user: 'info@connectiamo.com',
+          pass: 'Galati.72',
+        },
+        tls: {
+          rejectUnauthorized: false,
+          ciphers: 'SSLv3'
+        },
+        connectionTimeout: 10000, // 10 secondi
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       },
       {
         host: 'smtpout.secureserver.net',
         port: 465,
-        secure: true
+        secure: true,
+        auth: {
+          user: 'info@connectiamo.com',
+          pass: 'Galati.72',
+        },
+        tls: {
+          rejectUnauthorized: false,
+          ciphers: 'SSLv3'
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       },
       {
-        host: 'smtp.secureserver.net',
+        host: 'smtp.gmail.com',
         port: 587,
-        secure: false
+        secure: false,
+        auth: {
+          user: 'info@connectiamo.com',
+          pass: 'Galati.72',
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       }
     ];
 
@@ -45,23 +77,16 @@ export default async function handler(req, res) {
       try {
         console.log(`Tentativo con configurazione: ${config.host}:${config.port} (secure: ${config.secure})`);
         
-        transporter = nodemailer.createTransport({
-          host: config.host,
-          port: config.port,
-          secure: config.secure,
-          auth: {
-            user: 'info@connectiamo.com',
-            pass: 'Galati.72',
-          },
-          tls: {
-            rejectUnauthorized: false
-          },
-          logger: true,
-          debug: true
-        });
+        transporter = nodemailer.createTransport(config);
 
-        // Verifica connessione
-        await transporter.verify();
+        // Verifica connessione con timeout
+        await Promise.race([
+          transporter.verify(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Verifica timeout')), 10000)
+          )
+        ]);
+        
         console.log(`Connessione SMTP verificata con successo: ${config.host}:${config.port}`);
         break; // Se funziona, esci dal ciclo
         
@@ -87,8 +112,13 @@ export default async function handler(req, res) {
 
     console.log('Invio email con opzioni:', { to: mailOptions.to, subject: mailOptions.subject });
 
-    // Invia email
-    const info = await transporter.sendMail(mailOptions);
+    // Invia email con timeout
+    const info = await Promise.race([
+      transporter.sendMail(mailOptions),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Invio email timeout')), 30000)
+      )
+    ]);
 
     console.log('Email inviata con successo:', info.messageId);
     
@@ -107,10 +137,9 @@ export default async function handler(req, res) {
       responseCode: error.responseCode,
       stack: error.stack
     });
-    
-    // Traduci gli errori comuni in italiano
+
+    // Traduci gli errori SMTP in italiano
     let errorDetails = error.message;
-    
     if (error.message.includes('Invalid login')) {
       errorDetails = 'Credenziali email non valide. Verifica username e password.';
     } else if (error.message.includes('getaddrinfo ENOTFOUND')) {
@@ -118,16 +147,18 @@ export default async function handler(req, res) {
     } else if (error.message.includes('EAUTH')) {
       errorDetails = 'Autenticazione email fallita. Verifica le credenziali.';
     } else if (error.message.includes('ECONNECTION')) {
-      errorDetails = 'Impossibile connettersi al server email. Verifica la connessione.';
+      errorDetails = 'Impossibile connettersi al server email. Riprova più tardi.';
     } else if (error.message.includes('ETIMEDOUT')) {
       errorDetails = 'Timeout della connessione email. Riprova più tardi.';
-    } else if (error.message.includes('535')) {
-      errorDetails = 'Autenticazione SMTP fallita. Credenziali non valide.';
-    } else if (error.message.includes('550')) {
-      errorDetails = 'Indirizzo email non valido o non autorizzato.';
+    } else if (error.message.includes('ESOCKET')) {
+      errorDetails = 'Errore di connessione al server email. Riprova più tardi.';
+    } else if (error.message.includes('Verifica timeout')) {
+      errorDetails = 'Timeout durante la verifica della connessione SMTP.';
+    } else if (error.message.includes('Invio email timeout')) {
+      errorDetails = 'Timeout durante l\'invio dell\'email. Riprova più tardi.';
     }
-    
-    return res.status(500).json({ 
+
+    return res.status(500).json({
       error: 'Errore nell\'invio email',
       details: errorDetails,
       code: error.code,
