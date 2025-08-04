@@ -18,6 +18,8 @@
 - FAQ, Termini e Privacy
 - Pannello amministratore
 
+
+
 ## Struttura del progetto
 
 ### `/pages/`
