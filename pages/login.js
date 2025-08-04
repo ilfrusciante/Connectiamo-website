@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
-import { sendEmail } from '../utils/emailService';
 import Footer from '../components/Footer';
 
 export default function Login() {
@@ -48,13 +47,15 @@ export default function Login() {
     }
     
     try {
-      // Genera un token temporaneo per il reset (simulato)
+      console.log('Richiesta reset password per:', resetEmail);
+      
+      // Genera un token temporaneo per il reset
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
-      // Invia email di recupero password tramite il nostro servizio SMTP
+      // Invia email personalizzata tramite il nostro SMTP
       const emailContent = {
         to: resetEmail,
-        subject: 'Recupero password - Connectiamo',
+        subject: 'Recupero Password - Connectiamo',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background-color: #0f1e3c; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
@@ -99,12 +100,34 @@ Connectiamo - La piattaforma per connettere professionisti
 info@connectiamo.com`
       };
       
+      // Importa sendEmail dinamicamente
+      const { sendEmail } = await import('../utils/emailService');
       await sendEmail(emailContent);
-      setResetMessage('Se l\'email esiste, riceverai le istruzioni per reimpostare la password.');
+      
+      console.log('Email di recupero password inviata da info@connectiamo.com');
+      setResetMessage('Email di recupero password inviata. Controlla anche la cartella spam.');
       
     } catch (error) {
       console.error('Errore nell\'invio email di recupero password:', error);
-      setResetMessage('Errore durante il recupero password: ' + error.message);
+      
+      // Traduci gli errori comuni in italiano
+      let errorMessage = 'Errore durante il recupero password: ';
+      
+      if (error.message.includes('Invalid login')) {
+        errorMessage += 'Credenziali email non valide. Contatta il supporto.';
+      } else if (error.message.includes('getaddrinfo ENOTFOUND')) {
+        errorMessage += 'Errore di connessione al server email. Riprova più tardi.';
+      } else if (error.message.includes('EAUTH')) {
+        errorMessage += 'Autenticazione email fallita. Verifica le credenziali.';
+      } else if (error.message.includes('ECONNECTION')) {
+        errorMessage += 'Impossibile connettersi al server email. Riprova più tardi.';
+      } else if (error.message.includes('ETIMEDOUT')) {
+        errorMessage += 'Timeout della connessione email. Riprova più tardi.';
+      } else {
+        errorMessage += error.message;
+      }
+      
+      setResetMessage(errorMessage);
     }
   };
 
@@ -164,7 +187,7 @@ info@connectiamo.com`
           </button>
         </p>
         {showReset && (
-          <form onSubmit={handleResetPassword} className="mt-4">
+          <div className="mt-4">
             <input
               type="email"
               placeholder="Inserisci la tua email"
@@ -173,11 +196,15 @@ info@connectiamo.com`
               className="w-full p-2 mb-2 rounded border dark:bg-gray-700 dark:border-gray-600"
               required
             />
-            <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded mb-2 transition">
+            <button 
+              type="button" 
+              onClick={handleResetPassword}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded mb-2 transition"
+            >
               Invia istruzioni
             </button>
             {resetMessage && <p className="text-center text-sm mt-2">{resetMessage}</p>}
-          </form>
+          </div>
         )}
       </form>
     </div>
