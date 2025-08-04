@@ -4,7 +4,6 @@ import { supabase } from '../utils/supabaseClient';
 import Footer from '../components/Footer';
 
 export default function Login() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,46 +11,70 @@ export default function Login() {
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
+  const [isResetLoading, setIsResetLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
 
-    if (!email || !password) {
-      setError('Inserisci email e password.');
-      return;
-    }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError('Email o password errati.');
-    } else {
-      setSuccessMessage('Login riuscito! Reindirizzamento...');
-      setTimeout(() => {
-        router.push('/'); // Torna alla home dopo login riuscito
-      }, 1500);
+      if (error) {
+        let errorMessage = '';
+        if (error.message.includes('Invalid login')) {
+          errorMessage = 'Credenziali email o password non valide.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email non confermata. Controlla la tua casella email.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Troppi tentativi. Riprova più tardi.';
+        } else {
+          errorMessage = 'Errore durante il login: ' + error.message;
+        }
+        setError(errorMessage);
+      } else {
+        setSuccessMessage('Login effettuato con successo!');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
+      }
+    } catch (error) {
+      setError('Errore di connessione. Riprova più tardi.');
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setResetMessage('');
-    if (!resetEmail) {
-      setResetMessage('Inserisci la tua email.');
-      return;
-    }
-    
+    setIsResetLoading(true);
+
     try {
-      console.log('Richiesta reset password per:', resetEmail);
+      // Prima verifica se l'email esiste nel database
+      console.log('Verificando email nel database:', resetEmail);
       
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, nickname')
+        .eq('email', resetEmail)
+        .single();
+
+      if (profileError || !userProfile) {
+        console.log('Email non trovata nel database:', resetEmail);
+        setResetMessage('Email non trovata nel nostro database. Verifica di aver inserito l\'email corretta.');
+        return;
+      }
+
+      console.log('Email trovata nel database:', userProfile);
+
       // Genera un token temporaneo per il reset
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
+
       // Invia email personalizzata tramite il nostro SMTP
       const emailContent = {
         to: resetEmail,
@@ -63,6 +86,9 @@ export default function Login() {
             </div>
             <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
               <h2 style="color: #0f1e3c; margin-bottom: 20px;">Recupero Password</h2>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                Ciao <strong>${userProfile.nickname || 'utente'}</strong>,
+              </p>
               <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
                 Hai richiesto il recupero della password per il tuo account Connectiamo.
               </p>
@@ -77,6 +103,8 @@ export default function Login() {
               </div>
               <p style="color: #666; font-size: 14px; margin-top: 30px;">
                 Se non hai richiesto tu questo recupero password, ignora questa email.
+              </p>
+              <p style="color: #666; font-size: 14px;">
                 Il link scadrà automaticamente per motivi di sicurezza.
               </p>
               <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
@@ -88,6 +116,8 @@ export default function Login() {
           </div>
         `,
         text: `Recupero Password - Connectiamo
+
+Ciao ${userProfile.nickname || 'utente'},
 
 Hai richiesto il recupero della password per il tuo account Connectiamo.
 
@@ -105,7 +135,9 @@ info@connectiamo.com`
       await sendEmail(emailContent);
       
       console.log('Email di recupero password inviata da info@connectiamo.com');
-      setResetMessage('Email di recupero password inviata. Controlla anche la cartella spam.');
+      setShowSuccessModal(true);
+      setResetEmail('');
+      setShowReset(false);
       
     } catch (error) {
       console.error('Errore nell\'invio email di recupero password:', error);
@@ -128,6 +160,8 @@ info@connectiamo.com`
       }
       
       setResetMessage(errorMessage);
+    } finally {
+      setIsResetLoading(false);
     }
   };
 
@@ -199,14 +233,53 @@ info@connectiamo.com`
             <button 
               type="button" 
               onClick={handleResetPassword}
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded mb-2 transition"
+              disabled={isResetLoading}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 text-black py-2 px-4 rounded mb-2 transition flex items-center justify-center"
             >
-              Invia istruzioni
+              {isResetLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Invio in corso...
+                </>
+              ) : (
+                'Invia email di recupero'
+              )}
             </button>
             {resetMessage && <p className="text-center text-sm mt-2">{resetMessage}</p>}
           </div>
         )}
       </form>
+
+      {/* Modale di successo */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-800 mb-4">
+                <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                Email inviata con successo!
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Abbiamo inviato le istruzioni per il recupero password alla tua email. 
+                Controlla anche la cartella spam se non trovi l'email.
+              </p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
