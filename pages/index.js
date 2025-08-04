@@ -14,10 +14,17 @@ export default function Home() {
   const [cap, setCap] = useState('');
 
   const handleSearch = () => {
-    if (!role || !city) {
-      alert('Seleziona almeno Ruolo e Città.');
+    if (!role) {
+      alert('Seleziona almeno il Ruolo.');
       return;
     }
+    
+    // Se non è selezionata la città, deve essere inserito il CAP
+    if (!city && !cap) {
+      alert('Seleziona una città o inserisci il CAP.');
+      return;
+    }
+    
     router.push(`/search-results?role=${role}&city=${city}&category=${category}&cap=${cap}`);
   };
 

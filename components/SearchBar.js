@@ -61,9 +61,9 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
       </select>
       <button
         onClick={onSearch}
-        disabled={!role || !city}
+        disabled={!role || (!city && !cap)}
         className={`font-semibold px-5 py-2 rounded-md w-full md:w-auto transition ${
-          !role || !city
+          !role || (!city && !cap)
             ? 'bg-gray-300 cursor-not-allowed text-gray-600'
             : 'bg-[#d4a600] hover:bg-[#b89400] text-black'
         }`}
