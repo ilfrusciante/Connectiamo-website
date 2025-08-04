@@ -18,56 +18,42 @@ export default async function handler(req, res) {
   try {
     console.log('Creazione transporter SMTP...');
     
-    // Configurazioni SMTP alternative per GoDaddy con timeout ridotti
+    // Configurazioni SMTP per Office 365
     const smtpConfigs = [
       {
-        host: 'smtpout.secureserver.net',
+        host: 'smtp.office365.com',
         port: 587,
         secure: false,
         auth: {
           user: 'info@connectiamo.com',
           pass: 'Galati.72',
         },
-        tls: {
-          rejectUnauthorized: false,
-          ciphers: 'SSLv3'
-        },
-        connectionTimeout: 10000, // 10 secondi
-        greetingTimeout: 10000,
-        socketTimeout: 10000
-      },
-      {
-        host: 'smtpout.secureserver.net',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'info@connectiamo.com',
-          pass: 'Galati.72',
-        },
-        tls: {
-          rejectUnauthorized: false,
-          ciphers: 'SSLv3'
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000
-      },
-      {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'info@connectiamo.com',
-          pass: 'Galati.72',
-        },
+        requireTLS: true,
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 30000
+      },
+      {
+        host: 'smtp-mail.outlook.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'info@connectiamo.com',
+          pass: 'Galati.72',
+        },
+        requireTLS: true,
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 30000
       }
     ];
+
 
     let transporter;
     let lastError;
@@ -116,7 +102,7 @@ export default async function handler(req, res) {
     const info = await Promise.race([
       transporter.sendMail(mailOptions),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Invio email timeout')), 30000)
+        setTimeout(() => reject(new Error('Invio email timeout')), 60000)
       )
     ]);
 
