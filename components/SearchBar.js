@@ -73,3 +73,5 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
     </div>
   );
 }
+
+
