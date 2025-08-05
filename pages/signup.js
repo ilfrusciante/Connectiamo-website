@@ -23,6 +23,7 @@ export default function Signup() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false); // nuovo stato per termini e condizioni
 
   const normalize = (str) =>
     str
@@ -49,6 +50,14 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     setUploading(true);
+    
+    // Validazione termini e condizioni
+    if (!acceptTerms) {
+      setError('Devi accettare i termini e condizioni per continuare.');
+      setUploading(false);
+      return;
+    }
+    
     const normalizedCity = normalize(city);
 
     try {
@@ -270,6 +279,26 @@ info@connectiamo.com`
           <label className="flex items-center space-x-2 text-sm text-gray-200">
             <input type="checkbox" checked={notifyOnMessage} onChange={(e) => setNotifyOnMessage(e.target.checked)} />
             <span>Voglio ricevere una mail quando ricevo un messaggio</span>
+          </label>
+
+          <label className="flex items-center space-x-2 text-sm text-gray-200">
+            <input 
+              type="checkbox" 
+              checked={acceptTerms} 
+              onChange={(e) => setAcceptTerms(e.target.checked)} 
+              required
+            />
+            <span>
+              Accetto i{' '}
+              <a 
+                href="/termini-e-condizioni" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-yellow-400 hover:text-yellow-300 underline"
+              >
+                termini e condizioni
+              </a>
+            </span>
           </label>
 
           <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 rounded" disabled={uploading}>
