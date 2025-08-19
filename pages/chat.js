@@ -90,12 +90,12 @@ export default function ChatPage() {
     };
   }, [user, selectedUser]);
 
-  // Scroll automatico in fondo dopo ogni aggiornamento dei messaggi
+  // Scroll automatico in fondo solo al primo caricamento dei messaggi
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && messages.length > 0) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages.length]); // Solo quando cambia il numero di messaggi, non il contenuto
 
   const fetchContacts = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
@@ -114,8 +114,9 @@ export default function ChatPage() {
     if (!error && data) {
       const filtered = data.filter(
         (msg) =>
-          (msg.sender_id === user.id && msg.receiver_id === selectedUser.id) ||
-          (msg.sender_id === selectedUser.id && msg.receiver_id === user.id)
+          ((msg.sender_id === user.id && msg.receiver_id === selectedUser.id) ||
+          (msg.sender_id === selectedUser.id && msg.receiver_id === user.id)) &&
+          msg.content && msg.content.trim() !== '' // Filtra i messaggi vuoti
       );
       setMessages(filtered);
     }
@@ -165,7 +166,6 @@ export default function ChatPage() {
   }, [messages, user, selectedUser]);
 
   return (
-    <>
     <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
       <div className="flex justify-end items-center mb-6">
         <Link href="/messages">
@@ -296,8 +296,7 @@ export default function ChatPage() {
           </div>
         </>
       )}
+      <Footer />
     </div>
-    <Footer />
-    </>
   );
 }

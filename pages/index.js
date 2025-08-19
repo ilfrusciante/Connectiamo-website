@@ -14,17 +14,10 @@ export default function Home() {
   const [cap, setCap] = useState('');
 
   const handleSearch = () => {
-    if (!role) {
-      alert('Seleziona almeno il Ruolo.');
+    if (!role || !city) {
+      alert('Seleziona almeno Ruolo e Città.');
       return;
     }
-    
-    // Se non è selezionata la città, deve essere inserito il CAP
-    if (!city && !cap) {
-      alert('Seleziona una città o inserisci il CAP.');
-      return;
-    }
-    
     router.push(`/search-results?role=${role}&city=${city}&category=${category}&cap=${cap}`);
   };
 
@@ -92,11 +85,11 @@ export default function Home() {
         <section className="py-16 px-6 md:px-20 bg-white">
           <div className="max-w-5xl mx-auto space-y-6">
             <h2 className="text-3xl font-bold">Chi siamo</h2>
-            <p className="text-gray-800 text-lg">
-              <strong>Connectiamo</strong> nasce per creare connessioni utili e concrete. Che tu sia un segnalatore o un professionista, qui puoi valorizzare la tua rete e far crescere il tuo lavoro.
+            <p className="text-gray-800" style={{ fontSize: '1.4rem', lineHeight: '1.4rem' }}>
+              <strong>Connectiamo</strong> nasce per unire chi cerca nuove occasioni di crescita con chi può offrirle.
             </p>
-            <p className="text-gray-800 text-lg">
-              Trova contatti affidabili, scambia opportunità e gestisci tutto dalla tua area personale con una <strong>chat integrata</strong>.
+            <p className="text-gray-800" style={{ fontSize: '1.4rem', lineHeight: '1.4rem' }}>
+              Niente intermediari, solo relazioni mirate che diventano valore reale.
             </p>
           </div>
         </section>
@@ -105,26 +98,26 @@ export default function Home() {
         <section className="bg-gray-100 py-16 px-6 md:px-20">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">
-              Connettersi è facile!
+              Come funziona
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base">Crea un profilo come Connector o professionista</p>
+                <p className="text-gray-600 text-base">Crea il tuo profilo come professionista o Connettore</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Trova contatti</h3>
-                <p className="text-gray-600 text-base">Cerca per zona, ruolo e categoria</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Scopri nuove opportunità</h3>
+                <p className="text-gray-600 text-base">Cerca persone, settori e contatti utili alla tua crescita</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Connettiti</h3>
-                <p className="text-gray-600 text-base">Scrivi nella chat privata e inizia subito</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Avvia la collaborazione</h3>
+                <p className="text-gray-600 text-base">Gestisci tutto in privato con la chat privata</p>
               </div>
             </div>
           </div>

@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
-import Footer from '../components/Footer';
 
 export default function SearchResults() {
   const router = useRouter();
@@ -58,21 +57,8 @@ export default function SearchResults() {
       return;
     }
 
-    // Verifica se già esiste un messaggio tra questi utenti
-    const { data: existing, error } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-      .eq('sender_id', user.id)
-      .eq('receiver_id', receiverId);
-
-    if (!error && (!existing || existing.length === 0)) {
-      await supabase.from('messages').insert({
-        sender_id: user.id,
-        receiver_id: receiverId,
-        content: '',
-      });
-    }
+    // Non è necessario creare un messaggio vuoto per iniziare una conversazione
+    // La conversazione verrà creata automaticamente quando verrà inviato il primo messaggio reale
 
     router.push(`/chat?to=${receiverId}`);
   };
@@ -112,8 +98,7 @@ export default function SearchResults() {
   }
 
   return (
-    <>
-      <div className="max-w-5xl mx-auto py-10 px-6 md:px-20 text-white">
+    <div className="max-w-5xl mx-auto py-10 px-6 md:px-20 text-white">
       <button
         onClick={() => router.back()}
         className="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold px-4 py-2 rounded shadow"
@@ -151,10 +136,8 @@ export default function SearchResults() {
               </button>
             )}
           </div>
-        )        )}
-        </div>
+        ))}
       </div>
-      <Footer />
-    </>
+    </div>
   );
 }
