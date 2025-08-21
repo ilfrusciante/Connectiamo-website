@@ -3,7 +3,6 @@ import { supabase } from '../utils/supabaseClient';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import AvatarUpload from '../components/AvatarUpload';
-import CityAutocomplete from '../components/CityAutocomplete';
 import Footer from '../components/Footer';
 
 export default function Signup() {
@@ -18,8 +17,8 @@ export default function Signup() {
   const [cap, setCap] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [notifyOnMessage, setNotifyOnMessage] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [notifyOnMessage, setNotifyOnMessage] = useState(false); // nuovo stato
+  const [acceptTerms, setAcceptTerms] = useState(false); // nuovo stato per termini e condizioni
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -44,12 +43,6 @@ export default function Signup() {
       reader.readAsDataURL(file);
     } else {
       setAvatarPreview(null);
-    }
-  };
-
-  const handleCitySelect = (caps) => {
-    if (caps && caps.length > 0) {
-      setCap(caps[0]); // Prendo il primo CAP disponibile
     }
   };
 
@@ -105,51 +98,48 @@ export default function Signup() {
     const userId = signUpData.user?.id;
     let avatarUrl = '';
 
-    if (avatarFile) {
+    if (userId && avatarFile) {
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${userId}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, avatarFile);
-
+      const filePath = `${userId}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, { upsert: true });
       if (uploadError) {
-        console.error('Errore upload avatar:', uploadError);
-      } else {
-        avatarUrl = uploadData.path;
+        setError('Errore durante il caricamento dell\'immagine profilo: ' + uploadError.message);
+        setUploading(false);
+        return;
       }
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      avatarUrl = publicUrlData.publicUrl;
     }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        {
-          id: userId,
-          nome,
-          cognome,
-          nickname,
-          email,
-          role,
-          city,
-          cap,
-          category,
-          description,
-          notify_on_message: notifyOnMessage,
-          avatar_url: avatarUrl
-        }
-      ]);
+    if (userId) {
+      const { error: profileError } = await supabase.from('profiles').insert([{
+        id: userId,
+        nome,
+        cognome,
+        nickname,
+        role,
+        city: city.trim(),
+        cap,
+        category,
+        description,
+        email,
+        avatar_url: avatarUrl,
+        notify_on_message: notifyOnMessage, // inserisce il valore scelto
+        created_at: new Date().toISOString(),
+      }]);
 
-    if (profileError) {
-      setError(profileError.message);
+      if (profileError) {
+        setError('Errore durante la creazione del profilo: ' + profileError.message);
+        setUploading(false);
+        return;
+      }
+
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
       setUploading(false);
-      return;
     }
-
-    setUploading(false);
-    setShowSuccessModal(true);
-    
-    setTimeout(() => {
-      router.push('/');
-    }, 2000);
   };
 
   return (
@@ -186,15 +176,7 @@ export default function Signup() {
           </select>
 
           <div className="flex space-x-4">
-            <div className="w-2/3">
-              <CityAutocomplete
-                value={city}
-                onChange={setCity}
-                onCitySelect={handleCitySelect}
-                placeholder="Città"
-                className="w-full px-3 py-2 rounded bg-gray-700 text-white"
-              />
-            </div>
+            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Città" className="w-2/3 px-3 py-2 rounded bg-gray-700 text-white" />
             <input type="text" value={cap} onChange={(e) => setCap(e.target.value)} required placeholder="CAP" className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white" />
           </div>
 
@@ -255,4 +237,4 @@ export default function Signup() {
     <Footer />
     </>
   );
-} 
+}

@@ -9,6 +9,7 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   const [selectedCity, setSelectedCity] = useState(null);
   const [showCapDropdown, setShowCapDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const capDropdownRef = useRef(null);
 
   useEffect(() => {
     console.log('useEffect iniziale attivato');
@@ -100,12 +101,16 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   // Gestione click esterni per chiudere i dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Chiudo dropdown città
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      
+      // Chiudo dropdown CAP
+      if (capDropdownRef.current && !capDropdownRef.current.contains(event.target)) {
         setShowCapDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -119,22 +124,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
     }
   }, [filteredCities]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        // Chiudo entrambi i dropdown se non è un click sull'input
-        if (event.target !== dropdownRef.current.querySelector('input')) {
-          setShowDropdown(false);
-          setShowCapDropdown(false);
-        }
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   const handleInputChange = (e) => {
     const input = e.target.value;
     setInputValue(input);
@@ -147,7 +136,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
     if (input.trim() === '') {
       setFilteredCities([]);
       setShowDropdown(false);
-      setShowCapDropdown(false);
       return;
     }
 
@@ -161,13 +149,8 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
       city.name.toLowerCase().includes(input.toLowerCase())
     );
 
-
-    
-
-
     setFilteredCities(filtered);
     setShowDropdown(filtered.length > 0);
-    setShowCapDropdown(false); // Chiudo il dropdown CAP quando filtro le città
   };
 
   const handleCitySelect = (city) => {
@@ -175,13 +158,11 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
     setSelectedCity(city);
     setShowDropdown(false);
     setFilteredCities([]);
-    onChange(city.name); // Aggiorniamo il valore della città
+    onChange(city.name);
     
     // Se la città ha solo 1 CAP, lo popolo automaticamente
     if (city.caps.length === 1) {
-      if (onCitySelect) {
-        onCitySelect([city.caps[0]]); // Passo direttamente l'unico CAP disponibile
-      }
+      onCitySelect(city.caps);
       setSelectedCity(null); // Reset della città selezionata
     } else {
       // Se la città ha più CAP, mostro il dropdown per la selezione
@@ -192,9 +173,7 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   const handleCapSelect = (cap) => {
     setShowCapDropdown(false);
     setSelectedCity(null); // Reset della città selezionata
-    if (onCitySelect) {
-      onCitySelect([cap]); // Passiamo solo il CAP selezionato
-    }
+    onCitySelect([cap]); // Passiamo solo il CAP selezionato
   };
 
   const handleInputFocus = () => {
@@ -213,7 +192,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
         );
         setFilteredCities(filtered);
         setShowDropdown(filtered.length > 0);
-        setShowCapDropdown(false); // Chiudo il dropdown CAP quando filtro le città
       }
     }
   };
@@ -229,8 +207,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
         className={className}
         autoComplete="off"
       />
-      
-
       
       {showDropdown && (
         <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -254,7 +230,7 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
 
       {/* Dropdown per i CAP */}
       {showCapDropdown && selectedCity && (
-        <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto" ref={capDropdownRef}>
           <div className="px-3 py-2 text-gray-300 text-sm border-b border-gray-600">
             Seleziona CAP per {selectedCity.name}:
           </div>
