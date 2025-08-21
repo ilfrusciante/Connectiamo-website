@@ -18,15 +18,12 @@ export default function ResetPassword() {
     if (urlEmail && urlToken) {
       setEmail(decodeURIComponent(urlEmail));
       setToken(urlToken);
-      console.log('Usando sistema personalizzato con token');
     } else {
       // Verifica se l'utente è autenticato (sistema Supabase)
       const checkAuth = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           setMessage('Sessione non valida. Richiedi un nuovo link di reset password.');
-        } else {
-          console.log('Usando sistema Supabase');
         }
       };
       checkAuth();
@@ -53,7 +50,6 @@ export default function ResetPassword() {
     setLoading(true);
     
     try {
-      console.log('Aggiornamento password con Supabase');
       const { error } = await supabase.auth.updateUser({ password });
       
       if (error) {

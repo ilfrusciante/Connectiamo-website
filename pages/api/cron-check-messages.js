@@ -2,7 +2,6 @@ import { supabase } from '../../utils/supabaseClient';
 import { sendEmail } from '../../utils/emailService';
 
 export default async function handler(req, res) {
-  console.log('Cron job avviato:', new Date().toISOString());
   
   // Verifica che la richiesta sia autorizzata (cron job di Vercel)
   const authHeader = req.headers.authorization;
@@ -12,13 +11,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Cron job autorizzato, inizio elaborazione...');
     
     // 1. Trova tutti i messaggi non letti degli ultimi 48 ore
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    
-    console.log('Cercando messaggi non letti dal:', twoDaysAgo.toISOString());
     
     const { data: unreadMessages, error: messagesError } = await supabase
       .from('messages')
@@ -40,7 +36,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Errore nel recupero messaggi' });
     }
 
-    console.log(`Trovati ${unreadMessages?.length || 0} messaggi non letti`);
+
 
     // 2. Raggruppa i messaggi per destinatario
     const messagesByReceiver = {};
@@ -51,13 +47,13 @@ export default async function handler(req, res) {
       messagesByReceiver[message.receiver_id].push(message);
     });
 
-    console.log(`Messaggi raggruppati per ${Object.keys(messagesByReceiver).length} destinatari`);
+
 
     // 3. Per ogni destinatario, invia email di notifica
     const notificationResults = [];
     
     for (const [receiverId, messages] of Object.entries(messagesByReceiver)) {
-      console.log(`Elaborando destinatario ${receiverId} con ${messages.length} messaggi`);
+
       
       // Ottieni i dati del destinatario
       const { data: receiverProfile, error: profileError } = await supabase
@@ -71,11 +67,10 @@ export default async function handler(req, res) {
         continue;
       }
 
-      console.log(`Profilo trovato: ${receiverProfile.email}, notify_on_message: ${receiverProfile.notify_on_message}`);
+
 
       // Verifica se l'utente vuole ricevere notifiche email
       if (!receiverProfile.notify_on_message) {
-        console.log(`Utente ${receiverProfile.email} ha disabilitato le notifiche email`);
         continue;
       }
 
@@ -138,11 +133,8 @@ info@connectiamo.com`
 
       // Invia l'email
       try {
-        console.log(`Tentativo invio email a ${emailContent.to}...`);
         
         await sendEmail(emailContent);
-
-        console.log(`Email inviata con successo a ${emailContent.to}`);
 
         notificationResults.push({
           receiverId,
@@ -176,12 +168,7 @@ info@connectiamo.com`
       }
     }
 
-    console.log('Cron job completato. Risultati:', {
-      totalDestinatari: Object.keys(messagesByReceiver).length,
-      emailInviate: notificationResults.filter(r => r.success).length,
-      emailFallite: notificationResults.filter(r => !r.success).length,
-      risultati: notificationResults
-    });
+
 
     return res.status(200).json({
       success: true,

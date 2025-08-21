@@ -56,7 +56,7 @@ export default function Login() {
 
     try {
       // Prima verifica se l'email esiste nel database
-      console.log('Verificando email nel database:', resetEmail);
+
       
       const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
@@ -65,12 +65,9 @@ export default function Login() {
         .single();
 
       if (profileError || !userProfile) {
-        console.log('Email non trovata nel database:', resetEmail);
         setResetMessage('Email non trovata nel nostro database. Verifica di aver inserito l\'email corretta.');
         return;
       }
-
-      console.log('Email trovata nel database:', userProfile);
 
       // Genera un token temporaneo per il reset
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -134,7 +131,7 @@ info@connectiamo.com`
       const { sendEmail } = await import('../utils/emailService');
       await sendEmail(emailContent);
       
-      console.log('Email di recupero password inviata da info@connectiamo.com');
+      
       setShowSuccessModal(true);
       setResetEmail('');
       setShowReset(false);

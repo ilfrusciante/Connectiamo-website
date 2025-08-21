@@ -7,8 +7,6 @@ export default async function handler(req, res) {
 
   const { to, subject, html, text, from, fromName } = req.body;
 
-  console.log('API send-email chiamata con:', { to, subject, from, fromName });
-
   // Validazione
   if (!to || !subject || !html) {
     console.error('Campi mancanti:', { to, subject, html });
@@ -16,7 +14,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Creazione transporter SMTP...');
     
     // Configurazioni SMTP per Office 365
     const smtpConfigs = [
@@ -61,7 +58,6 @@ export default async function handler(req, res) {
     // Prova diverse configurazioni SMTP
     for (const config of smtpConfigs) {
       try {
-        console.log(`Tentativo con configurazione: ${config.host}:${config.port} (secure: ${config.secure})`);
         
         transporter = nodemailer.createTransport(config);
 
@@ -73,11 +69,9 @@ export default async function handler(req, res) {
           )
         ]);
         
-        console.log(`Connessione SMTP verificata con successo: ${config.host}:${config.port}`);
         break; // Se funziona, esci dal ciclo
         
       } catch (error) {
-        console.log(`Fallita configurazione ${config.host}:${config.port}:`, error.message);
         lastError = error;
         continue;
       }
@@ -96,7 +90,7 @@ export default async function handler(req, res) {
       text: text || html.replace(/<[^>]*>/g, ''), // Versione testo se non fornita
     };
 
-    console.log('Invio email con opzioni:', { to: mailOptions.to, subject: mailOptions.subject });
+
 
     // Invia email con timeout
     const info = await Promise.race([
@@ -106,8 +100,6 @@ export default async function handler(req, res) {
       )
     ]);
 
-    console.log('Email inviata con successo:', info.messageId);
-    
     return res.status(200).json({ 
       success: true, 
       messageId: info.messageId,

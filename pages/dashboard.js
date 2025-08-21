@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import AvatarUpload from '../components/AvatarUpload';
+import CityAutocomplete from '../components/CityAutocomplete';
 import Footer from '../components/Footer';
 
 export default function Dashboard() {
@@ -16,6 +17,7 @@ export default function Dashboard() {
     description: '',
     notify_on_message: false
   });
+  const [availableCaps, setAvailableCaps] = useState([]);
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -58,6 +60,11 @@ export default function Dashboard() {
           });
           setAvatarUrl(data.avatar_url || null);
           setAvatarPreview(data.avatar_url || null);
+          
+          // Carica i CAP per la città esistente
+          if (data.city) {
+            loadCapsForCity(data.city);
+          }
         }
       }
     };
@@ -71,6 +78,52 @@ export default function Dashboard() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    
+    // Se cambia la città manualmente, carica i CAP corrispondenti
+    if (name === 'city') {
+      loadCapsForCity(value);
+    }
+  };
+
+  const handleCitySelect = (caps) => {
+    if (caps && caps.length > 0) {
+      setAvailableCaps(caps);
+      setForm(prev => ({ ...prev, cap: caps[0] }));
+    } else {
+      setAvailableCaps([]);
+      setForm(prev => ({ ...prev, cap: '' }));
+    }
+  };
+
+  // Funzione per caricare i CAP per una città esistente
+  const loadCapsForCity = async (cityName) => {
+    if (!cityName) return;
+    
+    try {
+      let response = await fetch('/comuni.json');
+      let data;
+      if (!response.ok) {
+        response = await fetch('/gi_comuni.json');
+        if (!response.ok) return;
+      }
+      
+      data = await response.json();
+      const cityData = data.find(comune => 
+        comune.nome && comune.nome.trim().toLowerCase() === cityName.trim().toLowerCase()
+      );
+      
+      if (cityData && cityData.cap && Array.isArray(cityData.cap)) {
+        const caps = cityData.cap.filter(cap => cap && cap.toString().trim() !== '');
+        setAvailableCaps(caps);
+        
+        // Se il CAP attuale non è nella lista, lo rimuovo
+        if (form.cap && !caps.includes(form.cap)) {
+          setForm(prev => ({ ...prev, cap: '' }));
+        }
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento CAP per città:', error);
+    }
   };
 
   const handleAvatarUpload = (file) => {
@@ -179,23 +232,30 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 text-sm">Città</label>
-            <input
-              type="text"
-              name="city"
+            <CityAutocomplete
               value={form.city}
-              onChange={handleChange}
+              onChange={(value) => setForm(prev => ({ ...prev, city: value }))}
+              onCitySelect={handleCitySelect}
+              placeholder="Città"
               className="w-full bg-white text-black rounded px-4 py-2"
             />
           </div>
           <div>
             <label className="block mb-1 text-sm">CAP</label>
-            <input
-              type="text"
+            <select
               name="cap"
               value={form.cap}
               onChange={handleChange}
               className="w-full bg-white text-black rounded px-4 py-2"
-            />
+              disabled={availableCaps.length === 0}
+            >
+              <option value="">CAP</option>
+              {availableCaps.map((capOption, index) => (
+                <option key={index} value={capOption}>
+                  {capOption}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div>

@@ -98,7 +98,7 @@ export default function Home() {
         <section className="bg-gray-100 py-16 px-6 md:px-20">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold mb-10">
-              Come funziona
+              Connettersi è facile!
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

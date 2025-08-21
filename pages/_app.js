@@ -1,6 +1,7 @@
 // pages/_app.js
 import Head from 'next/head';
 import '../styles/globals.css';
+import '../styles/custom.css';
 import Navbar from '../components/Navbar';
 import CookieBanner from '../components/CookieBanner';
 

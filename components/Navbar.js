@@ -123,9 +123,9 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
+    <nav id="navbar" className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
+        <Link href="/" className="logo text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
 
         {user && (
           <div className="hidden md:flex items-center ml-6 gap-3 relative" ref={dropdownRefDesktop}>

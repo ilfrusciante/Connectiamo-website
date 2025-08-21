@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 export default function CityAutocomplete({ value, onChange, onCitySelect, placeholder, className }) {
-  console.log('CityAutocomplete component montato');
   const [cities, setCities] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -9,17 +8,14 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    console.log('useEffect iniziale attivato');
     const loadCities = async () => {
       try {
-        console.log('Caricamento città in corso...');
         
         // Provo prima comuni.json, poi gi_comuni.json
         let response = await fetch('/comuni.json');
         let data;
         
         if (!response.ok) {
-          console.log('comuni.json non trovato, provo gi_comuni.json...');
           response = await fetch('/gi_comuni.json');
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -27,65 +23,39 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
         }
         
         data = await response.json();
-        console.log('Dati caricati:', data.length, 'comuni trovati');
-        console.log('Tipo di data:', typeof data);
-        console.log('È un array?', Array.isArray(data));
         
         if (Array.isArray(data) && data.length > 0) {
-          console.log('Primo comune:', data[0]);
-          console.log('Keys del primo comune:', Object.keys(data[0]));
-        } else {
-          console.error('Data non è un array o è vuoto:', data);
-          return;
-        }
-        
-        // Estraggo le città uniche con i loro CAP
-        const cityMap = new Map();
-        console.log('Elaborazione dati in corso...');
-        
-        data.forEach((comune, index) => {
-          if (index < 5) {
-            console.log(`Comune ${index}:`, comune);
-          }
+          // Estraggo le città uniche con i loro CAP
+          const cityMap = new Map();
           
-          // Verifico la struttura del comune
-          if (comune.nome && comune.cap && Array.isArray(comune.cap)) {
-            const cityName = comune.nome.trim();
-            if (cityName) {
-              if (!cityMap.has(cityName)) {
-                cityMap.set(cityName, []);
-              }
-              // Aggiungo tutti i CAP disponibili
-              comune.cap.forEach(cap => {
-                if (cap && cap.toString().trim() !== '') {
-                  cityMap.get(cityName).push(cap.toString());
+          data.forEach((comune, index) => {
+            
+            // Verifico la struttura del comune
+            if (comune.nome && comune.cap && Array.isArray(comune.cap)) {
+              const cityName = comune.nome.trim();
+              if (cityName) {
+                if (!cityMap.has(cityName)) {
+                  cityMap.set(cityName, []);
                 }
-              });
+                // Aggiungo tutti i CAP disponibili
+                comune.cap.forEach(cap => {
+                  if (cap && cap.toString().trim() !== '') {
+                    cityMap.get(cityName).push(cap.toString());
+                  }
+                });
+              }
             }
-          } else {
-            // Debug per capire la struttura
-            if (index < 10) {
-              console.log(`Comune ${index} senza nome o cap:`, comune);
-              console.log('Keys disponibili:', Object.keys(comune));
-            }
-          }
-        });
-        
-        console.log('CityMap size:', cityMap.size);
-        console.log('Prime 3 città dalla map:', Array.from(cityMap.entries()).slice(0, 3));
-        
-        const citiesWithCaps = Array.from(cityMap.entries()).map(([city, caps]) => ({
-          name: city,
-          caps: caps.sort()
-        }));
-        
-        console.log('Città elaborate:', citiesWithCaps.length);
-        console.log('Prime 3 città:', citiesWithCaps.slice(0, 3));
-        
-        setCities(citiesWithCaps);
+          });
+          
+          const citiesWithCaps = Array.from(cityMap.entries()).map(([city, caps]) => ({
+            name: city,
+            caps: caps.sort()
+          }));
+          
+          setCities(citiesWithCaps);
+        }
       } catch (error) {
         console.error('Errore nel caricamento delle città:', error);
-        console.error('Stack trace:', error.stack);
       }
     };
     loadCities();
@@ -127,7 +97,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
     }
 
     if (cities.length === 0) {
-      console.log('Città non ancora caricate');
       return;
     }
 

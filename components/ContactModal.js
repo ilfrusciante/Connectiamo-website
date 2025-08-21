@@ -11,7 +11,6 @@ export default function ContactModal() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Dati inviati:', form);
     setShowModal(false);
   };
 
