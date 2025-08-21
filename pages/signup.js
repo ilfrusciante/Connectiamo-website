@@ -16,6 +16,7 @@ export default function Signup() {
   const [role, setRole] = useState('');
   const [city, setCity] = useState('');
   const [cap, setCap] = useState('');
+  const [availableCaps, setAvailableCaps] = useState([]);
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [notifyOnMessage, setNotifyOnMessage] = useState(false);
@@ -49,7 +50,8 @@ export default function Signup() {
 
   const handleCitySelect = (caps) => {
     if (caps && caps.length > 0) {
-      setCap(caps[0]); // Prendo il primo CAP disponibile
+      setAvailableCaps(caps); // Popolo i CAP disponibili
+      setCap(caps[0]); // Imposto il primo CAP come default
     }
   };
 
@@ -195,7 +197,20 @@ export default function Signup() {
                 className="w-full px-3 py-2 rounded bg-gray-700 text-white"
               />
             </div>
-            <input type="text" value={cap} onChange={(e) => setCap(e.target.value)} required placeholder="CAP" className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white" />
+            <select 
+              value={cap} 
+              onChange={(e) => setCap(e.target.value)} 
+              required 
+              className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white"
+              disabled={availableCaps.length === 0}
+            >
+              <option value="">CAP</option>
+              {availableCaps.map((capOption, index) => (
+                <option key={index} value={capOption}>
+                  {capOption}
+                </option>
+              ))}
+            </select>
           </div>
 
           <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">

@@ -6,10 +6,7 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   const [filteredCities, setFilteredCities] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [inputValue, setInputValue] = useState(value);
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [showCapDropdown, setShowCapDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const capDropdownRef = useRef(null);
 
   useEffect(() => {
     console.log('useEffect iniziale attivato');
@@ -101,14 +98,8 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
   // Gestione click esterni per chiudere i dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Chiudo dropdown città
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
-      }
-      
-      // Chiudo dropdown CAP
-      if (capDropdownRef.current && !capDropdownRef.current.contains(event.target)) {
-        setShowCapDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -128,10 +119,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
     const input = e.target.value;
     setInputValue(input);
     onChange(input); // Aggiorno sempre il valore padre
-    
-    // Reset della città selezionata e del dropdown CAP quando l'utente digita
-    setSelectedCity(null);
-    setShowCapDropdown(false);
     
     if (input.trim() === '') {
       setFilteredCities([]);
@@ -155,32 +142,13 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
 
   const handleCitySelect = (city) => {
     setInputValue(city.name);
-    setSelectedCity(city);
     setShowDropdown(false);
     setFilteredCities([]);
     onChange(city.name);
-    
-    // Se la città ha solo 1 CAP, lo popolo automaticamente
-    if (city.caps.length === 1) {
-      onCitySelect(city.caps);
-      setSelectedCity(null); // Reset della città selezionata
-    } else {
-      // Se la città ha più CAP, mostro il dropdown per la selezione
-      setShowCapDropdown(true);
-    }
-  };
-
-  const handleCapSelect = (cap) => {
-    setShowCapDropdown(false);
-    setSelectedCity(null); // Reset della città selezionata
-    onCitySelect([cap]); // Passiamo solo il CAP selezionato
+    onCitySelect(city.caps); // Passo sempre tutti i CAP disponibili
   };
 
   const handleInputFocus = () => {
-    // Reset della città selezionata e del dropdown CAP
-    setSelectedCity(null);
-    setShowCapDropdown(false);
-    
     // Mostra il dropdown se ci sono risultati filtrati o se l'utente ha già digitato qualcosa
     if (inputValue.trim() !== '') {
       if (filteredCities.length > 0) {
@@ -225,24 +193,6 @@ export default function CityAutocomplete({ value, onChange, onCitySelect, placeh
               Nessuna città trovata
             </div>
           )}
-        </div>
-      )}
-
-      {/* Dropdown per i CAP */}
-      {showCapDropdown && selectedCity && (
-        <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto" ref={capDropdownRef}>
-          <div className="px-3 py-2 text-gray-300 text-sm border-b border-gray-600">
-            Seleziona CAP per {selectedCity.name}:
-          </div>
-          {selectedCity.caps.map((cap, index) => (
-            <div
-              key={index}
-              className="px-3 py-2 hover:bg-gray-600 cursor-pointer text-white text-sm"
-              onClick={() => handleCapSelect(cap)}
-            >
-              <div className="font-medium">CAP: {cap}</div>
-            </div>
-          ))}
         </div>
       )}
     </div>
