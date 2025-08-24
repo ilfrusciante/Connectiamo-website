@@ -1,6 +1,7 @@
 // /components/Navbar.js
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { supabase } from '../utils/supabaseClient';
 
@@ -125,7 +126,16 @@ export default function Navbar() {
   return (
     <nav id="navbar" className="bg-[#0f1e3c] border-b border-gray-800 px-4 py-3 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="logo text-xl font-bold hover:text-yellow-400">Connectiamo</Link>
+        <Link href="/" className="logo flex items-center">
+          <Image 
+            src="/logo_white.png" 
+            alt="Connectiamo" 
+            width={140} 
+            height={40} 
+            className="hover:opacity-80 transition-opacity"
+            priority
+          />
+        </Link>
 
         {user && (
           <div className="hidden md:flex items-center ml-6 gap-3 relative" ref={dropdownRefDesktop}>

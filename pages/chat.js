@@ -138,7 +138,9 @@ export default function ChatPage() {
   };
 
   const markMessagesAsRead = async (senderId) => {
-    
+    console.log('Segno come letti i messaggi ricevuti da', senderId, 'per l\'utente', user?.id);
+    console.log('user.id:', user?.id, typeof user?.id);
+    console.log('senderId:', senderId, typeof senderId);
     const { error, data } = await supabase
       .from('messages')
       .update({ read_at: new Date().toISOString() })
@@ -146,7 +148,7 @@ export default function ChatPage() {
       .eq('sender_id', senderId)
       .is('read_at', null)
       .select();
-    
+    console.log('Risultato update:', { error, data });
     // Notifica la Navbar di aggiornare il badge dopo un piccolo delay
     if (typeof window !== 'undefined') {
       setTimeout(() => {
@@ -164,6 +166,7 @@ export default function ChatPage() {
   }, [messages, user, selectedUser]);
 
   return (
+    <>
     <div className="min-h-screen bg-[#0f1e3c] text-white p-4">
       <div className="flex justify-end items-center mb-6">
         <Link href="/messages">
@@ -294,7 +297,9 @@ export default function ChatPage() {
           </div>
         </>
       )}
-      <Footer />
+      
     </div>
+    <Footer />
+    </>
   );
 }

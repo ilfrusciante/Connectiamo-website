@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 py-6 text-center text-gray-300">
+    <footer className="bg-gray-800 p-4 text-center text-gray-300">
       <div className="space-x-4">
         <Link href="/contatti" className="hover:underline">Contatti</Link>
         <Link href="/termini-e-condizioni" className="hover:underline">Termini e condizioni</Link>
