@@ -181,7 +181,16 @@ export default function Signup() {
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
 
-          <select value={role} onChange={(e) => setRole(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
+          <select 
+            value={role} 
+            onChange={(e) => setRole(e.target.value)} 
+            required 
+            className="w-full px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundSize: '1.5em 1.5em'
+            }}
+          >
             <option value="">Seleziona ruolo</option>
             <option value="Professionista">Professionista</option>
             <option value="Connector">Connector</option>
@@ -201,7 +210,11 @@ export default function Signup() {
               value={cap} 
               onChange={(e) => setCap(e.target.value)} 
               required 
-              className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white"
+              className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundSize: '1.5em 1.5em'
+              }}
               disabled={availableCaps.length === 0}
             >
               <option value="">CAP</option>
@@ -213,7 +226,16 @@ export default function Signup() {
             </select>
           </div>
 
-          <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
+          <select 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)} 
+            required 
+            className="w-full px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundSize: '1.5em 1.5em'
+            }}
+          >
             <option value="">Seleziona categoria</option>
             <option value="Edilizia">Edilizia</option>
             <option value="Benessere">Benessere</option>

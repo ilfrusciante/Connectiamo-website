@@ -21,7 +21,11 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
       <select
         value={role}
         onChange={e => setRole(e.target.value)}
-        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300 appearance-none bg-white bg-no-repeat bg-right pr-10"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+          backgroundSize: '1.5em 1.5em'
+        }}
       >
         <option value="">Ruolo</option>
         <option value="Professionista">Professionista</option>
@@ -30,7 +34,11 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
       <select
         value={city}
         onChange={e => setCity(e.target.value)}
-        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300 appearance-none bg-white bg-no-repeat bg-right pr-10"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+          backgroundSize: '1.5em 1.5em'
+        }}
       >
         <option value="">Città</option>
         {cities.map(city => (
@@ -47,7 +55,11 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
       <select
         value={category}
         onChange={e => setCategory(e.target.value)}
-        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
+        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300 appearance-none bg-white bg-no-repeat bg-right pr-10"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+          backgroundSize: '1.5em 1.5em'
+        }}
       >
         <option value="">Categoria</option>
         <option value="Edilizia">Edilizia</option>

@@ -5,6 +5,7 @@ export default function LanguageSwitcher() {
 
   const handleChange = (e) => {
     setLanguage(e.target.value);
+    console.log('Lingua selezionata:', e.target.value);
   };
 
   return (

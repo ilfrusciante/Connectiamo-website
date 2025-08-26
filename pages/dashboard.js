@@ -246,7 +246,11 @@ export default function Dashboard() {
               name="cap"
               value={form.cap}
               onChange={handleChange}
-              className="w-full bg-white text-black rounded px-4 py-2"
+              className="w-full bg-white text-black rounded px-4 py-2 appearance-none bg-no-repeat bg-right pr-10"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundSize: '1.5em 1.5em'
+              }}
               disabled={availableCaps.length === 0}
             >
               <option value="">CAP</option>
@@ -264,7 +268,11 @@ export default function Dashboard() {
             name="role"
             value={form.role}
             onChange={handleChange}
-            className="w-full bg-white text-black rounded px-4 py-2"
+            className="w-full bg-white text-black rounded px-4 py-2 appearance-none bg-no-repeat bg-right pr-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundSize: '1.5em 1.5em'
+            }}
           >
             <option value="">Seleziona ruolo</option>
             <option value="Connector">Connector</option>
@@ -277,7 +285,11 @@ export default function Dashboard() {
             name="category"
             value={form.category}
             onChange={handleChange}
-            className="w-full bg-white text-black rounded px-4 py-2"
+            className="w-full bg-white text-black rounded px-4 py-2 appearance-none bg-no-repeat bg-right pr-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundSize: '1.5em 1.5em'
+            }}
           >
             <option value="">Seleziona categoria</option>
             {categorieDisponibili.map((cat) => (
