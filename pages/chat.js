@@ -37,15 +37,23 @@ export default function ChatPage() {
     if (user) fetchContacts();
   }, [user]);
 
+  // Carica direttamente il profilo dell'utente selezionato
   useEffect(() => {
-    if (contacts.length > 0 && to) {
-      const found = contacts.find((c) => c.id === to);
-      if (found) {
-        setSelectedUser(found);
-        markMessagesAsRead(found.id);
-      }
+    if (user && to) {
+      fetchSelectedUserProfile();
     }
-  }, [contacts, to]);
+  }, [user, to]);
+
+  // Rimuovo questo useEffect perché ora carico direttamente il profilo dell'utente selezionato
+  // useEffect(() => {
+  //   if (contacts.length > 0 && to) {
+  //     const found = contacts.find((c) => c.id === to);
+  //     if (found) {
+  //       setSelectedUser(found);
+  //       markMessagesAsRead(found.id);
+  //     }
+  //   }
+  // }, [contacts, to]);
 
   useEffect(() => {
     if (user && selectedUser) fetchMessages();
@@ -97,6 +105,30 @@ export default function ChatPage() {
     }
   }, [messages.length]); // Solo quando cambia il numero di messaggi, non il contenuto
 
+
+
+  const fetchSelectedUserProfile = async () => {
+    if (!to) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', to)
+        .single();
+      
+      if (!error && data) {
+        setSelectedUser(data);
+        // Carica i messaggi esistenti se ce ne sono
+        fetchMessages();
+      } else {
+        console.error('Errore nel caricamento del profilo:', error);
+      }
+    } catch (err) {
+      console.error('Errore imprevisto:', err);
+    }
+  };
+
   const fetchContacts = async () => {
     const { data, error } = await supabase.rpc('get_conversations', {
       current_user_id: user.id
@@ -105,6 +137,8 @@ export default function ChatPage() {
   };
 
   const fetchMessages = async () => {
+    if (!user || !selectedUser) return;
+    
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -138,6 +172,8 @@ export default function ChatPage() {
   };
 
   const markMessagesAsRead = async (senderId) => {
+    if (!user || !senderId) return;
+    
     console.log('Segno come letti i messaggi ricevuti da', senderId, 'per l\'utente', user?.id);
     console.log('user.id:', user?.id, typeof user?.id);
     console.log('senderId:', senderId, typeof senderId);
