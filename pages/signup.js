@@ -5,6 +5,7 @@ import Image from 'next/image';
 import AvatarUpload from '../components/AvatarUpload';
 import CityAutocomplete from '../components/CityAutocomplete';
 import Footer from '../components/Footer';
+import { sendEmail } from '../utils/emailService';
 
 export default function Signup() {
   const router = useRouter();
@@ -144,6 +145,56 @@ export default function Signup() {
       setError(profileError.message);
       setUploading(false);
       return;
+    }
+
+    // Invia email di benvenuto
+    try {
+      const welcomeEmailContent = {
+        to: email,
+        subject: 'Benvenuto su Connectiamo! 🎉',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #0f1e3c; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; font-size: 24px;">Connectiamo</h1>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
+              <h2 style="color: #0f1e3c; margin-bottom: 20px;">Benvenuto su Connectiamo!</h2>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                Ciao <strong>${nickname}</strong>,
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                Grazie per esserti registrato su Connectiamo! La tua registrazione è stata completata con successo.
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                <strong>I tuoi dati di accesso:</strong><br>
+                Email: ${email}<br>
+                Nickname: ${nickname}
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 30px;">
+                Inizia subito a fare network con professionisti o connector della tua zona!
+              </p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://connectiamo.com'}" 
+                   style="background-color: #0f1e3c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                  Inizia a Connetterti
+                </a>
+              </div>
+              <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                Se hai domande, non esitare a contattarci all'indirizzo info@connectiamo.com
+              </p>
+              <p style="color: #999; font-size: 10px; margin-top: 20px; text-align: center; line-height: 1.4;">
+                Se non ti sei iscritto su connectiamo.com e ritieni di aver ricevuto questo messaggio per errore contattaci su info@connectiamo.com per la rimozione.
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      await sendEmail(welcomeEmailContent);
+      console.log('Email di benvenuto inviata con successo');
+    } catch (emailError) {
+      console.error('Errore nell\'invio email di benvenuto:', emailError);
+      // Non blocchiamo la registrazione se l'email fallisce
     }
 
     setUploading(false);
