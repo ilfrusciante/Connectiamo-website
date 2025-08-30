@@ -31,6 +31,7 @@ export default function ComeFunziona() {
                 <li>Puoi cercare e farti trovare in base a ruolo, città, CAP e categoria.</li>
                 <li>La comunicazione avviene in chat privata e sotto nickname, garantendo riservatezza.</li>
                 <li>Non c'è scambio di denaro su Connectiamo: le parti decidono in autonomia la natura della loro collaborazione (referal reciproco, vantaggi economici o altre forme di accordo privato).</li>
+                <li>Una volta avviato il contatto, professionisti e connector sono liberi di proseguire comunicazione e accordi su qualsiasi canale: Connectiamo è solo strumento di ricerca e punto di incontro per sviluppare network.</li>
               </ul>
             </div>
 
