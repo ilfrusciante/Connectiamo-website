@@ -7,7 +7,7 @@ async function testProduzione() {
   console.log('🧪 Test API Cron Job in Produzione\n');
   
   // Sostituisci con l'URL reale della tua app in produzione
-  const productionUrl = 'https://connectiamo.vercel.app'; // CAMBIA QUESTO URL
+  const productionUrl = 'https://connectiamo-website.vercel.app'; // URL basato sul nome del progetto Vercel
   const cronSecret = 'connectiamo_cron_secret_2024';
   
   try {
@@ -68,7 +68,7 @@ async function testProduzione() {
 async function testUnauthorized() {
   console.log('\n🔒 Test accesso non autorizzato in produzione...');
   
-  const productionUrl = 'https://connectiamo.vercel.app'; // CAMBIA QUESTO URL
+  const productionUrl = 'https://connectiamo-website.vercel.app'; // URL basato sul nome del progetto Vercel
   
   try {
     const response = await fetch(`${productionUrl}/api/cron-check-messages`, {
