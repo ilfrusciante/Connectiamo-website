@@ -69,8 +69,24 @@ export default function Login() {
         return;
       }
 
-      // Genera un token temporaneo per il reset
+      // Genera un token temporaneo per il reset (sistema personalizzato)
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      // Salva il token nel database per verifica
+      const { error: tokenError } = await supabase
+        .from('password_reset_tokens')
+        .insert([
+          {
+            email: resetEmail,
+            token: resetToken,
+            expires_at: new Date(Date.now() + 3600000).toISOString() // 1 ora
+          }
+        ]);
+
+      if (tokenError) {
+        console.error('Errore salvataggio token:', tokenError);
+        // Continua comunque con l'invio email
+      }
 
       // Invia email personalizzata tramite il nostro SMTP
       const emailContent = {
