@@ -128,7 +128,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="logo flex items-center">
           <Image 
-            src="/logo_white.png" 
+            src="/Logo-grande.png" 
             alt="Connectiamo" 
             width={140} 
             height={40} 
