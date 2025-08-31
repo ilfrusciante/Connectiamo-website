@@ -297,19 +297,19 @@ export default async function handler(req, res) {
       
       const emailContent = {
         to: receiverProfile.email,
-        subject: `Hai ${messageCount} nuovo messaggio${messageCount > 1 ? 'i' : ''} su Connectiamo`,
+        subject: `Nuovi messaggi su Connectiamo - ${messageCount} messaggio${messageCount > 1 ? 'i' : ''} da leggere`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background-color: #0f1e3c; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
               <h1 style="margin: 0; font-size: 24px;">Connectiamo</h1>
             </div>
             <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
-              <h2 style="color: #0f1e3c; margin-bottom: 20px;">Nuovi messaggi</h2>
+              <h2 style="color: #0f1e3c; margin-bottom: 20px;">Nuovi messaggi per te</h2>
               <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
                 Ciao <strong>${receiverProfile.nickname || 'utente'}</strong>,
               </p>
               <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                Hai ricevuto <strong>${messageCount} nuovo messaggio${messageCount > 1 ? 'i' : ''}</strong> da ${senderNames.length > 1 ? 'diversi utenti' : senderNames[0]}.
+                Hai nuovi messaggi da leggere.
               </p>
               <p style="color: #333; line-height: 1.6; margin-bottom: 30px;">
                 Accedi alla tua area personale per leggere i messaggi:
@@ -325,6 +325,9 @@ export default async function handler(req, res) {
                 Questa email è stata inviata automaticamente. 
                 Puoi disattivare le notifiche email nelle impostazioni del tuo profilo.
               </p>
+              <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
+                Se non sei iscritto su connectiamo.com e ritieni di aver ricevuto questo messaggio per errore, contattaci su info@connectiamo.com per la rimozione.
+              </p>
               <p style="color: #999; font-size: 12px; text-align: center;">
                 Connectiamo - La piattaforma per connettere professionisti<br>
                 <strong>info@connectiamo.com</strong>
@@ -336,13 +339,15 @@ export default async function handler(req, res) {
 
 Ciao ${receiverProfile.nickname || 'utente'},
 
-Hai ricevuto ${messageCount} nuovo messaggio${messageCount > 1 ? 'i' : ''} da ${senderNames.length > 1 ? 'diversi utenti' : senderNames[0]}.
+Hai nuovi messaggi da leggere.
 
 Accedi alla tua area personale per leggere i messaggi:
 ${process.env.NEXT_PUBLIC_SITE_URL}/messages
 
 Questa email è stata inviata automaticamente. 
 Puoi disattivare le notifiche email nelle impostazioni del tuo profilo.
+
+Se non sei iscritto su connectiamo.com e ritieni di aver ricevuto questo messaggio per errore, contattaci su info@connectiamo.com per la rimozione.
 
 Connectiamo - La piattaforma per connettere professionisti
 info@connectiamo.com`
