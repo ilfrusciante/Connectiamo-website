@@ -4,5 +4,10 @@
       "path": "/api/cron-check-messages",
       "schedule": "* * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "pages/api/cron-check-messages.js": {
+      "maxDuration": 120
+    }
+  }
 } 
