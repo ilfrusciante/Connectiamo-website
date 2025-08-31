@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     
-    // 1. Trova tutti i messaggi non letti degli ultimi 48 ore
+    // 1. Trova tutti i messaggi non letti degli ultimi 2 giorni
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
@@ -25,10 +25,12 @@ export default async function handler(req, res) {
         sender_id,
         receiver_id,
         read_at,
-        profiles!messages_sender_id_fkey(nickname, email, notify_on_message)
+        sender:profiles!messages_sender_id_fkey(nickname),
+        receiver:profiles!messages_receiver_id_fkey(nickname, email, notify_on_message)
       `)
       .is('read_at', null)
       .gte('created_at', twoDaysAgo.toISOString())
+      .eq('receiver.notify_on_message', true)
       .order('created_at', { ascending: false });
 
     if (messagesError) {
@@ -55,27 +57,16 @@ export default async function handler(req, res) {
     for (const [receiverId, messages] of Object.entries(messagesByReceiver)) {
 
       
-      // Ottieni i dati del destinatario
-      const { data: receiverProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email, nickname, notify_on_message')
-        .eq('id', receiverId)
-        .single();
-
-      if (profileError || !receiverProfile) {
-        console.error(`Errore nel recupero profilo per ${receiverId}:`, profileError);
-        continue;
-      }
-
-
-
-      // Verifica se l'utente vuole ricevere notifiche email
-      if (!receiverProfile.notify_on_message) {
+      // Ottieni i dati del destinatario dal messaggio (già filtrato per notify_on_message = true)
+      const receiverProfile = messages[0].receiver;
+      
+      if (!receiverProfile) {
+        console.error(`Profilo destinatario non trovato per ${receiverId}`);
         continue;
       }
 
       // Prepara il contenuto dell'email
-      const senderNames = [...new Set(messages.map(m => m.profiles?.nickname || 'Utente anonimo'))];
+      const senderNames = [...new Set(messages.map(m => m.sender?.nickname || 'Utente anonimo'))];
       const messageCount = messages.length;
       
       const emailContent = {
