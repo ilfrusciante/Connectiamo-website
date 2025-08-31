@@ -14,6 +14,12 @@ export default async function handler(req, res) {
   
   // Test connessione Supabase
   console.log('🔍 Test connessione Supabase...');
+  console.log('🔑 Credenziali Supabase:', {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Presente' : '❌ Mancante',
+    serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Presente' : '❌ Mancante',
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Presente' : '❌ Mancante'
+  });
+  
   try {
     const { data: testData, error: testError } = await supabase
       .from('messages')
@@ -49,6 +55,20 @@ export default async function handler(req, res) {
     console.log('📊 Conteggio totale messaggi:', {
       count: totalCount,
       error: countError?.message || null
+    });
+    
+    // Test bypass RLS
+    console.log('🔍 Test bypass RLS...');
+    const { data: bypassData, error: bypassError } = await supabase
+      .from('messages')
+      .select('*')
+      .limit(1)
+      .abortSignal(new AbortController().signal);
+    
+    console.log('📊 Test bypass RLS:', {
+      success: !bypassError,
+      error: bypassError?.message || null,
+      data: bypassData?.length || 0
     });
     
   } catch (supabaseError) {
