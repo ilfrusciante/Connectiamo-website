@@ -236,6 +236,36 @@ export default async function handler(req, res) {
     console.log('📊 Messaggi non letti trovati tramite get_conversations:', allUnreadMessages.length);
     console.log('👥 Destinatari con messaggi non letti:', Object.keys(messagesByReceiver).length);
     
+    // VERIFICA DIRETTA: Controlla se ci sono realmente messaggi non letti nella tabella
+    console.log('🔍 VERIFICA DIRETTA: Query diretta alla tabella messages...');
+    
+    try {
+      const { data: directUnread, error: directError } = await supabase
+        .from('messages')
+        .select('id, receiver_id, created_at, read_at')
+        .is('read_at', null)
+        .gte('created_at', twoDaysAgo.toISOString());
+      
+      console.log('📊 VERIFICA DIRETTA - Messaggi non letti ultimi 2 giorni:', {
+        success: !directError,
+        error: directError?.message || null,
+        count: directUnread?.length || 0,
+        samples: directUnread?.slice(0, 3).map(m => ({
+          id: m.id,
+          receiver_id: m.receiver_id,
+          created_at: m.created_at,
+          read_at: m.read_at
+        }))
+      });
+      
+      if (directUnread && directUnread.length > 0) {
+        console.log('⚠️ DISCREPANZA: get_conversations dice 0, ma la tabella ha messaggi non letti!');
+        console.log('🔍 Questo spiega perché il badge funziona ma il cron no!');
+      }
+    } catch (directError) {
+      console.error('💥 Errore verifica diretta:', directError.message);
+    }
+    
     // Usa i messaggi simulati per il resto della logica
     const unreadMessages = allUnreadMessages;
     const receiverProfiles = allProfiles;
