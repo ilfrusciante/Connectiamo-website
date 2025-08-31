@@ -16,6 +16,7 @@ export default async function handler(req, res) {
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
+    // Prima ottieni i messaggi non letti degli ultimi 2 giorni
     const { data: unreadMessages, error: messagesError } = await supabase
       .from('messages')
       .select(`
@@ -24,14 +25,36 @@ export default async function handler(req, res) {
         created_at,
         sender_id,
         receiver_id,
-        read_at,
-        sender:profiles!messages_sender_id_fkey(nickname),
-        receiver:profiles!messages_receiver_id_fkey(nickname, email, notify_on_message)
+        read_at
       `)
       .is('read_at', null)
       .gte('created_at', twoDaysAgo.toISOString())
-      .eq('receiver.notify_on_message', true)
       .order('created_at', { ascending: false });
+
+    if (messagesError) {
+      console.error('Errore nel recupero messaggi:', messagesError);
+      return res.status(500).json({ error: 'Errore nel recupero messaggi' });
+    }
+
+    // Poi ottieni i profili dei destinatari con notifiche abilitate
+    if (unreadMessages && unreadMessages.length > 0) {
+      const receiverIds = [...new Set(unreadMessages.map(m => m.receiver_id))];
+      
+      const { data: receiverProfiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, nickname, email, notify_on_message')
+        .in('id', receiverIds)
+        .eq('notify_on_message', true);
+
+      if (profilesError) {
+        console.error('Errore nel recupero profili:', profilesError);
+        return res.status(500).json({ error: 'Errore nel recupero profili' });
+      }
+
+      // Filtra solo i messaggi per destinatari con notifiche abilitate
+      const validReceiverIds = receiverProfiles.map(p => p.id);
+      unreadMessages = unreadMessages.filter(m => validReceiverIds.includes(m.receiver_id));
+    }
 
     if (messagesError) {
       console.error('Errore nel recupero messaggi:', messagesError);
@@ -57,8 +80,8 @@ export default async function handler(req, res) {
     for (const [receiverId, messages] of Object.entries(messagesByReceiver)) {
 
       
-      // Ottieni i dati del destinatario dal messaggio (già filtrato per notify_on_message = true)
-      const receiverProfile = messages[0].receiver;
+      // Ottieni i dati del destinatario dai profili già filtrati
+      const receiverProfile = receiverProfiles.find(p => p.id === receiverId);
       
       if (!receiverProfile) {
         console.error(`Profilo destinatario non trovato per ${receiverId}`);
@@ -66,7 +89,7 @@ export default async function handler(req, res) {
       }
 
       // Prepara il contenuto dell'email
-      const senderNames = [...new Set(messages.map(m => m.sender?.nickname || 'Utente anonimo'))];
+      const senderNames = [...new Set(messages.map(m => 'Utente anonimo'))]; // Per ora usiamo nome generico
       const messageCount = messages.length;
       
       const emailContent = {
