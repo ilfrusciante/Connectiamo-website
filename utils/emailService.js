@@ -3,8 +3,14 @@
 
 export async function sendEmail(emailContent) {
   try {
+    // Usa l'URL completo del sito invece dell'URL relativo
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://connectiamo-website.vercel.app';
+    const emailUrl = `${siteUrl}/api/send-email`;
+    
+    console.log('📧 Invio email tramite:', emailUrl);
+    
     // Usa l'API di Supabase per inviare email tramite SMTP
-    const response = await fetch('/api/send-email', {
+    const response = await fetch(emailUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
