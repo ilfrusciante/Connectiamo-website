@@ -193,8 +193,9 @@ export default async function handler(req, res) {
             if (!conv.unread_count || conv.unread_count === 0) return false;
             
             // Verifica se l'ultimo messaggio è degli ultimi 2 giorni
-            if (conv.last_message_date) {
-              const lastMessageDate = new Date(conv.last_message_date);
+            // Usa last_message_time invece di last_message_date
+            if (conv.last_message_time) {
+              const lastMessageDate = new Date(conv.last_message_time);
               const twoDaysAgo = new Date();
               twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
               return lastMessageDate >= twoDaysAgo;
@@ -216,7 +217,7 @@ export default async function handler(req, res) {
             const userUnreadMessages = recentUnread.map(conv => ({
               id: `simulated_${profile.id}_${conv.id}`,
               content: conv.last_message || 'Messaggio non letto',
-              created_at: conv.last_message_date || new Date().toISOString(),
+              created_at: conv.last_message_time || new Date().toISOString(), // Usa last_message_time
               sender_id: conv.other_user_id || 'unknown',
               receiver_id: profile.id,
               read_at: null
