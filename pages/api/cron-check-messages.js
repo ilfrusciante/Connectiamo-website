@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
     // Prima ottieni i messaggi non letti degli ultimi 2 giorni
-    const { data: unreadMessages, error: messagesError } = await supabase
+    let { data: unreadMessages, error: messagesError } = await supabase
       .from('messages')
       .select(`
         id,
