@@ -43,6 +43,52 @@ export default async function handler(req, res) {
     console.log('📅 Calcolo data 2 giorni fa:', twoDaysAgo.toISOString());
     console.log('📅 Data con margine (3 giorni fa):', twoDaysAgoWithMargin.toISOString());
     
+    // Test filtri separatamente
+    console.log('🔍 Test 1: Query senza filtri...');
+    let { data: allMessages, error: allError } = await supabase
+      .from('messages')
+      .select('id, created_at, read_at')
+      .limit(10);
+    
+    console.log('📊 Test 1 - Tutti i messaggi (max 10):', {
+      count: allMessages?.length || 0,
+      error: allError?.message || null,
+      samples: allMessages?.slice(0, 3).map(m => ({
+        id: m.id,
+        created_at: m.created_at,
+        read_at: m.read_at
+      }))
+    });
+    
+    console.log('🔍 Test 2: Query solo messaggi non letti...');
+    let { data: unreadOnly, error: unreadError } = await supabase
+      .from('messages')
+      .select('id, created_at, read_at')
+      .is('read_at', null)
+      .limit(10);
+    
+    console.log('📊 Test 2 - Solo messaggi non letti:', {
+      count: unreadOnly?.length || 0,
+      error: unreadError?.message || null
+    });
+    
+    console.log('🔍 Test 3: Query con filtro data...');
+    let { data: recentMessages, error: recentError } = await supabase
+      .from('messages')
+      .select('id, created_at, read_at')
+      .gte('created_at', twoDaysAgoWithMargin.toISOString())
+      .limit(10);
+    
+    console.log('📊 Test 3 - Messaggi recenti (ultimi 3 giorni):', {
+      count: recentMessages?.length || 0,
+      error: recentError?.message || null,
+      samples: recentMessages?.slice(0, 3).map(m => ({
+        id: m.id,
+        created_at: m.created_at,
+        read_at: m.read_at
+      }))
+    });
+    
     // Prima ottieni i messaggi non letti degli ultimi 2 giorni
     console.log('🔍 Query messaggi non letti...');
     let { data: unreadMessages, error: messagesError } = await supabase
