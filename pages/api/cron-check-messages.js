@@ -25,6 +25,32 @@ export default async function handler(req, res) {
       error: testError?.message || null,
       data: testData?.length || 0
     });
+    
+    // Test schema tabella
+    console.log('🔍 Test schema tabella messages...');
+    const { data: schemaData, error: schemaError } = await supabase
+      .from('messages')
+      .select('*')
+      .limit(1);
+    
+    console.log('📊 Test schema tabella:', {
+      success: !schemaError,
+      error: schemaError?.message || null,
+      columns: schemaData && schemaData.length > 0 ? Object.keys(schemaData[0]) : [],
+      sample: schemaData && schemaData.length > 0 ? schemaData[0] : null
+    });
+    
+    // Test conteggio totale
+    console.log('🔍 Test conteggio totale messaggi...');
+    const { count: totalCount, error: countError } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true });
+    
+    console.log('📊 Conteggio totale messaggi:', {
+      count: totalCount,
+      error: countError?.message || null
+    });
+    
   } catch (supabaseError) {
     console.error('💥 Errore connessione Supabase:', supabaseError.message);
     return res.status(500).json({ error: 'Errore connessione database' });
