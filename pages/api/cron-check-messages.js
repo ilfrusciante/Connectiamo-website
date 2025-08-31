@@ -15,10 +15,15 @@ export default async function handler(req, res) {
   try {
     
     // 1. Trova tutti i messaggi non letti degli ultimi 2 giorni
+    // Usa la stessa logica del database: NOW() - INTERVAL '2 days'
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
+    // Aggiungi un margine di sicurezza per evitare problemi di timezone
+    const twoDaysAgoWithMargin = new Date(twoDaysAgo.getTime() - (24 * 60 * 60 * 1000)); // 1 giorno in più di margine
+    
     console.log('📅 Calcolo data 2 giorni fa:', twoDaysAgo.toISOString());
+    console.log('📅 Data con margine (3 giorni fa):', twoDaysAgoWithMargin.toISOString());
     
     // Prima ottieni i messaggi non letti degli ultimi 2 giorni
     console.log('🔍 Query messaggi non letti...');
@@ -33,7 +38,7 @@ export default async function handler(req, res) {
         read_at
       `)
       .is('read_at', null)
-      .gte('created_at', twoDaysAgo.toISOString())
+      .gte('created_at', twoDaysAgoWithMargin.toISOString()) // Usa il margine per essere sicuri
       .order('created_at', { ascending: false });
     
     console.log('📊 Risultati query messaggi:', {
