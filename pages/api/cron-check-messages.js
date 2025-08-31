@@ -3,6 +3,8 @@ import { sendEmail } from '../../utils/emailService';
 
 export default async function handler(req, res) {
   
+  console.log('🚀 Cron job avviato:', new Date().toISOString());
+  
   // Verifica che la richiesta sia autorizzata (cron job di Vercel)
   const authHeader = req.headers.authorization;
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -16,7 +18,10 @@ export default async function handler(req, res) {
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
+    console.log('📅 Calcolo data 2 giorni fa:', twoDaysAgo.toISOString());
+    
     // Prima ottieni i messaggi non letti degli ultimi 2 giorni
+    console.log('🔍 Query messaggi non letti...');
     let { data: unreadMessages, error: messagesError } = await supabase
       .from('messages')
       .select(`
@@ -30,6 +35,11 @@ export default async function handler(req, res) {
       .is('read_at', null)
       .gte('created_at', twoDaysAgo.toISOString())
       .order('created_at', { ascending: false });
+    
+    console.log('📊 Risultati query messaggi:', {
+      count: unreadMessages?.length || 0,
+      error: messagesError?.message || null
+    });
 
     if (messagesError) {
       console.error('Errore nel recupero messaggi:', messagesError);
@@ -39,7 +49,9 @@ export default async function handler(req, res) {
     // Poi ottieni i profili dei destinatari con notifiche abilitate
     if (unreadMessages && unreadMessages.length > 0) {
       const receiverIds = [...new Set(unreadMessages.map(m => m.receiver_id))];
+      console.log('👥 ID destinatari trovati:', receiverIds);
       
+      console.log('🔍 Query profili destinatari...');
       const { data: receiverProfiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, nickname, email, notify_on_message')
@@ -51,9 +63,18 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Errore nel recupero profili' });
       }
 
+      console.log('📊 Profili destinatari trovati:', {
+        count: receiverProfiles?.length || 0,
+        profiles: receiverProfiles?.map(p => ({ id: p.id, email: p.email, notify: p.notify_on_message }))
+      });
+
       // Filtra solo i messaggi per destinatari con notifiche abilitate
       const validReceiverIds = receiverProfiles.map(p => p.id);
       unreadMessages = unreadMessages.filter(m => validReceiverIds.includes(m.receiver_id));
+      
+      console.log('📬 Messaggi filtrati per destinatari validi:', unreadMessages.length);
+    } else {
+      console.log('📭 Nessun messaggio non letto trovato negli ultimi 2 giorni');
     }
 
     if (messagesError) {
@@ -184,6 +205,13 @@ info@connectiamo.com`
 
 
 
+    console.log('✅ Cron job completato con successo');
+    console.log('📊 Risultati finali:', {
+      destinatariProcessati: Object.keys(messagesByReceiver).length,
+      notificheInviate: notificationResults.length,
+      messaggiTotali: unreadMessages?.length || 0
+    });
+    
     return res.status(200).json({
       success: true,
       message: `Processati ${Object.keys(messagesByReceiver).length} destinatari`,
