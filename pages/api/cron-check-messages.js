@@ -174,8 +174,17 @@ export default async function handler(req, res) {
     
     for (const profile of allProfiles) {
       try {
+        console.log(`🔍 Test get_conversations per utente: ${profile.nickname} (${profile.id})`);
+        
         const { data: conversations, error: convError } = await supabase.rpc('get_conversations', {
           current_user_id: profile.id,
+        });
+        
+        console.log(`📊 Risultato get_conversations per ${profile.nickname}:`, {
+          success: !convError,
+          error: convError?.message || null,
+          conversationsCount: conversations?.length || 0,
+          conversations: conversations?.slice(0, 3) || [] // Mostra prime 3 conversazioni
         });
         
         if (!convError && conversations) {
@@ -193,6 +202,13 @@ export default async function handler(req, res) {
             return false;
           });
           
+          console.log(`🔍 Filtro messaggi recenti per ${profile.nickname}:`, {
+            totalConversations: conversations.length,
+            withUnreadCount: conversations.filter(c => c.unread_count > 0).length,
+            withRecentDate: conversations.filter(c => c.last_message_date).length,
+            recentUnreadCount: recentUnread.length
+          });
+          
           if (recentUnread.length > 0) {
             console.log(`👤 Utente ${profile.nickname}: ${recentUnread.length} conversazioni con messaggi recenti non letti`);
             
@@ -208,10 +224,12 @@ export default async function handler(req, res) {
             
             allUnreadMessages.push(...userUnreadMessages);
             messagesByReceiver[profile.id] = userUnreadMessages;
+          } else {
+            console.log(`📭 Utente ${profile.nickname}: Nessuna conversazione con messaggi recenti non letti`);
           }
         }
       } catch (error) {
-        console.error(`Errore per utente ${profile.id}:`, error.message);
+        console.error(`💥 Errore per utente ${profile.id}:`, error.message);
       }
     }
     
