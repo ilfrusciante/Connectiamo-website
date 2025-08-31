@@ -84,7 +84,7 @@ export default function Home() {
         {/* CHI SIAMO */}
         <section className="py-16 px-6 md:px-20 bg-white">
           <div className="max-w-5xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Chi siamo</h2>
+            <h2 className="text-3xl font-bold">Cos'è Connectiamo?</h2>
             <p className="text-gray-800" style={{ fontSize: '1.4rem', lineHeight: '1.4rem' }}>
               <strong>Connectiamo</strong> nasce per unire chi cerca nuove occasioni di crescita con chi può offrirle.
             </p>
