@@ -11,6 +11,24 @@ export default async function handler(req, res) {
     console.error('Cron job non autorizzato');
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  
+  // Test connessione Supabase
+  console.log('🔍 Test connessione Supabase...');
+  try {
+    const { data: testData, error: testError } = await supabase
+      .from('messages')
+      .select('count')
+      .limit(1);
+    
+    console.log('📊 Test connessione Supabase:', {
+      success: !testError,
+      error: testError?.message || null,
+      data: testData?.length || 0
+    });
+  } catch (supabaseError) {
+    console.error('💥 Errore connessione Supabase:', supabaseError.message);
+    return res.status(500).json({ error: 'Errore connessione database' });
+  }
 
   try {
     
