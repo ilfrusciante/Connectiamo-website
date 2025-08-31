@@ -152,78 +152,79 @@ export default async function handler(req, res) {
       }))
     });
     
-    // Prima ottieni i messaggi non letti degli ultimi 2 giorni
-    console.log('🔍 Query messaggi non letti...');
-    let { data: unreadMessages, error: messagesError } = await supabase
-      .from('messages')
-      .select(`
-        id,
-        content,
-        created_at,
-        sender_id,
-        receiver_id,
-        read_at
-      `)
-      .is('read_at', null)
-      .gte('created_at', twoDaysAgoWithMargin.toISOString()) // Usa il margine per essere sicuri
-      .order('created_at', { ascending: false });
+    // Usa la stessa logica del badge nella navbar - funzione RPC get_conversations
+    console.log('🔍 Query usando get_conversations (stessa logica del badge)...');
     
-    console.log('📊 Risultati query messaggi:', {
-      count: unreadMessages?.length || 0,
-      error: messagesError?.message || null
-    });
-
-    if (messagesError) {
-      console.error('Errore nel recupero messaggi:', messagesError);
-      return res.status(500).json({ error: 'Errore nel recupero messaggi' });
+    // Prima ottieni tutti gli utenti con profili
+    const { data: allProfiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, nickname, email, notify_on_message')
+      .eq('notify_on_message', true);
+    
+    if (profilesError) {
+      console.error('Errore nel recupero profili:', profilesError);
+      return res.status(500).json({ error: 'Errore nel recupero profili' });
     }
-
-    // Poi ottieni i profili dei destinatari con notifiche abilitate
-    if (unreadMessages && unreadMessages.length > 0) {
-      const receiverIds = [...new Set(unreadMessages.map(m => m.receiver_id))];
-      console.log('👥 ID destinatari trovati:', receiverIds);
-      
-      console.log('🔍 Query profili destinatari...');
-      const { data: receiverProfiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, nickname, email, notify_on_message')
-        .in('id', receiverIds)
-        .eq('notify_on_message', true);
-
-      if (profilesError) {
-        console.error('Errore nel recupero profili:', profilesError);
-        return res.status(500).json({ error: 'Errore nel recupero profili' });
-      }
-
-      console.log('📊 Profili destinatari trovati:', {
-        count: receiverProfiles?.length || 0,
-        profiles: receiverProfiles?.map(p => ({ id: p.id, email: p.email, notify: p.notify_on_message }))
-      });
-
-      // Filtra solo i messaggi per destinatari con notifiche abilitate
-      const validReceiverIds = receiverProfiles.map(p => p.id);
-      unreadMessages = unreadMessages.filter(m => validReceiverIds.includes(m.receiver_id));
-      
-      console.log('📬 Messaggi filtrati per destinatari validi:', unreadMessages.length);
-    } else {
-      console.log('📭 Nessun messaggio non letto trovato negli ultimi 2 giorni');
-    }
-
-    if (messagesError) {
-      console.error('Errore nel recupero messaggi:', messagesError);
-      return res.status(500).json({ error: 'Errore nel recupero messaggi' });
-    }
-
-
-
-    // 2. Raggruppa i messaggi per destinatario
+    
+    console.log('📊 Profili con notifiche abilitate:', allProfiles?.length || 0);
+    
+    // Per ogni utente, usa get_conversations per ottenere i messaggi non letti
+    const allUnreadMessages = [];
     const messagesByReceiver = {};
-    unreadMessages?.forEach(message => {
-      if (!messagesByReceiver[message.receiver_id]) {
-        messagesByReceiver[message.receiver_id] = [];
+    
+    for (const profile of allProfiles) {
+      try {
+        const { data: conversations, error: convError } = await supabase.rpc('get_conversations', {
+          current_user_id: profile.id,
+        });
+        
+        if (!convError && conversations) {
+          // Filtra solo conversazioni con messaggi non letti degli ultimi 2 giorni
+          const recentUnread = conversations.filter(conv => {
+            if (!conv.unread_count || conv.unread_count === 0) return false;
+            
+            // Verifica se l'ultimo messaggio è degli ultimi 2 giorni
+            if (conv.last_message_date) {
+              const lastMessageDate = new Date(conv.last_message_date);
+              const twoDaysAgo = new Date();
+              twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+              return lastMessageDate >= twoDaysAgo;
+            }
+            return false;
+          });
+          
+          if (recentUnread.length > 0) {
+            console.log(`👤 Utente ${profile.nickname}: ${recentUnread.length} conversazioni con messaggi recenti non letti`);
+            
+            // Simula i messaggi non letti per questo utente
+            const userUnreadMessages = recentUnread.map(conv => ({
+              id: `simulated_${profile.id}_${conv.id}`,
+              content: conv.last_message || 'Messaggio non letto',
+              created_at: conv.last_message_date || new Date().toISOString(),
+              sender_id: conv.other_user_id || 'unknown',
+              receiver_id: profile.id,
+              read_at: null
+            }));
+            
+            allUnreadMessages.push(...userUnreadMessages);
+            messagesByReceiver[profile.id] = userUnreadMessages;
+          }
+        }
+      } catch (error) {
+        console.error(`Errore per utente ${profile.id}:`, error.message);
       }
-      messagesByReceiver[message.receiver_id].push(message);
-    });
+    }
+    
+    console.log('📊 Messaggi non letti trovati tramite get_conversations:', allUnreadMessages.length);
+    console.log('👥 Destinatari con messaggi non letti:', Object.keys(messagesByReceiver).length);
+    
+    // Usa i messaggi simulati per il resto della logica
+    const unreadMessages = allUnreadMessages;
+    const receiverProfiles = allProfiles;
+
+
+
+    // I messaggi sono già raggruppati per destinatario da get_conversations
 
 
 
