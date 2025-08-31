@@ -20,6 +20,23 @@ export default async function handler(req, res) {
     anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Presente' : '❌ Mancante'
   });
   
+  console.log('🌐 URL Supabase:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+  
+  // Test database e schema
+  console.log('🔍 Test database e schema...');
+  try {
+    const { data: dbInfo, error: dbError } = await supabase
+      .rpc('version');
+    
+    console.log('📊 Info database:', {
+      success: !dbError,
+      error: dbError?.message || null,
+      version: dbInfo
+    });
+  } catch (dbError) {
+    console.log('📊 Info database: Errore nel recupero versione');
+  }
+  
   try {
     const { data: testData, error: testError } = await supabase
       .from('messages')
