@@ -75,3 +75,4 @@ async function runDebugTest() {
 }
 
 runDebugTest();
+

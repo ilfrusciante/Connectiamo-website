@@ -17,7 +17,7 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
   }, []);
 
   return (
-    <div className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
+    <div id="search-bar" className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
       <select
         value={role}
         onChange={e => setRole(e.target.value)}
@@ -64,11 +64,10 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
         <option value="">Categoria</option>
         <option value="Edilizia">Edilizia</option>
         <option value="Benessere">Benessere</option>
-        <option value="Tecnologie">Tecnologie</option>
         <option value="Servizi personali">Servizi personali</option>
         <option value="Servizi aziendali">Servizi aziendali</option>
         <option value="Ristorazione">Ristorazione</option>
-        <option value="Intrattenimento">Intrattenimento</option>
+        <option value="Turismo">Turismo</option>
         <option value="Altro">Altro</option>
       </select>
       <button
