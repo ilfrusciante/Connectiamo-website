@@ -245,7 +245,7 @@ export default function Signup() {
             <option value="">Seleziona ruolo</option>
             <option value="Cerco clienti">Cerco clienti</option>
             <option value="Procuro clienti">Procuro clienti</option>
-            <option value="Collaborazione">Collaborazione (Cerco/Procuro)</option>
+            <option value="Collaborazione">Collaborazione(Cerco/Procuro)</option>
           </select>
 
           <div className="flex space-x-4">
