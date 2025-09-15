@@ -28,8 +28,9 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
         }}
       >
         <option value="">Ruolo</option>
-        <option value="Professionista">Professionista</option>
-        <option value="Connector">Connector</option>
+        <option value="Cerco clienti">Cerco clienti</option>
+        <option value="Procuro clienti">Procuro clienti</option>
+        <option value="Collaborazione">Collaborazione (Cerco/Procuro)</option>
       </select>
       <select
         value={city}
