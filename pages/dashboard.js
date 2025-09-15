@@ -275,8 +275,9 @@ export default function Dashboard() {
             }}
           >
             <option value="">Seleziona ruolo</option>
-            <option value="Connector">Connector</option>
-            <option value="Professionista">Professionista</option>
+            <option value="Cerco clienti">Cerco clienti</option>
+            <option value="Procuro clienti">Procuro clienti</option>
+            <option value="Collaborazione">Collaborazione (Cerco/Procuro)</option>
           </select>
         </div>
         <div>
