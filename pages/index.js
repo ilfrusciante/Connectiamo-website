@@ -105,7 +105,7 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base">Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.</p>
+                <p className="text-gray-600 text-base mb-4">Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
