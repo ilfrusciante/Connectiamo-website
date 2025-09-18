@@ -106,7 +106,7 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2">
+                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
                   Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.
                 </p>
               </div>
@@ -115,7 +115,7 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">2 Scopri nuove opportunità</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2">
+                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
                   Esplora tra i profili e individua i contatti utili. Trova le offerte giuste per far crescere la tua attività.
                 </p>
               </div>
@@ -124,7 +124,7 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2">
+                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
                   Quando trovi il contatto giusto, gestisci tutto in modo semplice e riservato direttamente dalla piattaforma.
                 </p>
               </div>
