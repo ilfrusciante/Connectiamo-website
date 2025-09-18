@@ -111,7 +111,7 @@ export default function Home() {
               <div className="bg-white p-6 rounded-xl shadow text-center">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Scopri nuove opportunità</h3>
-                <p className="text-gray-600 text-base">Cerca persone, settori e contatti utili alla tua crescita</p>
+                <p className="text-gray-600 text-base">Esplora tra i profili e individua i contatti utili. trova le offerte giuste per far crescere la tua attività.</p>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow text-center">
