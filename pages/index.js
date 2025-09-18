@@ -103,28 +103,34 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
               {/* Card 1 */}
-              <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
-                <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col justify-between">
+                <div>
+                  <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">1 Registrati</h3>
+                </div>
+                <p className="text-gray-600 text-base pb-2">
                   Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.
                 </p>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
-                <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">2 Scopri nuove opportunità</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col justify-between">
+                <div>
+                  <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">2 Scopri nuove opportunità</h3>
+                </div>
+                <p className="text-gray-600 text-base pb-2">
                   Esplora tra i profili e individua i contatti utili. Trova le offerte giuste per far crescere la tua attività.
                 </p>
               </div>
 
               {/* Card 3 */}
-              <div className="bg-white p-6 rounded-xl shadow text-center flex flex-col">
-                <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
-                <p className="text-gray-600 text-base mt-auto pb-2 min-h-[80px]">
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col justify-between">
+                <div>
+                  <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
+                </div>
+                <p className="text-gray-600 text-base pb-2">
                   Quando trovi il contatto giusto, gestisci tutto in modo semplice e riservato direttamente dalla piattaforma.
                 </p>
               </div>
