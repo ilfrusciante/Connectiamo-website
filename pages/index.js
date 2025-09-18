@@ -101,23 +101,32 @@ export default function Home() {
               Connettersi è facile!
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-xl shadow text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+              {/* Card 1 */}
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col">
                 <Image src="/images/step1-registrati.png" alt="Registrati" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">1 Registrati</h3>
-                <p className="text-gray-600 text-base mb-4">Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.</p>
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">1 Registrati</h3>
+                <p className="text-gray-600 text-base">
+                  Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.
+                </p>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow text-center">
+              {/* Card 2 */}
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col">
                 <Image src="/images/step2-trova.png" alt="Trova contatti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">2 Scopri nuove opportunità</h3>
-                <p className="text-gray-600 text-base">Esplora tra i profili e individua i contatti utili. trova le offerte giuste per far crescere la tua attività.</p>
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">2 Scopri nuove opportunità</h3>
+                <p className="text-gray-600 text-base">
+                  Esplora tra i profili e individua i contatti utili. Trova le offerte giuste per far crescere la tua attività.
+                </p>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow text-center">
+              {/* Card 3 */}
+              <div className="bg-white p-6 rounded-xl shadow text-center h-full flex flex-col">
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">3 Avvia la collaborazione</h3>
-                <p className="text-gray-600 text-base">Gestisci tutto in privato con la chat privata</p>
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
+                <p className="text-gray-600 text-base">
+                  Gestisci tutto in privato con la chat privata
+                </p>
               </div>
             </div>
           </div>
