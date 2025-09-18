@@ -131,7 +131,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
                 </div>
                 <p className="text-gray-600 text-base pb-2 min-h-[120px]">
-                  Quando trovi il contatto giusto, gestisci tutto in modo semplice e riservato direttamente dalla piattaforma.
+                  Quando trovi il contatto giusto, gestisci tutto in modo semplice e riservato sulla piattaforma.
                 </p>
               </div>
             </div>
