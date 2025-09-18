@@ -125,7 +125,7 @@ export default function Home() {
                 <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
                 <p className="text-gray-600 text-base mt-auto pb-2">
-                  Gestisci tutto in privato con la chat privata
+                  Quando trovi il contatto giusto, gestisci tutto in modo semplice e riservato direttamente dalla piattaforma.
                 </p>
               </div>
             </div>
