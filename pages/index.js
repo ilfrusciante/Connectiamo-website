@@ -1,4 +1,4 @@
-ggimport Head from 'next/head';
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -130,7 +130,8 @@ export default function Home() {
                   <Image src="/images/step3-connetti.png" alt="Connettiti" width={64} height={64} className="mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">3 Avvia la collaborazione</h3>
                 </div>
-                <p className="text-gray-600 text-base pb-2 min-h-[120px]"Trova il contatto giusto e gestisci tutto in modo semplice e riservato sulla piattaforma.
+                <p className="text-gray-600 text-base pb-2 min-h-[120px]">
+                  Trova il contatto giusto e gestisci tutto in modo semplice e riservato direttamente dalla piattaforma.
                 </p>
               </div>
             </div>
