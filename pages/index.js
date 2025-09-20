@@ -109,7 +109,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">1 Registrati</h3>
                 </div>
                 <p className="text-gray-600 text-base pb-2 min-h-[120px]">
-                  Crea il tuo profilo scegliendo se cercare clienti, procurar­ne ad altri o fare entrambe le cose.
+                  Cerca clienti, procurarne ad altri o fai entrambe le cose.
                 </p>
               </div>
 
