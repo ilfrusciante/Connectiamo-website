@@ -120,7 +120,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">2 Scopri nuove opportunità</h3>
                 </div>
                 <p className="text-gray-600 text-base pb-2 min-h-[120px]">
-                  Individua i contatti utili a fare crescere la tua attività.
+                  Individua i contatti utili a far crescere la tua attività.
                 </p>
               </div>
 
