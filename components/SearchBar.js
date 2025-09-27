@@ -16,22 +16,21 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
     fetchCities();
   }, []);
 
+  // Imposta il ruolo fisso su "Collaborazione"
+  useEffect(() => {
+    setRole('Collaborazione');
+  }, [setRole]);
+
   return (
     <div id="search-bar" className="bg-yellow-400 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
-      <select
-        value={role}
-        onChange={e => setRole(e.target.value)}
-        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300 appearance-none bg-white bg-no-repeat bg-right pr-10"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-          backgroundSize: '1.5em 1.5em'
-        }}
-      >
-        <option value="">Ruolo</option>
-        <option value="Cerco clienti">Cerco clienti</option>
-        <option value="Procuro clienti">Procuro clienti</option>
-        <option value="Collaborazione">Collaborazione (Cerco/Procuro)</option>
-      </select>
+      {/* Casella ruolo NON cliccabile */}
+      <input
+        type="text"
+        value="Collaborazione"
+        disabled
+        className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full bg-gray-100 cursor-not-allowed"
+      />
+
       <select
         value={city}
         onChange={e => setCity(e.target.value)}
@@ -46,6 +45,7 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
           <option key={city} value={city}>{city}</option>
         ))}
       </select>
+
       <input
         type="text"
         value={cap}
@@ -53,6 +53,7 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
         placeholder="CAP"
         className="flex-1 px-3 py-2 rounded-md border text-gray-800 w-full focus:ring focus:ring-yellow-300"
       />
+
       <select
         value={category}
         onChange={e => setCategory(e.target.value)}
@@ -71,6 +72,7 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
         <option value="Turismo">Turismo</option>
         <option value="Altro">Altro</option>
       </select>
+
       <button
         onClick={onSearch}
         disabled={!role || (!city && !cap)}
@@ -85,5 +87,3 @@ export default function SearchBar({ role, setRole, city, setCity, category, setC
     </div>
   );
 }
-
-
