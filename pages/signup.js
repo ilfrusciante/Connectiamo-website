@@ -1,4 +1,4 @@
-// ... import restanti
+// signup.js
 import { useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { useRouter } from 'next/router';
@@ -156,7 +156,42 @@ export default function Signup() {
       const welcomeEmailContent = {
         to: email,
         subject: 'Benvenuto su Connectiamo! 🎉',
-        html: `...` // email già presente nel tuo file originale con corpo HTML completo
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #0f1e3c; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; font-size: 24px;">Connectiamo</h1>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
+              <h2 style="color: #0f1e3c; margin-bottom: 20px;">Benvenuto su Connectiamo!</h2>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                Ciao <strong>${nickname}</strong>,
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                Grazie per esserti registrato su Connectiamo! La tua registrazione è stata completata con successo.
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+                <strong>I tuoi dati di accesso:</strong><br>
+                Email: ${email}<br>
+                Nickname: ${nickname}
+              </p>
+              <p style="color: #333; line-height: 1.6; margin-bottom: 30px;">
+                Inizia subito a fare network con altri utenti della tua zona!
+              </p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://connectiamo.com"
+                  style="background-color: #0f1e3c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                  Inizia a Connetterti
+                </a>
+              </div>
+              <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                Se hai domande, scrivici a info@connectiamo.com
+              </p>
+              <p style="color: #999; font-size: 10px; margin-top: 20px; text-align: center; line-height: 1.4;">
+                Se non ti sei iscritto su connectiamo.com e ritieni di aver ricevuto questo messaggio per errore, contattaci per la rimozione.
+              </p>
+            </div>
+          </div>
+        `
       };
 
       await sendEmail(welcomeEmailContent);
@@ -196,7 +231,15 @@ export default function Signup() {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
 
-            {/* select del ruolo rimossa */}
+            <div>
+              <label className="block mb-1 text-sm">Ruolo</label>
+              <input
+                type="text"
+                value="Collaborazione"
+                disabled
+                className="w-full px-3 py-2 rounded bg-gray-700 text-white opacity-60 cursor-not-allowed"
+              />
+            </div>
 
             <div className="flex space-x-4">
               <div className="w-2/3">
@@ -237,7 +280,10 @@ export default function Signup() {
             <label className="flex items-center space-x-2 text-sm text-gray-200">
               <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} required />
               <span>
-                Accetto i <a href="/termini-e-condizioni" className="text-yellow-400 underline">termini e condizioni</a>
+                Accetto i{' '}
+                <a href="/termini-e-condizioni" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 underline">
+                  termini e condizioni
+                </a>
               </span>
             </label>
 
