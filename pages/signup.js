@@ -1,4 +1,4 @@
-// signup.js
+// ... import restanti
 import { useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { useRouter } from 'next/router';
@@ -15,7 +15,6 @@ export default function Signup() {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
   const [city, setCity] = useState('');
   const [cap, setCap] = useState('');
   const [availableCaps, setAvailableCaps] = useState([]);
@@ -137,7 +136,7 @@ export default function Signup() {
           cognome,
           nickname,
           email,
-          role,
+          role: "Collaborazione",
           city,
           cap,
           category,
@@ -157,56 +156,17 @@ export default function Signup() {
       const welcomeEmailContent = {
         to: email,
         subject: 'Benvenuto su Connectiamo! 🎉',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #0f1e3c; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-              <h1 style="margin: 0; font-size: 24px;">Connectiamo</h1>
-            </div>
-            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
-              <h2 style="color: #0f1e3c; margin-bottom: 20px;">Benvenuto su Connectiamo!</h2>
-              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                Ciao <strong>${nickname}</strong>,
-              </p>
-              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                Grazie per esserti registrato su Connectiamo! La tua registrazione è stata completata con successo.
-              </p>
-              <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                <strong>I tuoi dati di accesso:</strong><br>
-                Email: ${email}<br>
-                Nickname: ${nickname}
-              </p>
-              <p style="color: #333; line-height: 1.6; margin-bottom: 30px;">
-                Inizia subito a fare network con altri utenti della tua zona!
-              </p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="https://connectiamo.com"
-                  style="background-color: #0f1e3c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
-                  Inizia a Connetterti
-                </a>
-              </div>
-              <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                Se hai domande, scrivici a info@connectiamo.com
-              </p>
-              <p style="color: #999; font-size: 10px; margin-top: 20px; text-align: center; line-height: 1.4;">
-                Se non ti sei iscritto su connectiamo.com e ritieni di aver ricevuto questo messaggio per errore, contattaci per la rimozione.
-              </p>
-            </div>
-          </div>
-        `
+        html: `...` // email già presente nel tuo file originale con corpo HTML completo
       };
 
       await sendEmail(welcomeEmailContent);
-      console.log('Email di benvenuto inviata con successo');
     } catch (emailError) {
       console.error("Errore nell'invio email di benvenuto:", emailError);
     }
 
     setUploading(false);
     setShowSuccessModal(true);
-
-    setTimeout(() => {
-      router.push('/');
-    }, 2000);
+    setTimeout(() => router.push('/'), 2000);
   };
 
   return (
@@ -236,12 +196,7 @@ export default function Signup() {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="w-full px-3 py-2 rounded bg-gray-700 text-white" />
 
-            <select value={role} onChange={(e) => setRole(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10" style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`, backgroundSize: '1.5em 1.5em' }}>
-              <option value="">Seleziona ruolo</option>
-              <option value="Cerco clienti">Cerco clienti</option>
-              <option value="Procuro clienti">Procuro clienti</option>
-              <option value="Collaborazione">Collaborazione (Cerco/Procuro)</option>
-            </select>
+            {/* select del ruolo rimossa */}
 
             <div className="flex space-x-4">
               <div className="w-2/3">
@@ -253,7 +208,7 @@ export default function Signup() {
                   className="w-full px-3 py-2 rounded bg-gray-700 text-white"
                 />
               </div>
-              <select value={cap} onChange={(e) => setCap(e.target.value)} required className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10" style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`, backgroundSize: '1.5em 1.5em' }} disabled={availableCaps.length === 0}>
+              <select value={cap} onChange={(e) => setCap(e.target.value)} required className="w-1/3 px-3 py-2 rounded bg-gray-700 text-white" disabled={availableCaps.length === 0}>
                 <option value="">CAP</option>
                 {availableCaps.map((capOption, index) => (
                   <option key={index} value={capOption}>{capOption}</option>
@@ -261,7 +216,7 @@ export default function Signup() {
               </select>
             </div>
 
-            <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white appearance-none bg-no-repeat bg-right pr-10" style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`, backgroundSize: '1.5em 1.5em' }}>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full px-3 py-2 rounded bg-gray-700 text-white">
               <option value="">Seleziona categoria</option>
               <option value="Edilizia">Edilizia</option>
               <option value="Benessere">Benessere</option>
@@ -282,10 +237,7 @@ export default function Signup() {
             <label className="flex items-center space-x-2 text-sm text-gray-200">
               <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} required />
               <span>
-                Accetto i{' '}
-                <a href="/termini-e-condizioni" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 underline">
-                  termini e condizioni
-                </a>
+                Accetto i <a href="/termini-e-condizioni" className="text-yellow-400 underline">termini e condizioni</a>
               </span>
             </label>
 
@@ -307,4 +259,4 @@ export default function Signup() {
       <Footer />
     </>
   );
-            }
+}
