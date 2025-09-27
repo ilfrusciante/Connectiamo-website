@@ -265,7 +265,7 @@ export default function Dashboard() {
 
           <div>
             <label 
-                className="hidden">Ruolo</label>
+                className="block mb-1 text-sm">Ruolo</label>
             <input
               type="text"
               value="Collaborazione"
