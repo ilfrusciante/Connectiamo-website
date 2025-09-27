@@ -153,12 +153,9 @@ export default function Navbar() {
                   </svg>
                 </span>
               )}
-              <div className="flex flex-col items-start">
-                <span className="text-yellow-300 font-semibold">
-                  {nickname ? `Ciao, ${nickname}!` : 'Utente'}
-                </span>
-                <span className="text-xs text-gray-400 font-medium">Collaborazione</span>
-              </div>
+              <span className="text-yellow-300 font-semibold">
+                {nickname ? `Ciao, ${nickname}!` : 'Utente'}
+              </span>
               <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {dropdownOpenDesktop && (
@@ -216,12 +213,9 @@ export default function Navbar() {
                   </svg>
                 </span>
               )}
-              <div className="flex flex-col items-start">
-                <span className="text-yellow-300 font-semibold">
-                  {nickname || 'Utente'}
-                </span>
-                <span className="text-xs text-gray-400 font-medium">Collaborazione</span>
-              </div>
+              <span className="text-yellow-300 font-semibold">
+                {nickname || 'Utente'}
+              </span>
               <svg className={`ml-1 w-4 h-4 transition-transform ${dropdownOpenMobile ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {dropdownOpenMobile && (
@@ -270,4 +264,5 @@ export default function Navbar() {
       )}
     </nav>
   );
-}
+                }
+                    
