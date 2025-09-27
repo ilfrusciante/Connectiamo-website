@@ -58,7 +58,10 @@ export default function Dashboard() {
           });
           setAvatarUrl(data.avatar_url || null);
           setAvatarPreview(data.avatar_url || null);
-          if (data.city) loadCapsForCity(data.city);
+          
+          if (data.city) {
+            loadCapsForCity(data.city);
+          }
         }
       }
     };
@@ -72,7 +75,7 @@ export default function Dashboard() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-
+    
     if (name === 'city') {
       loadCapsForCity(value);
     }
@@ -90,7 +93,7 @@ export default function Dashboard() {
 
   const loadCapsForCity = async (cityName) => {
     if (!cityName) return;
-
+    
     try {
       let response = await fetch('/comuni.json');
       let data;
@@ -98,12 +101,12 @@ export default function Dashboard() {
         response = await fetch('/gi_comuni.json');
         if (!response.ok) return;
       }
-
+      
       data = await response.json();
-      const cityData = data.find(comune =>
+      const cityData = data.find(comune => 
         comune.nome && comune.nome.trim().toLowerCase() === cityName.trim().toLowerCase()
       );
-
+      
       if (cityData && cityData.cap && Array.isArray(cityData.cap)) {
         const caps = cityData.cap.filter(cap => cap && cap.toString().trim() !== '');
         setAvailableCaps(caps);
@@ -198,15 +201,33 @@ export default function Dashboard() {
         <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-xl space-y-4">
           <div>
             <label className="block mb-1 text-sm">Nome</label>
-            <input type="text" name="nome" value={form.nome} onChange={handleChange} className="w-full bg-white text-black rounded px-4 py-2" />
+            <input
+              type="text"
+              name="nome"
+              value={form.nome}
+              onChange={handleChange}
+              className="w-full bg-white text-black rounded px-4 py-2"
+            />
           </div>
           <div>
             <label className="block mb-1 text-sm">Cognome</label>
-            <input type="text" name="cognome" value={form.cognome} onChange={handleChange} className="w-full bg-white text-black rounded px-4 py-2" />
+            <input
+              type="text"
+              name="cognome"
+              value={form.cognome}
+              onChange={handleChange}
+              className="w-full bg-white text-black rounded px-4 py-2"
+            />
           </div>
           <div>
             <label className="block mb-1 text-sm">Nickname</label>
-            <input type="text" name="nickname" value={form.nickname} onChange={handleChange} className="w-full bg-white text-black rounded px-4 py-2" />
+            <input
+              type="text"
+              name="nickname"
+              value={form.nickname}
+              onChange={handleChange}
+              className="w-full bg-white text-black rounded px-4 py-2"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -234,11 +255,24 @@ export default function Dashboard() {
               >
                 <option value="">CAP</option>
                 {availableCaps.map((capOption, index) => (
-                  <option key={index} value={capOption}>{capOption}</option>
+                  <option key={index} value={capOption}>
+                    {capOption}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
+
+          <div>
+            <label className="block mb-1 text-sm">Ruolo</label>
+            <input
+              type="text"
+              value="Collaborazione"
+              disabled
+              className="w-full bg-gray-500 text-white rounded px-4 py-2 cursor-not-allowed"
+            />
+          </div>
+
           <div>
             <label className="block mb-1 text-sm">Categoria</label>
             <select
@@ -259,7 +293,13 @@ export default function Dashboard() {
           </div>
           <div>
             <label className="block mb-1 text-sm">Descrizione</label>
-            <textarea name="description" value={form.description} onChange={handleChange} className="w-full bg-white text-black rounded px-4 py-2" rows="3" />
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              className="w-full bg-white text-black rounded px-4 py-2"
+              rows="3"
+            />
           </div>
           <div className="flex items-center">
             <input
@@ -271,7 +311,11 @@ export default function Dashboard() {
             />
             <label className="text-sm">Ricevi notifiche email quando ricevi un messaggio</label>
           </div>
-          <button type="submit" className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-yellow-300 transition" disabled={saving}>
+          <button
+            type="submit"
+            className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-yellow-300 transition"
+            disabled={saving}
+          >
             {saving ? 'Salvataggio...' : 'Salva Modifiche'}
           </button>
           {message && <p className="mt-4 text-sm">{message}</p>}
